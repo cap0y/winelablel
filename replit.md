@@ -2,7 +2,15 @@
 
 ## Overview
 
-This is a full-stack wine label design application that allows users to create custom wine labels with interactive design tools and complete their purchase through Stripe payments. The app features a modern React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration.
+This is a full-stack wine label design application that allows users to create custom wine labels with interactive design tools and complete their purchase through Portone (Korean payment service). The app features a modern React frontend with shadcn/ui components, an Express.js backend with PostgreSQL database integration, and authentic wine bottle designs and label patterns.
+
+## Recent Changes
+
+- **Database Integration**: Migrated from in-memory storage to PostgreSQL database with Drizzle ORM
+- **Realistic Wine Assets**: Added authentic SVG wine bottle designs and label patterns
+- **Korean Payment System**: Replaced Stripe with Portone for Korean market compatibility
+- **Enhanced UI**: Improved visual hierarchy with descriptions and better component organization
+- **Text Positioning**: Fixed drag-and-drop functionality for text elements on wine labels
 
 ## User Preferences
 

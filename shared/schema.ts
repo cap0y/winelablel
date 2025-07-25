@@ -19,16 +19,16 @@ export const wineDesigns = pgTable("wine_designs", {
     name: string;
     vintage: string;
     type: string;
-    positions: {
-      name: { x: number; y: number };
-      vintage: { x: number; y: number };
-      type: { x: number; y: number };
-    };
-    fonts: {
-      name: string;
-      vintage: string;
-      type: string;
-    };
+  }>().notNull(),
+  positions: json("positions").$type<{
+    name: { x: number; y: number };
+    vintage: { x: number; y: number };
+    type: { x: number; y: number };
+  }>().notNull(),
+  fonts: json("fonts").$type<{
+    name: string;
+    vintage: string;
+    type: string;
   }>().notNull(),
   createdAt: text("created_at").default(sql`now()`),
 });
