@@ -1,252 +1,289 @@
-// Authentic wine label design patterns
+// Authentic wine label designs inspired by real wine labels
 
 export const VintageLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="vintage-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-        <rect width="20" height="20" fill="#f8f6f0"/>
-        <circle cx="10" cy="10" r="1" fill="#d4af37" opacity="0.3"/>
+      <linearGradient id="vintage-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f8f5f0" />
+        <stop offset="100%" stopColor="#e8e0d5" />
+      </linearGradient>
+      <pattern id="vintage-texture" patternUnits="userSpaceOnUse" width="20" height="20">
+        <rect width="20" height="20" fill="#f5f0e8"/>
+        <circle cx="10" cy="10" r="0.5" fill="#d4c4a8" opacity="0.3"/>
       </pattern>
     </defs>
     
-    {/* Vintage paper background */}
-    <rect width="160" height="200" fill="url(#vintage-pattern)" stroke="#d4af37" strokeWidth="2" rx="8"/>
+    {/* Background */}
+    <rect width="200" height="240" fill="url(#vintage-bg)" rx="8"/>
+    <rect width="200" height="240" fill="url(#vintage-texture)" opacity="0.3" rx="8"/>
     
     {/* Ornate border */}
-    <rect x="10" y="10" width="140" height="180" fill="none" stroke="#8b4513" strokeWidth="1" rx="4"/>
-    <rect x="15" y="15" width="130" height="170" fill="none" stroke="#d4af37" strokeWidth="0.5" rx="2"/>
+    <rect x="8" y="8" width="184" height="224" fill="none" stroke="#8b6914" strokeWidth="2" rx="6"/>
+    <rect x="12" y="12" width="176" height="216" fill="none" stroke="#d4af37" strokeWidth="1" rx="4"/>
     
-    {/* Decorative corners */}
-    <g fill="#8b4513" opacity="0.7">
-      <path d="M20 20 L30 20 L25 30 Z"/>
-      <path d="M140 20 L130 20 L135 30 Z"/>
-      <path d="M20 180 L30 180 L25 170 Z"/>
-      <path d="M140 180 L130 180 L135 170 Z"/>
+    {/* Corner decorations */}
+    <g fill="#8b6914">
+      <path d="M20 20 L35 20 L35 25 L25 25 L25 35 L20 35 Z"/>
+      <path d="M180 20 L165 20 L165 25 L175 25 L175 35 L180 35 Z"/>
+      <path d="M20 220 L35 220 L35 215 L25 215 L25 205 L20 205 Z"/>
+      <path d="M180 220 L165 220 L165 215 L175 215 L175 205 L180 205 Z"/>
     </g>
     
-    {/* Vintage flourishes */}
-    <g stroke="#8b4513" strokeWidth="1" fill="none" opacity="0.6">
-      <path d="M40 40 Q50 35 60 40 Q70 45 80 40"/>
-      <path d="M80 160 Q90 165 100 160 Q110 155 120 160"/>
+    {/* Vintage flourish */}
+    <g transform="translate(100,50)" fill="#8b6914">
+      <path d="M-20 0 Q-10 -10 0 0 Q10 -10 20 0 Q10 10 0 0 Q-10 10 -20 0"/>
     </g>
   </svg>
 );
 
 export const ModernLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="modern-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#ffffff"/>
-        <stop offset="100%" stopColor="#f0f0f0"/>
+      <linearGradient id="modern-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#2d3748" />
+        <stop offset="100%" stopColor="#1a202c" />
+      </linearGradient>
+      <linearGradient id="modern-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#d69e2e" />
+        <stop offset="100%" stopColor="#f6e05e" />
       </linearGradient>
     </defs>
     
-    {/* Clean modern background */}
-    <rect width="160" height="200" fill="url(#modern-gradient)" rx="4"/>
+    {/* Background */}
+    <rect width="200" height="240" fill="url(#modern-bg)" rx="4"/>
     
-    {/* Geometric elements */}
-    <rect x="20" y="30" width="120" height="2" fill="#333333"/>
-    <rect x="20" y="168" width="120" height="2" fill="#333333"/>
+    {/* Geometric accent */}
+    <rect x="0" y="0" width="200" height="20" fill="url(#modern-accent)"/>
+    <rect x="0" y="220" width="200" height="20" fill="url(#modern-accent)"/>
     
-    {/* Modern accent lines */}
-    <g fill="#007acc" opacity="0.8">
-      <rect x="0" y="0" width="4" height="200"/>
-      <rect x="156" y="0" width="4" height="200"/>
+    {/* Modern line elements */}
+    <line x1="40" y1="40" x2="160" y2="40" stroke="#d69e2e" strokeWidth="1"/>
+    <line x1="40" y1="200" x2="160" y2="200" stroke="#d69e2e" strokeWidth="1"/>
+    
+    {/* Minimalist diamond */}
+    <g transform="translate(100,120)" fill="none" stroke="#d69e2e" strokeWidth="1.5">
+      <path d="M0 -15 L15 0 L0 15 L-15 0 Z"/>
     </g>
-    
-    {/* Minimalist design elements */}
-    <circle cx="80" cy="50" r="8" fill="none" stroke="#333333" strokeWidth="1"/>
-    <rect x="70" y="150" width="20" height="1" fill="#333333"/>
   </svg>
 );
 
 export const ElegantLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="elegant-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#1a1a2e"/>
-        <stop offset="50%" stopColor="#16213e"/>
-        <stop offset="100%" stopColor="#1a1a2e"/>
+      <linearGradient id="elegant-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#faf7f2" />
+        <stop offset="100%" stopColor="#f1e9dc" />
       </linearGradient>
-      <pattern id="elegant-texture" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-        <rect width="8" height="8" fill="#1a1a2e"/>
-        <circle cx="4" cy="4" r="0.5" fill="#d4af37" opacity="0.2"/>
-      </pattern>
+      <radialGradient id="elegant-center" cx="50%" cy="50%">
+        <stop offset="0%" stopColor="rgba(139,105,20,0.1)" />
+        <stop offset="100%" stopColor="rgba(139,105,20,0)" />
+      </radialGradient>
     </defs>
     
-    {/* Elegant dark background */}
-    <rect width="160" height="200" fill="url(#elegant-texture)" rx="6"/>
+    {/* Background */}
+    <rect width="200" height="240" fill="url(#elegant-bg)" rx="8"/>
+    <rect width="200" height="240" fill="url(#elegant-center)" rx="8"/>
     
-    {/* Gold border */}
-    <rect x="8" y="8" width="144" height="184" fill="none" stroke="#d4af37" strokeWidth="2" rx="4"/>
-    <rect x="12" y="12" width="136" height="176" fill="none" stroke="#d4af37" strokeWidth="0.5" rx="2"/>
+    {/* Elegant frame */}
+    <rect x="15" y="15" width="170" height="210" fill="none" stroke="#8b6914" strokeWidth="1.5" rx="6"/>
     
-    {/* Elegant flourishes */}
-    <g stroke="#d4af37" strokeWidth="1" fill="#d4af37" opacity="0.8">
-      <path d="M80 25 Q75 20 70 25 Q75 30 80 25 Q85 20 90 25 Q85 30 80 25"/>
-      <path d="M80 175 Q75 170 70 175 Q75 180 80 175 Q85 170 90 175 Q85 180 80 175"/>
+    {/* Ornate decorations */}
+    <g transform="translate(100,40)" fill="#8b6914">
+      <path d="M-30 0 Q-15 -8 0 0 Q15 -8 30 0 Q15 8 0 0 Q-15 8 -30 0"/>
+      <circle cx="0" cy="0" r="3"/>
     </g>
     
-    {/* Decorative side elements */}
-    <g fill="#d4af37" opacity="0.6">
-      <rect x="25" y="60" width="1" height="80"/>
-      <rect x="134" y="60" width="1" height="80"/>
-      <circle cx="25" cy="60" r="2"/>
-      <circle cx="25" cy="140" r="2"/>
-      <circle cx="134" cy="60" r="2"/>
-      <circle cx="134" cy="140" r="2"/>
-    </g>
-  </svg>
-);
-
-export const RusticLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <pattern id="rustic-wood" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-        <rect width="40" height="40" fill="#deb887"/>
-        <path d="M0 10 L40 10" stroke="#cd853f" strokeWidth="1" opacity="0.5"/>
-        <path d="M0 25 L40 25" stroke="#cd853f" strokeWidth="0.5" opacity="0.3"/>
-      </pattern>
-    </defs>
-    
-    {/* Rustic wood background */}
-    <rect width="160" height="200" fill="url(#rustic-wood)" rx="8"/>
-    
-    {/* Weathered border */}
-    <rect x="12" y="12" width="136" height="176" fill="none" stroke="#8b4513" strokeWidth="3" rx="4" opacity="0.8"/>
-    
-    {/* Rustic elements */}
-    <g fill="#8b4513" opacity="0.6">
-      <circle cx="30" cy="30" r="3"/>
-      <circle cx="130" cy="30" r="3"/>
-      <circle cx="30" cy="170" r="3"/>
-      <circle cx="130" cy="170" r="3"/>
+    <g transform="translate(100,200)" fill="#8b6914">
+      <path d="M-25 0 Q-12 -6 0 0 Q12 -6 25 0 Q12 6 0 0 Q-12 6 -25 0"/>
     </g>
     
-    {/* Wood grain lines */}
-    <g stroke="#8b4513" strokeWidth="1" opacity="0.3" fill="none">
-      <path d="M20 50 Q80 45 140 50"/>
-      <path d="M20 100 Q80 95 140 100"/>
-      <path d="M20 150 Q80 145 140 150"/>
+    {/* Side decorations */}
+    <g transform="translate(30,120)" fill="#8b6914">
+      <path d="M0 -20 Q8 -10 0 0 Q8 10 0 20 Q-8 10 0 0 Q-8 -10 0 -20"/>
+    </g>
+    <g transform="translate(170,120)" fill="#8b6914">
+      <path d="M0 -20 Q-8 -10 0 0 Q-8 10 0 20 Q8 10 0 0 Q8 -10 0 -20"/>
     </g>
   </svg>
 );
 
 export const PremiumLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="premium-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#2c3e50"/>
-        <stop offset="50%" stopColor="#34495e"/>
-        <stop offset="100%" stopColor="#2c3e50"/>
+        <stop offset="0%" stopColor="#1a1a2e" />
+        <stop offset="50%" stopColor="#16213e" />
+        <stop offset="100%" stopColor="#0f1419" />
       </linearGradient>
-      <linearGradient id="premium-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#ffd700"/>
-        <stop offset="50%" stopColor="#ffed4e"/>
-        <stop offset="100%" stopColor="#ffd700"/>
+      <linearGradient id="gold-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ffd700" />
+        <stop offset="50%" stopColor="#ffed4e" />
+        <stop offset="100%" stopColor="#d4af37" />
       </linearGradient>
     </defs>
     
-    {/* Premium background */}
-    <rect width="160" height="200" fill="url(#premium-bg)" rx="6"/>
+    {/* Background */}
+    <rect width="200" height="240" fill="url(#premium-bg)" rx="6"/>
     
-    {/* Luxurious gold frame */}
-    <rect x="6" y="6" width="148" height="188" fill="none" stroke="url(#premium-gold)" strokeWidth="2" rx="4"/>
-    <rect x="10" y="10" width="140" height="180" fill="none" stroke="url(#premium-gold)" strokeWidth="0.5" rx="3"/>
+    {/* Gold frame */}
+    <rect x="10" y="10" width="180" height="220" fill="none" stroke="url(#gold-accent)" strokeWidth="2" rx="4"/>
+    <rect x="16" y="16" width="168" height="208" fill="none" stroke="url(#gold-accent)" strokeWidth="1" rx="2"/>
     
-    {/* Premium decorative elements */}
-    <g fill="url(#premium-gold)">
-      <polygon points="80,20 85,30 95,30 87,38 90,48 80,43 70,48 73,38 65,30 75,30"/>
-      <rect x="70" y="170" width="20" height="2" rx="1"/>
-      <circle cx="80" cy="180" r="2"/>
+    {/* Premium crest */}
+    <g transform="translate(100,60)" fill="url(#gold-accent)">
+      <path d="M0 -20 L8 -12 L16 -16 L12 -6 L20 0 L12 6 L16 16 L8 12 L0 20 L-8 12 L-16 16 L-12 6 L-20 0 L-12 -6 L-16 -16 L-8 -12 Z"/>
+      <circle cx="0" cy="0" r="6"/>
     </g>
     
-    {/* Elegant side decorations */}
-    <g stroke="url(#premium-gold)" strokeWidth="1" fill="none" opacity="0.8">
-      <path d="M30 60 Q35 55 40 60 Q35 65 30 60"/>
-      <path d="M120 60 Q125 55 130 60 Q125 65 120 60"/>
-      <path d="M30 140 Q35 135 40 140 Q35 145 30 140"/>
-      <path d="M120 140 Q125 135 130 140 Q125 145 120 140"/>
+    {/* Decorative lines */}
+    <line x1="50" y1="180" x2="150" y2="180" stroke="url(#gold-accent)" strokeWidth="1"/>
+    <line x1="60" y1="190" x2="140" y2="190" stroke="url(#gold-accent)" strokeWidth="0.5"/>
+  </svg>
+);
+
+export const RusticLabel = ({ className = "w-full h-full" }) => (
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="wood-grain" patternUnits="userSpaceOnUse" width="40" height="8">
+        <rect width="40" height="8" fill="#8b7355"/>
+        <path d="M0 2 Q10 1 20 2 Q30 3 40 2" stroke="#6b5b47" strokeWidth="0.5" fill="none"/>
+        <path d="M0 6 Q15 5 30 6 Q35 7 40 6" stroke="#6b5b47" strokeWidth="0.3" fill="none"/>
+      </pattern>
+      <filter id="rustic-shadow">
+        <feDropShadow dx="2" dy="2" stdDeviation="2" floodColor="#4a3c28" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+    
+    {/* Wood background */}
+    <rect width="200" height="240" fill="#a0916f" rx="6"/>
+    <rect width="200" height="240" fill="url(#wood-grain)" opacity="0.8" rx="6"/>
+    
+    {/* Rope border effect */}
+    <rect x="8" y="8" width="184" height="224" fill="none" stroke="#5d4e37" strokeWidth="3" rx="4" strokeDasharray="8,4"/>
+    
+    {/* Rustic badge */}
+    <g transform="translate(100,50)">
+      <circle cx="0" cy="0" r="25" fill="#5d4e37" filter="url(#rustic-shadow)"/>
+      <circle cx="0" cy="0" r="20" fill="#8b7355" stroke="#5d4e37" strokeWidth="2"/>
+      <path d="M-12 -8 L12 -8 L12 8 L-12 8 Z" fill="#5d4e37"/>
     </g>
+    
+    {/* Wood planks effect */}
+    <line x1="0" y1="100" x2="200" y2="100" stroke="#6b5b47" strokeWidth="1" opacity="0.5"/>
+    <line x1="0" y1="140" x2="200" y2="140" stroke="#6b5b47" strokeWidth="1" opacity="0.5"/>
   </svg>
 );
 
 export const ClassicLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="classic-pattern" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-        <rect width="30" height="30" fill="#f5f5dc"/>
-        <path d="M15 0 L15 30 M0 15 L30 15" stroke="#e6e6d4" strokeWidth="0.5" opacity="0.3"/>
+      <linearGradient id="classic-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fffef7" />
+        <stop offset="100%" stopColor="#f5f5dc" />
+      </linearGradient>
+      <pattern id="classic-dots" patternUnits="userSpaceOnUse" width="10" height="10">
+        <rect width="10" height="10" fill="transparent"/>
+        <circle cx="5" cy="5" r="0.5" fill="#d2b48c" opacity="0.3"/>
       </pattern>
     </defs>
     
-    {/* Classic cream background */}
-    <rect width="160" height="200" fill="url(#classic-pattern)" rx="6"/>
+    {/* Background */}
+    <rect width="200" height="240" fill="url(#classic-bg)" rx="6"/>
+    <rect width="200" height="240" fill="url(#classic-dots)" rx="6"/>
     
-    {/* Traditional border */}
-    <rect x="15" y="15" width="130" height="170" fill="none" stroke="#8b4513" strokeWidth="2" rx="3"/>
-    <rect x="20" y="20" width="120" height="160" fill="none" stroke="#8b4513" strokeWidth="1" rx="2"/>
+    {/* Classic border */}
+    <rect x="12" y="12" width="176" height="216" fill="none" stroke="#8b4513" strokeWidth="2" rx="4"/>
+    <rect x="18" y="18" width="164" height="204" fill="none" stroke="#cd853f" strokeWidth="1" rx="2"/>
     
-    {/* Classic ornamental corners */}
-    <g fill="#8b4513" opacity="0.7">
-      <path d="M25 25 Q30 20 35 25 Q30 30 25 25"/>
-      <path d="M125 25 Q130 20 135 25 Q130 30 125 25"/>
-      <path d="M25 175 Q30 170 35 175 Q30 180 25 175"/>
-      <path d="M125 175 Q130 170 135 175 Q130 180 125 175"/>
+    {/* Shield emblem */}
+    <g transform="translate(100,60)" fill="#8b4513">
+      <path d="M0 -20 Q-15 -15 -15 0 Q-15 15 0 20 Q15 15 15 0 Q15 -15 0 -20"/>
+      <path d="M0 -15 Q-10 -12 -10 0 Q-10 10 0 15 Q10 10 10 0 Q10 -12 0 -15" fill="#cd853f"/>
     </g>
     
-    {/* Central medallion */}
-    <circle cx="80" cy="100" r="25" fill="none" stroke="#8b4513" strokeWidth="1"/>
-    <circle cx="80" cy="100" r="20" fill="none" stroke="#8b4513" strokeWidth="0.5"/>
+    {/* Classic flourishes */}
+    <g transform="translate(50,180)" fill="#8b4513">
+      <path d="M0 0 Q10 -5 20 0 Q10 5 0 0"/>
+    </g>
+    <g transform="translate(150,180)" fill="#8b4513">
+      <path d="M0 0 Q-10 -5 -20 0 Q-10 5 0 0"/>
+    </g>
   </svg>
 );
 
 export const MinimalLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
-    {/* Pure minimal design */}
-    <rect width="160" height="200" fill="#ffffff" rx="2"/>
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="minimal-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ffffff" />
+        <stop offset="100%" stopColor="#f8f9fa" />
+      </linearGradient>
+    </defs>
     
-    {/* Subtle border */}
-    <rect x="1" y="1" width="158" height="198" fill="none" stroke="#e0e0e0" strokeWidth="1" rx="2"/>
+    {/* Clean background */}
+    <rect width="200" height="240" fill="url(#minimal-bg)" rx="4"/>
     
-    {/* Minimal accent */}
-    <rect x="20" y="40" width="120" height="1" fill="#333333"/>
-    <rect x="60" y="160" width="40" height="1" fill="#333333"/>
+    {/* Minimal border */}
+    <rect x="20" y="20" width="160" height="200" fill="none" stroke="#6c757d" strokeWidth="1" rx="2"/>
     
-    {/* Simple geometric element */}
-    <circle cx="80" cy="100" r="12" fill="none" stroke="#333333" strokeWidth="1"/>
+    {/* Simple accent lines */}
+    <line x1="60" y1="60" x2="140" y2="60" stroke="#495057" strokeWidth="1"/>
+    <line x1="60" y1="180" x2="140" y2="180" stroke="#495057" strokeWidth="1"/>
+    
+    {/* Minimal dot */}
+    <circle cx="100" cy="120" r="2" fill="#495057"/>
   </svg>
 );
 
 export const OrnateLabel = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 160 200" className={className} xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 200 240" className={className} xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="ornate-pattern" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-        <rect width="16" height="16" fill="#8b0000"/>
-        <circle cx="8" cy="8" r="2" fill="#ffd700" opacity="0.2"/>
-      </pattern>
+      <linearGradient id="ornate-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#800020" />
+        <stop offset="50%" stopColor="#a0002a" />
+        <stop offset="100%" stopColor="#600018" />
+      </linearGradient>
+      <linearGradient id="ornate-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ffd700" />
+        <stop offset="50%" stopColor="#ffed4e" />
+        <stop offset="100%" stopColor="#d4af37" />
+      </linearGradient>
     </defs>
     
-    {/* Rich burgundy background */}
-    <rect width="160" height="200" fill="url(#ornate-pattern)" rx="8"/>
+    {/* Rich background */}
+    <rect width="200" height="240" fill="url(#ornate-bg)" rx="8"/>
     
-    {/* Ornate gold borders */}
-    <rect x="8" y="8" width="144" height="184" fill="none" stroke="#ffd700" strokeWidth="2" rx="6"/>
-    <rect x="12" y="12" width="136" height="176" fill="none" stroke="#ffd700" strokeWidth="1" rx="4"/>
-    <rect x="16" y="16" width="128" height="168" fill="none" stroke="#ffd700" strokeWidth="0.5" rx="3"/>
+    {/* Ornate gold frame */}
+    <rect x="8" y="8" width="184" height="224" fill="none" stroke="url(#ornate-gold)" strokeWidth="3" rx="6"/>
+    <rect x="14" y="14" width="172" height="212" fill="none" stroke="url(#ornate-gold)" strokeWidth="1" rx="4"/>
     
-    {/* Elaborate decorations */}
-    <g fill="#ffd700" opacity="0.9">
-      <path d="M80 20 Q70 15 70 25 Q75 30 80 25 Q85 30 90 25 Q90 15 80 20"/>
-      <path d="M40 50 Q35 45 35 55 Q40 60 45 55 Q50 60 55 55 Q55 45 50 50 Q45 45 40 50"/>
-      <path d="M105 50 Q110 45 115 50 Q120 45 125 50 Q125 55 120 60 Q115 55 110 60 Q105 55 105 50"/>
-      <path d="M80 180 Q70 175 70 185 Q75 190 80 185 Q85 190 90 185 Q90 175 80 180"/>
+    {/* Elaborate corner decorations */}
+    <g fill="url(#ornate-gold)">
+      <g transform="translate(30,30)">
+        <path d="M0 0 Q10 0 10 10 Q0 10 0 0"/>
+        <path d="M-5 5 L15 5 M5 -5 L5 15" stroke="url(#ornate-gold)" strokeWidth="1"/>
+      </g>
+      <g transform="translate(170,30)">
+        <path d="M0 0 Q-10 0 -10 10 Q0 10 0 0"/>
+        <path d="M5 5 L-15 5 M-5 -5 L-5 15" stroke="url(#ornate-gold)" strokeWidth="1"/>
+      </g>
+      <g transform="translate(30,210)">
+        <path d="M0 0 Q10 0 10 -10 Q0 -10 0 0"/>
+        <path d="M-5 -5 L15 -5 M5 5 L5 -15" stroke="url(#ornate-gold)" strokeWidth="1"/>
+      </g>
+      <g transform="translate(170,210)">
+        <path d="M0 0 Q-10 0 -10 -10 Q0 -10 0 0"/>
+        <path d="M5 -5 L-15 -5 M-5 5 L-5 -15" stroke="url(#ornate-gold)" strokeWidth="1"/>
+      </g>
     </g>
     
-    {/* Ornate flourishes */}
-    <g stroke="#ffd700" strokeWidth="1" fill="none" opacity="0.8">
-      <path d="M30 80 Q40 75 50 80 Q60 85 70 80"/>
-      <path d="M90 120 Q100 115 110 120 Q120 125 130 120"/>
+    {/* Central ornate motif */}
+    <g transform="translate(100,120)" fill="url(#ornate-gold)">
+      <path d="M0 -25 Q12 -20 20 -12 Q12 -4 0 0 Q-12 -4 -20 -12 Q-12 -20 0 -25"/>
+      <path d="M0 25 Q12 20 20 12 Q12 4 0 0 Q-12 4 -20 12 Q-12 20 0 25"/>
+      <path d="M-25 0 Q-20 -12 -12 -20 Q-4 -12 0 0 Q-4 12 -12 20 Q-20 12 -25 0"/>
+      <path d="M25 0 Q20 -12 12 -20 Q4 -12 0 0 Q4 12 12 20 Q20 12 25 0"/>
+      <circle cx="0" cy="0" r="8"/>
     </g>
   </svg>
 );
@@ -255,8 +292,8 @@ export const wineLabelDesigns = {
   vintage: VintageLabel,
   modern: ModernLabel,
   elegant: ElegantLabel,
-  rustic: RusticLabel,
   premium: PremiumLabel,
+  rustic: RusticLabel,
   classic: ClassicLabel,
   minimal: MinimalLabel,
   ornate: OrnateLabel,
