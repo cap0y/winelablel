@@ -1,16 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import Stripe from "stripe";
 import { storage } from "./storage";
 import { insertWineDesignSchema, insertOrderSchema } from "@shared/schema";
-
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
-});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Wine design routes
@@ -60,8 +51,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment route
-  app.post("/api/create-payment-intent", async (req, res) => {
+  // Portone payment route
+  app.post("/api/create-payment", async (req, res) => {
     try {
       const { amount, designId, quantity } = req.body;
       
@@ -69,46 +60,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.createOrder({
         designId,
         quantity: quantity || 1,
-        totalAmount: Math.round(amount * 100), // Convert to cents
+        totalAmount: amount, // Keep in KRW
         status: "pending"
       });
 
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "krw",
-        metadata: {
-          orderId: order.id,
-          designId: designId,
-        },
-      });
-
-      // Update order with payment intent ID
-      await storage.updateOrderStatus(order.id, "pending", paymentIntent.id);
-
-      res.json({ 
-        clientSecret: paymentIntent.client_secret,
+      // Return payment information for Portone
+      const paymentData = {
+        merchant_uid: `order_${order.id}`, // 상점에서 관리하는 주문 번호
+        name: "커스텀 와인라벨", // 상품명
+        amount: amount, // 결제금액
+        buyer_name: "고객", // 구매자 이름
+        buyer_tel: "", // 구매자 전화번호
+        buyer_email: "", // 구매자 이메일
+        buyer_addr: "", // 구매자 주소
+        buyer_postcode: "", // 구매자 우편번호
         orderId: order.id
-      });
+      };
+
+      res.json(paymentData);
     } catch (error: any) {
-      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+      res.status(500).json({ message: "Error creating payment: " + error.message });
     }
   });
 
-  // Webhook to handle payment success
-  app.post("/api/stripe-webhook", async (req, res) => {
+  // Webhook to handle payment verification
+  app.post("/api/portone-webhook", async (req, res) => {
     try {
-      const event = req.body;
-
-      if (event.type === 'payment_intent.succeeded') {
-        const paymentIntent = event.data.object;
-        const orderId = paymentIntent.metadata.orderId;
-        
-        if (orderId) {
-          await storage.updateOrderStatus(orderId, "paid", paymentIntent.id);
-        }
+      const { merchant_uid, imp_uid, status } = req.body;
+      
+      // Extract order ID from merchant_uid
+      const orderId = merchant_uid.replace('order_', '');
+      
+      if (status === 'paid') {
+        await storage.updateOrderStatus(orderId, "paid", imp_uid);
+      } else if (status === 'failed') {
+        await storage.updateOrderStatus(orderId, "failed", imp_uid);
       }
 
-      res.json({ received: true });
+      res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

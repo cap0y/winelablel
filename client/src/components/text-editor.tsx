@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { DesignState } from "@/hooks/use-design-state";
+import type { DesignState, TextElement, TextFonts } from "@/hooks/use-design-state";
 
 interface TextEditorProps {
   design: DesignState;
-  onTextUpdate: (field: string, value: string) => void;
-  onFontUpdate: (field: string, font: string) => void;
+  onTextUpdate: (field: keyof TextElement, value: string) => void;
+  onFontUpdate: (field: keyof TextFonts, font: string) => void;
 }
 
 export default function TextEditor({ design, onTextUpdate, onFontUpdate }: TextEditorProps) {

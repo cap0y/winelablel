@@ -37,8 +37,8 @@ export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   designId: varchar("design_id").references(() => wineDesigns.id).notNull(),
   quantity: integer("quantity").notNull().default(1),
-  totalAmount: integer("total_amount").notNull(), // in cents
-  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  totalAmount: integer("total_amount").notNull(), // in KRW
+  portonePaymentId: text("portone_payment_id"),
   status: text("status").notNull().default("pending"), // pending, paid, shipped
   createdAt: text("created_at").default(sql`now()`),
 });

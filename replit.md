@@ -42,7 +42,7 @@ Preferred communication style: Simple, everyday language.
 - **Design Preview**: Real-time preview with draggable text elements
 
 ### Payment System
-- **Stripe Integration**: Secure payment processing with Stripe Elements
+- **Portone Integration**: Korean payment service supporting KakaoPay, cards, and bank transfers
 - **Order Management**: Complete order lifecycle from creation to fulfillment
 - **Pricing**: Fixed pricing model (25,000 KRW per label + 3,000 KRW shipping)
 
@@ -64,8 +64,8 @@ Preferred communication style: Simple, everyday language.
 ### Checkout Flow
 1. User sets quantity and reviews pricing
 2. Design is saved to database, generating unique design ID
-3. User is redirected to Stripe checkout page
-4. Payment processing through Stripe Elements
+3. User is redirected to Portone checkout page
+4. Payment processing through Portone (KakaoPay, cards, bank transfers)
 5. Order status updates based on payment result
 
 ### Data Storage
@@ -76,8 +76,8 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 
 ### Payment Processing
-- **Stripe**: Complete payment infrastructure
-- **Stripe Elements**: Pre-built UI components for secure card input
+- **Portone**: Korean payment gateway supporting multiple payment methods
+- **KakaoPay Integration**: Popular Korean mobile payment solution
 - **Webhook Support**: Payment status updates and order fulfillment
 
 ### Database & Hosting

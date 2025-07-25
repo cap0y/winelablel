@@ -69,7 +69,7 @@ export default function PaymentSection({ design, onQuantityUpdate, onSaveDesign 
 
           {/* Quantity Selection */}
           <div>
-            <Label className="block text-sm text-notion-text-secondary mb-2">수량</Label>
+            <label className="block text-sm text-notion-text-secondary mb-2">수량</label>
             <div className="flex items-center space-x-3">
               <Button
                 variant="outline"

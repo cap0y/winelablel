@@ -1,82 +1,147 @@
-import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
-import { useRoute } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useRoute, useLocation } from 'wouter';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, CreditCard } from "lucide-react";
 import Navigation from "@/components/navigation";
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+declare global {
+  interface Window {
+    IMP: any;
+  }
 }
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const CheckoutForm = ({ designId }: { designId: string }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    // Load Portone script
+    const script = document.createElement('script');
+    script.src = 'https://cdn.iamport.kr/v1/iamport.js';
+    script.async = true;
+    document.head.appendChild(script);
+    
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
+
+  const createPayment = useMutation({
+    mutationFn: async (paymentData: any) => {
+      const response = await apiRequest('/api/create-payment', {
+        method: 'POST',
+        body: paymentData,
+      });
+      return response;
+    },
+  });
+
+  const handleSubmit = async () => {
     setIsProcessing(true);
 
-    if (!stripe || !elements) {
-      setIsProcessing(false);
-      return;
-    }
+    try {
+      // Get design and create payment
+      const LABEL_PRICE = 25000;
+      const SHIPPING_PRICE = 3000;
+      const totalAmount = LABEL_PRICE + SHIPPING_PRICE;
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/?payment=success`,
-      },
-    });
+      const paymentResult = await createPayment.mutateAsync({
+        amount: totalAmount,
+        designId: designId,
+        quantity: 1
+      });
 
-    if (error) {
+      // Initialize Portone payment
+      if (window.IMP) {
+        window.IMP.init('imp_code'); // Replace with your actual Portone IMP code
+        
+        window.IMP.request_pay({
+          pg: 'kakaopay.TC0ONETIME', // 카카오페이
+          pay_method: 'card',
+          merchant_uid: paymentResult.merchant_uid,
+          name: paymentResult.name,
+          amount: paymentResult.amount,
+          buyer_name: paymentResult.buyer_name,
+        }, (response: any) => {
+          if (response.success) {
+            // Payment successful
+            toast({
+              title: "결제 성공",
+              description: "주문해 주셔서 감사합니다!",
+            });
+            setLocation('/?payment=success');
+          } else {
+            // Payment failed
+            toast({
+              title: "결제 실패",
+              description: response.error_msg || "결제 중 오류가 발생했습니다.",
+              variant: "destructive",
+            });
+          }
+          setIsProcessing(false);
+        });
+      } else {
+        throw new Error('Portone이 로드되지 않았습니다.');
+      }
+    } catch (error: any) {
       toast({
-        title: "결제 실패",
-        description: error.message,
+        title: "오류",
+        description: error.message || "결제 준비 중 오류가 발생했습니다.",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "결제 성공",
-        description: "주문해 주셔서 감사합니다!",
-      });
+      setIsProcessing(false);
     }
-    setIsProcessing(false);
   };
 
   return (
     <Card className="notion-card rounded-xl">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-center text-notion-text-primary">
+        <CardTitle className="text-lg font-semibold text-center text-notion-text-primary flex items-center justify-center">
+          <CreditCard className="mr-2 w-5 h-5 text-green-400" />
           결제 정보
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <PaymentElement 
-            options={{
-              layout: "tabs"
-            }}
-          />
+        <div className="space-y-4">
+          {/* Payment Summary */}
+          <div className="notion-card rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-notion-text-secondary">커스텀 와인라벨</span>
+              <span className="font-semibold text-notion-text-primary">₩25,000</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-notion-text-secondary">배송비</span>
+              <span className="font-semibold text-notion-text-primary">₩3,000</span>
+            </div>
+            <hr className="border-notion-border my-2" />
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-notion-text-primary">총 결제금액</span>
+              <span className="font-bold text-lg text-green-400">₩28,000</span>
+            </div>
+          </div>
+
+          {/* Payment Methods Info */}
+          <div className="text-center text-sm text-notion-text-secondary">
+            <p>카카오페이, 신용카드, 계좌이체 등</p>
+            <p>다양한 결제 수단을 지원합니다</p>
+          </div>
+
           <Button 
-            type="submit" 
+            onClick={handleSubmit}
             className="w-full py-4 notion-button rounded-lg font-semibold"
-            disabled={!stripe || !elements || isProcessing}
+            disabled={isProcessing}
           >
             <Lock className="mr-2 w-4 h-4" />
-            {isProcessing ? "결제 처리 중..." : "결제 완료"}
+            {isProcessing ? "결제 처리 중..." : "결제하기"}
           </Button>
-        </form>
+        </div>
       </CardContent>
     </Card>
   );
@@ -84,8 +149,6 @@ const CheckoutForm = ({ designId }: { designId: string }) => {
 
 export default function Checkout() {
   const [match, params] = useRoute('/checkout/:designId');
-  const [clientSecret, setClientSecret] = useState("");
-  const { toast } = useToast();
 
   const designId = params?.designId;
 
@@ -95,31 +158,6 @@ export default function Checkout() {
     enabled: !!designId,
   });
 
-  useEffect(() => {
-    if (!designId || !design) return;
-
-    // Create PaymentIntent as soon as the page loads
-    const amount = 28000; // 25000 + 3000 shipping
-    const quantity = 1;
-
-    apiRequest("POST", "/api/create-payment-intent", { 
-      amount, 
-      designId,
-      quantity 
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setClientSecret(data.clientSecret);
-      })
-      .catch((error) => {
-        toast({
-          title: "오류",
-          description: "결제 준비 중 오류가 발생했습니다.",
-          variant: "destructive",
-        });
-      });
-  }, [designId, design]);
-
   if (!match) {
     return <div>페이지를 찾을 수 없습니다.</div>;
   }
@@ -128,17 +166,6 @@ export default function Checkout() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "var(--notion-bg)" }}>
         <div className="animate-spin w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (!clientSecret) {
-    return (
-      <div className="min-h-screen" style={{ backgroundColor: "var(--notion-bg)" }}>
-        <Navigation />
-        <div className="pt-16 pb-20 px-4 max-w-md mx-auto flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full" />
-        </div>
       </div>
     );
   }
@@ -158,42 +185,7 @@ export default function Checkout() {
           디자인으로 돌아가기
         </Button>
 
-        {/* Order Summary */}
-        <Card className="notion-card rounded-xl">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-notion-text-primary">
-              주문 요약
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-notion-text-secondary">커스텀 와인라벨</span>
-                <span className="text-notion-text-primary">₩25,000</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-notion-text-secondary">배송비</span>
-                <span className="text-notion-text-primary">₩3,000</span>
-              </div>
-              <hr className="border-notion-border" />
-              <div className="flex justify-between font-semibold text-lg">
-                <span className="text-notion-text-primary">총액</span>
-                <span className="text-notion-text-primary">₩28,000</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Payment Form */}
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm designId={designId!} />
-        </Elements>
-
-        {/* Security Info */}
-        <div className="text-center text-xs text-notion-text-muted">
-          <p>🔒 SSL로 보호되는 안전한 결제</p>
-          <p>Powered by Stripe</p>
-        </div>
+        <CheckoutForm designId={designId!} />
       </main>
     </div>
   );

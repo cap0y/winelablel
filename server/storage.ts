@@ -46,7 +46,9 @@ export class MemStorage implements IStorage {
   async createWineDesign(insertDesign: InsertWineDesign): Promise<WineDesign> {
     const id = randomUUID();
     const design: WineDesign = { 
-      ...insertDesign, 
+      ...insertDesign,
+      userId: insertDesign.userId || null,
+      icons: insertDesign.icons ? [...insertDesign.icons] : null,
       id,
       createdAt: new Date().toISOString(),
     };
@@ -70,7 +72,10 @@ export class MemStorage implements IStorage {
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
     const id = randomUUID();
     const order: Order = { 
-      ...insertOrder, 
+      ...insertOrder,
+      status: insertOrder.status || "pending",
+      portonePaymentId: insertOrder.portonePaymentId || null,
+      quantity: insertOrder.quantity || 1,
       id,
       createdAt: new Date().toISOString(),
     };
@@ -89,7 +94,7 @@ export class MemStorage implements IStorage {
     const updatedOrder = { 
       ...order, 
       status,
-      ...(paymentIntentId && { stripePaymentIntentId: paymentIntentId })
+      ...(paymentIntentId && { portonePaymentId: paymentIntentId })
     };
     this.orders.set(id, updatedOrder);
     return updatedOrder;
