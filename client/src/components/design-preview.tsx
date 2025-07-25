@@ -1,53 +1,29 @@
-import { Eye, Crown, Star, Heart, Leaf, Diamond, Moon, Sun, Feather } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import type { DesignState } from "@/hooks/use-design-state";
+import { wineBottleComponents } from "@/assets/wine-bottles";
+import { wineLabelDesigns } from "@/assets/wine-label-designs";
+import { wineIcons } from "@/assets/wine-icons";
 
 interface DesignPreviewProps {
   design: DesignState;
   onTextPositionUpdate: (field: string, position: { x: number; y: number }) => void;
 }
 
-const iconMap = {
-  crown: Crown,
-  star: Star,
-  heart: Heart,
-  leaf: Leaf,
-  diamond: Diamond,
-  moon: Moon,
-  sun: Sun,
-  feather: Feather,
-};
-
 const iconColors = {
+  grapes: "text-purple-500",
+  vine: "text-green-500", 
+  barrel: "text-amber-600",
+  chateau: "text-gray-600",
+  key: "text-yellow-500",
+  chalice: "text-yellow-400",
+  oak: "text-green-600",
   crown: "text-yellow-400",
-  star: "text-yellow-400",
-  heart: "text-red-400",
-  leaf: "text-green-400",
-  diamond: "text-purple-400",
-  moon: "text-blue-400",
-  sun: "text-orange-400",
-  feather: "text-gray-400",
-};
-
-const wineBottleImages = {
-  classic: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop",
-  burgundy: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&h=400&fit=crop",
-  champagne: "https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=300&h=400&fit=crop",
-  bordeaux: "https://images.unsplash.com/photo-1506377872008-6645d6238ad6?w=300&h=400&fit=crop",
-  rhone: "https://images.unsplash.com/photo-1569275808998-5d4b4dc3cf3b?w=300&h=400&fit=crop",
-  sparkling: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop"
-};
-
-const labelImages = {
-  vintage: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=160&h=200&fit=crop",
-  modern: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=160&h=200&fit=crop",
-  elegant: "https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=160&h=200&fit=crop",
-  rustic: "https://images.unsplash.com/photo-1506377872008-6645d6238ad6?w=160&h=200&fit=crop",
-  premium: "https://images.unsplash.com/photo-1569275808998-5d4b4dc3cf3b?w=160&h=200&fit=crop",
-  classic: "https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=160&h=200&fit=crop",
-  minimal: "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=160&h=200&fit=crop",
-  ornate: "https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=160&h=200&fit=crop"
+  anchor: "text-blue-500",
+  wheat: "text-amber-500", 
+  shield: "text-gray-500",
+  fleur: "text-purple-400",
 };
 
 export default function DesignPreview({ design, onTextPositionUpdate }: DesignPreviewProps) {
@@ -59,10 +35,12 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
   }>({ element: null, offset: { x: 0, y: 0 }, isDragging: false });
 
   const handleMouseDown = useCallback((e: React.MouseEvent, field: string) => {
+    e.preventDefault();
     if (!containerRef.current) return;
     
-    const rect = containerRef.current.getBoundingClientRect();
-    const targetRect = (e.target as HTMLElement).getBoundingClientRect();
+    const target = e.currentTarget as HTMLElement;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
     
     dragRef.current = {
       element: field,
@@ -72,27 +50,32 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
       },
       isDragging: true
     };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
 
     e.preventDefault();
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!dragRef.current.isDragging || !dragRef.current.element || !containerRef.current) return;
     
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left - dragRef.current.offset.x;
     const y = e.clientY - rect.top - dragRef.current.offset.y;
     
-    // Constrain within container bounds
-    const constrainedX = Math.max(0, Math.min(x, rect.width - 100));
-    const constrainedY = Math.max(0, Math.min(y, rect.height - 30));
+    // Constrain within label area bounds (roughly 128px wide, 160px tall)
+    const constrainedX = Math.max(0, Math.min(x, 110));
+    const constrainedY = Math.max(0, Math.min(y, 130));
     
     onTextPositionUpdate(dragRef.current.element, { x: constrainedX, y: constrainedY });
   }, [onTextPositionUpdate]);
 
   const handleMouseUp = useCallback(() => {
     dragRef.current = { element: null, offset: { x: 0, y: 0 }, isDragging: false };
-  }, []);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  }, [handleMouseMove]);
 
   return (
     <Card className="notion-card rounded-xl">
@@ -105,29 +88,24 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
       <CardContent>
         <div 
           ref={containerRef}
-          className="canvas-container aspect-[3/4] rounded-lg border-2 border-notion-border design-preview relative overflow-hidden"
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          className="canvas-container aspect-[3/4] rounded-lg border-2 border-notion-border design-preview relative overflow-hidden bg-gradient-to-b from-notion-bg to-notion-bg-secondary"
         >
-          {/* Wine bottle background */}
+          {/* Wine bottle background with proper sizing */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <img
-              src={wineBottleImages[design.bottleType as keyof typeof wineBottleImages]}
-              alt="Wine bottle preview"
-              className="h-full object-contain opacity-30"
-            />
+            {(() => {
+              const BottleComponent = wineBottleComponents[design.bottleType as keyof typeof wineBottleComponents];
+              return <BottleComponent className="h-full max-h-[280px] w-auto opacity-90" />;
+            })()}
           </div>
           
-          {/* Label overlay area */}
+          {/* Label overlay area - positioned to match real wine bottle label area */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-40 bg-white bg-opacity-10 rounded-lg border border-white border-opacity-20 backdrop-blur-sm relative">
-              {/* Label background */}
-              <img
-                src={labelImages[design.labelDesign as keyof typeof labelImages]}
-                alt="Label background"
-                className="w-full h-full object-cover rounded-lg opacity-80"
-              />
+            <div className="w-32 h-40 relative" style={{ marginTop: '10px' }}>
+              {/* Label background with authentic design */}
+              {(() => {
+                const LabelComponent = wineLabelDesigns[design.labelDesign as keyof typeof wineLabelDesigns];
+                return <LabelComponent className="w-full h-full rounded-md" />;
+              })()}
               
               {/* Draggable text elements */}
               <div className="absolute inset-0 p-2">
@@ -177,14 +155,14 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
                 </div>
               </div>
               
-              {/* Selected icons */}
-              <div className="absolute top-1 right-1 flex flex-wrap gap-1">
+              {/* Selected authentic wine icons */}
+              <div className="absolute top-2 right-2 flex flex-wrap gap-1">
                 {design.icons.map((iconId, index) => {
-                  const IconComponent = iconMap[iconId as keyof typeof iconMap];
+                  const IconComponent = wineIcons[iconId as keyof typeof wineIcons];
                   return (
                     <IconComponent
                       key={`${iconId}-${index}`}
-                      className={`w-3 h-3 drop-shadow-lg ${iconColors[iconId as keyof typeof iconColors]}`}
+                      className={`w-4 h-4 drop-shadow-lg ${iconColors[iconId as keyof typeof iconColors]}`}
                     />
                   );
                 })}

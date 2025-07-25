@@ -35,11 +35,14 @@ const CheckoutForm = ({ designId }: { designId: string }) => {
 
   const createPayment = useMutation({
     mutationFn: async (paymentData: any) => {
-      const response = await apiRequest('/api/create-payment', {
+      const response = await fetch('/api/create-payment', {
         method: 'POST',
-        body: paymentData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
       });
-      return response;
+      return response.json();
     },
   });
 

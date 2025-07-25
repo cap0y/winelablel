@@ -1,5 +1,6 @@
 import { Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { wineLabelDesigns } from "@/assets/wine-label-designs";
 
 interface LabelSelectorProps {
   selectedLabel: string;
@@ -10,42 +11,42 @@ const labelDesigns = [
   {
     id: "vintage",
     name: "빈티지",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=160&h=200&fit=crop"
+    description: "클래식한 골드 장식"
   },
   {
     id: "modern",
     name: "모던",
-    image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=160&h=200&fit=crop"
+    description: "깔끔한 미니멀 스타일"
   },
   {
     id: "elegant",
     name: "엘레강트",
-    image: "https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=160&h=200&fit=crop"
+    description: "고급스러운 다크 골드"
   },
   {
     id: "rustic",
     name: "러스틱",
-    image: "https://images.unsplash.com/photo-1506377872008-6645d6238ad6?w=160&h=200&fit=crop"
+    description: "자연스러운 우드 텍스처"
   },
   {
     id: "premium",
     name: "프리미엄",
-    image: "https://images.unsplash.com/photo-1569275808998-5d4b4dc3cf3b?w=160&h=200&fit=crop"
+    description: "럭셔리 다크 골드"
   },
   {
     id: "classic",
     name: "클래식",
-    image: "https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=160&h=200&fit=crop"
+    description: "전통적인 크림 베이지"
   },
   {
     id: "minimal",
     name: "미니멀",
-    image: "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=160&h=200&fit=crop"
+    description: "심플한 화이트"
   },
   {
     id: "ornate",
     name: "화려한",
-    image: "https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=160&h=200&fit=crop"
+    description: "화려한 버건디 골드"
   }
 ];
 
@@ -61,23 +62,32 @@ export default function LabelSelector({ selectedLabel, onLabelSelect }: LabelSel
       <CardContent>
         <div className="scroll-container overflow-x-auto">
           <div className="flex space-x-3 pb-2" style={{ width: "max-content" }}>
-            {labelDesigns.map((label) => (
-              <div
-                key={label.id}
-                className={`w-20 h-24 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-105 flex-shrink-0 ${
-                  selectedLabel === label.id
-                    ? "border-green-400 ring-2 ring-green-400/20"
-                    : "border-notion-border hover:border-green-400/50"
-                }`}
-                onClick={() => onLabelSelect(label.id)}
-              >
-                <img
-                  src={label.image}
-                  alt={label.name}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
-            ))}
+            {labelDesigns.map((label) => {
+              const LabelComponent = wineLabelDesigns[label.id as keyof typeof wineLabelDesigns];
+              return (
+                <div
+                  key={label.id}
+                  className={`w-20 h-24 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-105 flex-shrink-0 ${
+                    selectedLabel === label.id
+                      ? "border-green-400 ring-2 ring-green-400/20"
+                      : "border-notion-border hover:border-green-400/50"
+                  }`}
+                  onClick={() => onLabelSelect(label.id)}
+                >
+                  <div className="w-full h-20 p-1">
+                    <LabelComponent className="w-full h-full rounded-md" />
+                  </div>
+                  <div className="text-center mt-1">
+                    <p className="text-xs font-medium text-notion-text-primary">
+                      {label.name}
+                    </p>
+                    <p className="text-[10px] text-notion-text-secondary opacity-75">
+                      {label.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </CardContent>
