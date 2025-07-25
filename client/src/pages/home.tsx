@@ -23,6 +23,7 @@ export default function Home() {
     removeIcon,
     updateTextElement,
     updateTextPosition,
+    updateIconPosition,
     updateTextFont,
     updateQuantity,
   } = useDesignState();
@@ -33,11 +34,10 @@ export default function Home() {
         bottleType: design.bottleType,
         labelDesign: design.labelDesign,
         icons: design.icons,
-        textElements: {
-          ...design.textElements,
-          positions: design.positions,
-          fonts: design.fonts,
-        },
+        textElements: design.textElements,
+        positions: design.positions,
+        iconPositions: design.iconPositions,
+        fonts: design.fonts,
       };
 
       const response = await apiRequest("POST", "/api/wine-designs", designData);
@@ -68,6 +68,10 @@ export default function Home() {
 
   const handleTextPositionUpdate = (field: string, position: { x: number; y: number }) => {
     updateTextPosition(field as any, position);
+  };
+
+  const handleIconPositionUpdate = (iconKey: string, position: { x: number; y: number }) => {
+    updateIconPosition(iconKey, position);
   };
 
   const handleSaveDesign = async (): Promise<string> => {
@@ -103,6 +107,7 @@ export default function Home() {
         <DesignPreview
           design={design}
           onTextPositionUpdate={handleTextPositionUpdate}
+          onIconPositionUpdate={handleIconPositionUpdate}
         />
 
         <TextEditor

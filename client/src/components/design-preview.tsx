@@ -9,6 +9,7 @@ import { wineIcons } from "@/assets/wine-icons";
 interface DesignPreviewProps {
   design: DesignState;
   onTextPositionUpdate: (field: string, position: { x: number; y: number }) => void;
+  onIconPositionUpdate: (iconKey: string, position: { x: number; y: number }) => void;
 }
 
 const iconColors = {
@@ -26,7 +27,7 @@ const iconColors = {
   fleur: "text-purple-400",
 };
 
-export default function DesignPreview({ design, onTextPositionUpdate }: DesignPreviewProps) {
+export default function DesignPreview({ design, onTextPositionUpdate, onIconPositionUpdate }: DesignPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ 
     element: string | null; 
@@ -64,11 +65,16 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
     const x = e.clientX - rect.left - dragRef.current.offset.x;
     const y = e.clientY - rect.top - dragRef.current.offset.y;
     
-    // Constrain within label area bounds (roughly 128px wide, 160px tall)
-    const constrainedX = Math.max(0, Math.min(x, 110));
-    const constrainedY = Math.max(0, Math.min(y, 130));
+    // Allow free movement within the larger label area (192px wide, 240px tall)
+    const constrainedX = Math.max(-20, Math.min(x, 170));
+    const constrainedY = Math.max(-20, Math.min(y, 220));
     
-    onTextPositionUpdate(dragRef.current.element, { x: constrainedX, y: constrainedY });
+    // Handle both text and icon positioning
+    if (dragRef.current.element.startsWith('icon-')) {
+      onIconPositionUpdate(dragRef.current.element, { x: constrainedX, y: constrainedY });
+    } else {
+      onTextPositionUpdate(dragRef.current.element, { x: constrainedX, y: constrainedY });
+    }
   }, [onTextPositionUpdate]);
 
   const handleMouseUp = useCallback(() => {
@@ -88,30 +94,31 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
       <CardContent>
         <div 
           ref={containerRef}
-          className="canvas-container aspect-[3/4] rounded-lg border-2 border-notion-border design-preview relative overflow-hidden bg-gradient-to-b from-notion-bg to-notion-bg-secondary"
+          className="canvas-container aspect-[2/3] rounded-lg border-2 border-notion-border design-preview relative overflow-hidden bg-gradient-to-b from-notion-bg to-notion-bg-secondary"
+          style={{ minHeight: '480px' }}
         >
-          {/* Wine bottle background with proper sizing */}
+          {/* Wine bottle background - much larger */}
           <div className="absolute inset-0 flex items-center justify-center">
             {(() => {
               const BottleComponent = wineBottleComponents[design.bottleType as keyof typeof wineBottleComponents];
-              return <BottleComponent className="h-full max-h-[280px] w-auto opacity-90" />;
+              return <BottleComponent className="h-full max-h-[460px] w-auto opacity-90" />;
             })()}
           </div>
           
-          {/* Label overlay area - positioned to match real wine bottle label area */}
+          {/* Label overlay area - larger and positioned to match wine bottle */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-40 relative" style={{ marginTop: '10px' }}>
-              {/* Label background with authentic design */}
+            <div className="w-48 h-60 relative" style={{ marginTop: '20px' }}>
+              {/* Label background with authentic design - larger */}
               {(() => {
                 const LabelComponent = wineLabelDesigns[design.labelDesign as keyof typeof wineLabelDesigns];
                 return <LabelComponent className="w-full h-full rounded-md" />;
               })()}
               
-              {/* Draggable text elements */}
-              <div className="absolute inset-0 p-2">
+              {/* Draggable text elements with free positioning */}
+              <div className="absolute inset-0 p-3">
                 {/* Wine name */}
                 <div
-                  className="draggable-text absolute cursor-move"
+                  className="draggable-text absolute cursor-move hover:z-50 hover:scale-105 transition-transform"
                   style={{
                     transform: `translate(${design.positions.name.x}px, ${design.positions.name.y}px)`,
                     fontFamily: design.fonts.name === 'Playfair' ? 'Playfair Display, serif' : 
@@ -119,14 +126,14 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
                   }}
                   onMouseDown={(e) => handleMouseDown(e, 'name')}
                 >
-                  <span className="text-xs font-bold text-white drop-shadow-lg select-none">
+                  <span className="text-sm font-bold text-white drop-shadow-lg select-none cursor-move">
                     {design.textElements.name}
                   </span>
                 </div>
                 
                 {/* Vintage */}
                 <div
-                  className="draggable-text absolute cursor-move"
+                  className="draggable-text absolute cursor-move hover:z-50 hover:scale-105 transition-transform"
                   style={{
                     transform: `translate(${design.positions.vintage.x}px, ${design.positions.vintage.y}px)`,
                     fontFamily: design.fonts.vintage === 'Playfair' ? 'Playfair Display, serif' : 
@@ -134,14 +141,14 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
                   }}
                   onMouseDown={(e) => handleMouseDown(e, 'vintage')}
                 >
-                  <span className="text-xs text-white drop-shadow-lg select-none">
+                  <span className="text-sm text-white drop-shadow-lg select-none cursor-move">
                     {design.textElements.vintage}
                   </span>
                 </div>
                 
                 {/* Wine type */}
                 <div
-                  className="draggable-text absolute cursor-move"
+                  className="draggable-text absolute cursor-move hover:z-50 hover:scale-105 transition-transform"
                   style={{
                     transform: `translate(${design.positions.type.x}px, ${design.positions.type.y}px)`,
                     fontFamily: design.fonts.type === 'Playfair' ? 'Playfair Display, serif' : 
@@ -149,30 +156,39 @@ export default function DesignPreview({ design, onTextPositionUpdate }: DesignPr
                   }}
                   onMouseDown={(e) => handleMouseDown(e, 'type')}
                 >
-                  <span className="text-xs text-white drop-shadow-lg select-none">
+                  <span className="text-sm text-white drop-shadow-lg select-none cursor-move">
                     {design.textElements.type}
                   </span>
                 </div>
               </div>
               
-              {/* Selected authentic wine icons */}
-              <div className="absolute top-2 right-2 flex flex-wrap gap-1">
-                {design.icons.map((iconId, index) => {
-                  const IconComponent = wineIcons[iconId as keyof typeof wineIcons];
-                  return (
+              {/* Selected authentic wine icons - individually positioned and draggable */}
+              {design.icons.map((iconId, index) => {
+                const IconComponent = wineIcons[iconId as keyof typeof wineIcons];
+                const iconKey = `icon-${index}`;
+                const position = design.iconPositions[iconKey] || { x: 120 + (index * 30), y: 20 + (index * 10) };
+                
+                return (
+                  <div
+                    key={iconKey}
+                    className="absolute cursor-move hover:scale-110 hover:z-50 transition-transform"
+                    style={{
+                      transform: `translate(${position.x}px, ${position.y}px)`
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, iconKey)}
+                  >
                     <IconComponent
-                      key={`${iconId}-${index}`}
-                      className={`w-4 h-4 drop-shadow-lg ${iconColors[iconId as keyof typeof iconColors]}`}
+                      className={`w-6 h-6 drop-shadow-lg ${iconColors[iconId as keyof typeof iconColors]} select-none`}
                     />
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
           
           {/* Canvas instructions */}
           <div className="absolute bottom-2 left-2 right-2 text-center">
-            <p className="text-xs text-notion-text-muted">드래그하여 텍스트 위치 조정</p>
+            <p className="text-xs text-notion-text-muted">드래그하여 텍스트와 아이콘 위치 자유 조정</p>
           </div>
         </div>
       </CardContent>

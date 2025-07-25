@@ -12,6 +12,10 @@ export interface TextPositions {
   type: { x: number; y: number };
 }
 
+export interface IconPositions {
+  [key: string]: { x: number; y: number };
+}
+
 export interface TextFonts {
   name: string;
   vintage: string;
@@ -24,6 +28,7 @@ export interface DesignState {
   icons: string[];
   textElements: TextElement;
   positions: TextPositions;
+  iconPositions: IconPositions;
   fonts: TextFonts;
   quantity: number;
 }
@@ -33,17 +38,18 @@ const initialState: DesignState = {
   labelDesign: "vintage",
   icons: [],
   textElements: {
-    name: "끄레망 와인",
+    name: "샤토 끄레망",
     vintage: "2023",
-    type: "레드 와인"
+    type: "까베르네 소비뇽"
   },
   positions: {
-    name: { x: 0, y: 10 },
-    vintage: { x: 0, y: 120 },
-    type: { x: 0, y: 140 }
+    name: { x: 30, y: 40 },
+    vintage: { x: 80, y: 120 },
+    type: { x: 40, y: 160 }
   },
+  iconPositions: {},
   fonts: {
-    name: "Inter",
+    name: "Playfair",
     vintage: "Inter",
     type: "Inter"
   },
@@ -105,6 +111,16 @@ export function useDesignState() {
     }));
   }, []);
 
+  const updateIconPosition = useCallback((iconKey: string, position: { x: number; y: number }) => {
+    setDesign(prev => ({
+      ...prev,
+      iconPositions: {
+        ...prev.iconPositions,
+        [iconKey]: position
+      }
+    }));
+  }, []);
+
   const updateQuantity = useCallback((quantity: number) => {
     setDesign(prev => ({ ...prev, quantity: Math.max(1, quantity) }));
   }, []);
@@ -117,6 +133,7 @@ export function useDesignState() {
     removeIcon,
     updateTextElement,
     updateTextPosition,
+    updateIconPosition,
     updateTextFont,
     updateQuantity,
     setDesign
