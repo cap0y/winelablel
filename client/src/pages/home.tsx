@@ -10,8 +10,6 @@ import LabelSelector from "@/components/label-selector";
 import IconSelector from "@/components/icon-selector";
 import DesignPreview from "@/components/design-preview";
 import TextEditor from "@/components/text-editor";
-import FontSelector from "@/components/font-selector";
-import DecorativeSelector from "@/components/decorative-selector";
 import PaymentSection from "@/components/payment-section";
 import { useDesignState } from "@/hooks/use-design-state";
 
@@ -68,16 +66,6 @@ export default function Home() {
     }
   };
 
-  const handleDecorativeToggle = (elementId: string) => {
-    // For now, we'll use the same icons array to store decorative elements
-    // In a full implementation, you'd want a separate state for decorative elements
-    if (design.icons.includes(elementId)) {
-      removeIcon(elementId);
-    } else {
-      addIcon(elementId);
-    }
-  };
-
   const handleTextPositionUpdate = (field: string, position: { x: number; y: number }) => {
     updateTextPosition(field as any, position);
   };
@@ -126,16 +114,6 @@ export default function Home() {
           design={design}
           onTextUpdate={updateTextElement}
           onFontUpdate={updateTextFont}
-        />
-
-        <FontSelector
-          fonts={design.fonts}
-          onFontUpdate={updateTextFont}
-        />
-
-        <DecorativeSelector
-          selectedElements={design.icons}
-          onElementToggle={handleDecorativeToggle}
         />
 
         <PaymentSection

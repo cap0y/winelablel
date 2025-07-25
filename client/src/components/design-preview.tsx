@@ -122,17 +122,7 @@ export default function DesignPreview({ design, onTextPositionUpdate, onIconPosi
                   style={{
                     transform: `translate(${design.positions.name.x}px, ${design.positions.name.y}px)`,
                     fontFamily: design.fonts.name === 'Playfair' ? 'Playfair Display, serif' : 
-                               design.fonts.name === 'Roboto' ? 'Roboto, sans-serif' :
-                               design.fonts.name === 'Crimson' ? 'Crimson Text, serif' :
-                               design.fonts.name === 'Montserrat' ? 'Montserrat, sans-serif' :
-                               design.fonts.name === 'Merriweather' ? 'Merriweather, serif' :
-                               design.fonts.name === 'Lato' ? 'Lato, sans-serif' :
-                               design.fonts.name === 'Open Sans' ? 'Open Sans, sans-serif' :
-                               design.fonts.name === 'Source Sans Pro' ? 'Source Sans Pro, sans-serif' :
-                               design.fonts.name === 'Nunito' ? 'Nunito, sans-serif' :
-                               design.fonts.name === 'Poppins' ? 'Poppins, sans-serif' :
-                               design.fonts.name === 'Raleway' ? 'Raleway, sans-serif' :
-                               'Inter, sans-serif'
+                               design.fonts.name === 'Roboto' ? 'Roboto, sans-serif' : 'Inter, sans-serif'
                   }}
                   onMouseDown={(e) => handleMouseDown(e, 'name')}
                 >
@@ -147,17 +137,7 @@ export default function DesignPreview({ design, onTextPositionUpdate, onIconPosi
                   style={{
                     transform: `translate(${design.positions.vintage.x}px, ${design.positions.vintage.y}px)`,
                     fontFamily: design.fonts.vintage === 'Playfair' ? 'Playfair Display, serif' : 
-                               design.fonts.vintage === 'Roboto' ? 'Roboto, sans-serif' :
-                               design.fonts.vintage === 'Crimson' ? 'Crimson Text, serif' :
-                               design.fonts.vintage === 'Montserrat' ? 'Montserrat, sans-serif' :
-                               design.fonts.vintage === 'Merriweather' ? 'Merriweather, serif' :
-                               design.fonts.vintage === 'Lato' ? 'Lato, sans-serif' :
-                               design.fonts.vintage === 'Open Sans' ? 'Open Sans, sans-serif' :
-                               design.fonts.vintage === 'Source Sans Pro' ? 'Source Sans Pro, sans-serif' :
-                               design.fonts.vintage === 'Nunito' ? 'Nunito, sans-serif' :
-                               design.fonts.vintage === 'Poppins' ? 'Poppins, sans-serif' :
-                               design.fonts.vintage === 'Raleway' ? 'Raleway, sans-serif' :
-                               'Inter, sans-serif'
+                               design.fonts.vintage === 'Roboto' ? 'Roboto, sans-serif' : 'Inter, sans-serif'
                   }}
                   onMouseDown={(e) => handleMouseDown(e, 'vintage')}
                 >
@@ -172,17 +152,7 @@ export default function DesignPreview({ design, onTextPositionUpdate, onIconPosi
                   style={{
                     transform: `translate(${design.positions.type.x}px, ${design.positions.type.y}px)`,
                     fontFamily: design.fonts.type === 'Playfair' ? 'Playfair Display, serif' : 
-                               design.fonts.type === 'Roboto' ? 'Roboto, sans-serif' :
-                               design.fonts.type === 'Crimson' ? 'Crimson Text, serif' :
-                               design.fonts.type === 'Montserrat' ? 'Montserrat, sans-serif' :
-                               design.fonts.type === 'Merriweather' ? 'Merriweather, serif' :
-                               design.fonts.type === 'Lato' ? 'Lato, sans-serif' :
-                               design.fonts.type === 'Open Sans' ? 'Open Sans, sans-serif' :
-                               design.fonts.type === 'Source Sans Pro' ? 'Source Sans Pro, sans-serif' :
-                               design.fonts.type === 'Nunito' ? 'Nunito, sans-serif' :
-                               design.fonts.type === 'Poppins' ? 'Poppins, sans-serif' :
-                               design.fonts.type === 'Raleway' ? 'Raleway, sans-serif' :
-                               'Inter, sans-serif'
+                               design.fonts.type === 'Roboto' ? 'Roboto, sans-serif' : 'Inter, sans-serif'
                   }}
                   onMouseDown={(e) => handleMouseDown(e, 'type')}
                 >

@@ -1,49 +1,28 @@
-// Realistic wine bottle SVG components with authentic glass effects
+// Realistic wine bottle SVG components
 
 export const ClassicBottle = ({ className = "w-full h-full" }) => (
   <svg viewBox="0 0 120 320" className={className} xmlns="http://www.w3.org/2000/svg">
     {/* Classic Bordeaux bottle shape */}
     <defs>
       <linearGradient id="bottle-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#0a2a0a" />
-        <stop offset="20%" stopColor="#1a4a1a" />
-        <stop offset="50%" stopColor="#2d5a2d" />
-        <stop offset="80%" stopColor="#1a4a1a" />
-        <stop offset="100%" stopColor="#0a2a0a" />
+        <stop offset="0%" stopColor="#1a2f1a" />
+        <stop offset="50%" stopColor="#2d4a2d" />
+        <stop offset="100%" stopColor="#1a2f1a" />
       </linearGradient>
-      <linearGradient id="glass-highlight" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
-        <stop offset="100%" stopColor="rgba(255,255,255,0.1)" />
-      </linearGradient>
-      <radialGradient id="bottle-shine" cx="30%" cy="20%">
-        <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
-        <stop offset="70%" stopColor="rgba(255,255,255,0.1)" />
-        <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-      </radialGradient>
     </defs>
     
-    {/* Main bottle body */}
-    <path d="M22 65 L22 285 Q22 305 35 305 L85 305 Q98 305 98 285 L98 65 Q98 45 93 40 L88 35 L88 18 Q88 8 80 8 L40 8 Q32 8 32 18 L32 35 L27 40 Q22 45 22 65 Z" 
-          fill="url(#bottle-gradient)" stroke="#0f2f0f" strokeWidth="1.5"/>
-    
-    {/* Bottle highlight */}
-    <path d="M25 65 L25 285 Q25 300 35 300 L45 300 Q50 300 50 285 L50 65 Q50 50 45 45 L40 40 L40 25 Q40 20 35 20 Q30 20 30 25 L30 40 L25 45 Q25 50 25 65 Z" 
-          fill="url(#glass-highlight)" opacity="0.6"/>
-          
-    {/* Bottle shine effect */}
-    <ellipse cx="35" cy="150" rx="8" ry="40" fill="url(#bottle-shine)" opacity="0.7"/>
+    {/* Bottle body */}
+    <path d="M20 60 L20 280 Q20 300 40 300 L80 300 Q100 300 100 280 L100 60 Q100 40 95 35 L85 30 L85 15 Q85 5 75 5 L45 5 Q35 5 35 15 L35 30 L25 35 Q20 40 20 60 Z" 
+          fill="url(#bottle-gradient)" stroke="#0f1f0f" strokeWidth="1"/>
     
     {/* Neck */}
-    <rect x="40" y="8" width="40" height="30" fill="url(#bottle-gradient)" stroke="#0f2f0f" strokeWidth="1.5"/>
-    <rect x="42" y="10" width="8" height="26" fill="url(#glass-highlight)" opacity="0.5"/>
+    <rect x="42" y="5" width="36" height="30" fill="url(#bottle-gradient)" stroke="#0f1f0f" strokeWidth="1"/>
     
-    {/* Cork/capsule */}
-    <rect x="38" y="0" width="44" height="12" fill="#2c1810" stroke="#1a0f08" strokeWidth="1" rx="2"/>
-    <rect x="40" y="2" width="40" height="8" fill="#8B4513" stroke="#654321" strokeWidth="0.5" rx="1"/>
+    {/* Cork/top */}
+    <rect x="40" y="0" width="40" height="8" fill="#8B4513" stroke="#654321" strokeWidth="1" rx="2"/>
     
-    {/* Label area with subtle shadow */}
-    <rect x="27" y="85" width="66" height="130" fill="rgba(0,0,0,0.1)" rx="3"/>
-    <rect x="26" y="84" width="68" height="132" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" rx="3"/>
+    {/* Label area highlight */}
+    <rect x="25" y="80" width="70" height="120" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" rx="3"/>
   </svg>
 );
 
