@@ -1,127 +1,122 @@
-# Wine Label Design Application
+# 끄레망 - Self-Storage Management Platform
 
 ## Overview
 
-This is a full-stack wine label design application that allows users to create custom wine labels with interactive design tools and complete their purchase through Portone (Korean payment service). The app features a modern React frontend with shadcn/ui components, an Express.js backend with PostgreSQL database integration, and authentic wine bottle designs and label patterns.
-
-## Recent Changes
-
-- **Database Integration**: Migrated from in-memory storage to PostgreSQL database with Drizzle ORM
-- **Realistic Wine Assets**: Added authentic SVG wine bottle designs and label patterns
-- **Korean Payment System**: Replaced Stripe with Portone for Korean market compatibility
-- **Enhanced UI**: Improved visual hierarchy with descriptions and better component organization
-- **Text Positioning**: Fixed drag-and-drop functionality for text elements on wine labels
+끄레망 is a comprehensive self-storage management platform that enables users to find, reserve, and manage storage units across multiple locations. The application provides a modern, mobile-first interface for browsing storage facilities, viewing available units, and completing reservations with integrated payment processing.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Changes (January 2025)
+
+### PWA (Progressive Web App) Implementation
+- **Service Worker**: Implemented caching strategy for offline functionality
+- **Web App Manifest**: Complete PWA manifest with app icons, shortcuts, and metadata
+- **App Installation**: Added install prompt for native app-like experience
+- **Custom Icons**: Created 끄레망 branded PNG icons in multiple sizes (72x72 to 512x512) using Sharp
+- **High-Quality Icons**: Fixed Jimp "Buffer <null>" error by generating proper PNG icons with actual image data
+- **Server MIME Types**: Configured Express to serve PWA assets with correct Content-Type headers
+- **Push Notifications**: Configured for future notification features
+- **Update Management**: Automatic service worker updates with user notification
+
+### Payment System Integration
+- **PortOne Payment System**: Integrated Korean domestic payment system replacing Stripe
+- **Korean Market Focus**: Optimized for Korean users with KRW currency support
+- **Payment Methods**: Support for cards, bank transfer, KakaoPay, NaverPay
+- **User Auto-Creation**: Fixed foreign key constraint issues with automatic user creation
+
+### UI/UX Improvements
+- **Tabbed Navigation**: Reorganized home page with tabs for usage guide, popular locations, and facility features
+- **Multilingual Support**: Added Korean, English, and Japanese language options for storage details
+- **Image Carousel**: Implemented horizontal sliding gallery with 5 images for storage locations
+- **Mobile Optimization**: Enhanced mobile-first design with 끄레망's turquoise/teal color scheme
+
+### New Features
+- **Franchise Inquiry Tab**: Added comprehensive franchise inquiry system with contact forms
+- **Google Maps Integration**: Prepared for Google Maps API integration with GOOGLE_API_KEY
+- **Storage Tags**: Added hashtag-based tagging system for storage categories
+- **Enhanced Storage Details**: Multilingual titles, descriptions, and comprehensive facility information
 
 ## System Architecture
 
 ### Frontend Architecture
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite for fast development and optimized builds
+- **UI Library**: Radix UI components with shadcn/ui styling system
+- **Styling**: Tailwind CSS with custom CSS variables for theming
 - **Routing**: Wouter for lightweight client-side routing
-- **UI Framework**: shadcn/ui components built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom dark theme (Notion-inspired)
-- **State Management**: TanStack Query for server state, custom hooks for local state
-- **Form Handling**: React Hook Form with Zod validation
+- **State Management**: TanStack Query for server state management
+- **Forms**: React Hook Form with Zod validation
 
 ### Backend Architecture
-- **Framework**: Express.js with TypeScript
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript with ES modules
 - **Database**: PostgreSQL with Drizzle ORM
-- **Database Provider**: Neon Database (serverless PostgreSQL)
-- **Session Management**: PostgreSQL-based sessions with connect-pg-simple
-- **Payment Processing**: Stripe integration for secure payments
-- **Development**: Hot reload with Vite integration
+- **Database Provider**: Neon serverless PostgreSQL
+- **Payment Processing**: Stripe integration for subscriptions and payments
+- **Session Management**: Express sessions with PostgreSQL storage
 
-### Mobile-First Design
-- Responsive design optimized for mobile devices
-- Touch-friendly interface with swipe gestures
-- Mobile-specific breakpoints and layouts
+### Key Components
 
-## Key Components
+#### Database Schema
+The application uses a relational database with four main entities:
+- **Users**: Customer accounts with Stripe integration
+- **Storage Locations**: Physical storage facilities with geolocation
+- **Storage Units**: Individual storage spaces with pricing tiers
+- **Reservations**: Booking records linking users to storage units
 
-### Design System
-- **Wine Bottle Selector**: Choose from 6 different bottle types (classic, burgundy, champagne, bordeaux, rhone, sparkling)
-- **Label Designer**: 8 predefined label designs with preview functionality
-- **Icon System**: 8 decorative icons (crown, star, heart, leaf, diamond, moon, sun, feather) with color-coded themes
-- **Text Editor**: Multi-field text editing with font selection and positioning
-- **Design Preview**: Real-time preview with draggable text elements
+#### API Structure
+RESTful API endpoints organized by resource:
+- `/api/storage-locations` - Location management
+- `/api/storage-locations/:id/units` - Unit availability
+- `/api/reservations` - Booking management
+- Payment processing endpoints integrated with Stripe
 
-### Payment System
-- **Portone Integration**: Korean payment service supporting KakaoPay, cards, and bank transfers
-- **Order Management**: Complete order lifecycle from creation to fulfillment
-- **Pricing**: Fixed pricing model (25,000 KRW per label + 3,000 KRW shipping)
-
-### Data Models
-- **Users**: Authentication and user management
-- **Wine Designs**: Complete design specifications with JSON storage for complex data
-- **Orders**: Order tracking with Stripe payment integration
+#### UI Components
+Modular component architecture:
+- Layout components (Header, Navigation, Footer)
+- Storage-specific components (LocationMap, StorageViewer, SizeSelector)
+- Reusable UI components built on Radix primitives
 
 ## Data Flow
 
-### Design Creation Flow
-1. User selects bottle type from horizontal scrollable gallery
-2. User chooses label design from visual selector
-3. User adds decorative icons from icon palette
-4. User edits text elements (name, vintage, type) with font selection
-5. User adjusts text positions through drag-and-drop interface
-6. Real-time preview updates with each change
-
-### Checkout Flow
-1. User sets quantity and reviews pricing
-2. Design is saved to database, generating unique design ID
-3. User is redirected to Portone checkout page
-4. Payment processing through Portone (KakaoPay, cards, bank transfers)
-5. Order status updates based on payment result
-
-### Data Storage
-- **Design State**: Temporary state managed by custom hook during creation
-- **Persistent Storage**: PostgreSQL tables for users, designs, and orders
-- **Complex Data**: JSON fields for nested design properties (icons, text positions, fonts)
+1. **Location Discovery**: Users browse storage locations with interactive map interface
+2. **Unit Selection**: View available units with 3D visualization and pricing comparison
+3. **Reservation Process**: Complete booking with user registration and payment
+4. **Payment Processing**: Stripe handles subscription-based payments (monthly/quarterly/yearly)
+5. **Confirmation**: Users receive booking confirmation with access details
 
 ## External Dependencies
 
-### Payment Processing
-- **Portone**: Korean payment gateway supporting multiple payment methods
-- **KakaoPay Integration**: Popular Korean mobile payment solution
-- **Webhook Support**: Payment status updates and order fulfillment
+### Core Dependencies
+- **Database**: Neon PostgreSQL serverless database
+- **ORM**: Drizzle with connection pooling
+- **UI Framework**: Radix UI for accessible components
+- **Payment**: Stripe for payment processing and subscription management
+- **Development**: Vite with React plugin and TypeScript support
 
-### Database & Hosting
-- **Neon Database**: Serverless PostgreSQL with connection pooling
-- **Drizzle ORM**: Type-safe database operations with schema migrations
-- **Environment Variables**: Secure configuration for API keys and database URLs
-
-### UI & Styling
-- **Radix UI**: Accessible component primitives
-- **Tailwind CSS**: Utility-first styling with custom theme
-- **Lucide Icons**: Consistent icon library
-- **Custom Fonts**: Typography system with multiple font options
+### Optional Integrations
+- **3D Visualization**: Placeholder for Three.js integration (currently using CSS-based fallback)
+- **Maps**: Basic location mapping (can be enhanced with Google Maps/Mapbox)
+- **Analytics**: Ready for integration with tracking services
 
 ## Deployment Strategy
 
-### Development Environment
-- **Vite Dev Server**: Hot module replacement for frontend
-- **Express Server**: API endpoints with development middleware
-- **Database Migrations**: Drizzle Kit for schema management
-- **Environment Setup**: Local development with environment variables
+### Development Setup
+- Uses Vite dev server with HMR for fast development
+- Express server serves API and handles SSR for production
+- Environment variables for database and Stripe configuration
 
 ### Production Build
-- **Frontend**: Vite build process generates optimized static assets
-- **Backend**: ESBuild bundles server code for Node.js deployment
-- **Static Serving**: Express serves built frontend assets
-- **Database**: Production PostgreSQL connection with SSL
+- Vite builds optimized React bundle
+- ESBuild compiles server code for Node.js deployment
+- Static assets served from `/dist/public`
+- Server bundle output to `/dist/index.js`
 
-### Build Commands
-- `npm run dev`: Development server with hot reload
-- `npm run build`: Production build for both frontend and backend
-- `npm run start`: Production server startup
-- `npm run db:push`: Database schema deployment
+### Key Configuration
+- Database connection via environment variable `DATABASE_URL`
+- Stripe integration requires `STRIPE_SECRET_KEY` and `VITE_STRIPE_PUBLIC_KEY`
+- Build process combines client and server bundles for deployment
 
-### Deployment Considerations
-- Static asset serving through Express
-- Environment variable configuration for production
-- Database connection management
-- Stripe webhook endpoint configuration
-- CORS and security headers for production
+The application is designed for scalability with serverless database, stateless API design, and optimized frontend bundle. The architecture supports multi-tenancy and can be extended with additional features like mobile apps, advanced analytics, and integration with physical access control systems.

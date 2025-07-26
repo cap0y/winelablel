@@ -1,29 +1,65 @@
-import { users, wineDesigns, orders, type User, type InsertUser, type WineDesign, type InsertWineDesign, type Order, type InsertOrder } from "@shared/schema";
+import { 
+  users, 
+  storageLocations, 
+  storageUnits, 
+  reservations,
+  type User, 
+  type InsertUser,
+  type StorageLocation,
+  type InsertStorageLocation,
+  type StorageUnit,
+  type InsertStorageUnit,
+  type Reservation,
+  type InsertReservation
+} from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
-  createWineDesign(design: InsertWineDesign): Promise<WineDesign>;
-  getWineDesign(id: string): Promise<WineDesign | undefined>;
-  updateWineDesign(id: string, design: Partial<WineDesign>): Promise<WineDesign | undefined>;
-  
-  createOrder(order: InsertOrder): Promise<Order>;
-  getOrder(id: string): Promise<Order | undefined>;
-  updateOrderStatus(id: string, status: string, paymentIntentId?: string): Promise<Order | undefined>;
+  updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  updateUserApprovalStatus(userId: number, isApproved: boolean): Promise<User>;
+  updateUserSuperUserStatus(userId: number, isSuperUser: boolean): Promise<User>;
+  updatePartnerId(userId: number, partnerId: string): Promise<User>;
+  getFranchisePendingApprovals(): Promise<User[]>;
+  getApprovedFranchises(): Promise<User[]>;
+
+  // Storage location operations
+  getStorageLocations(): Promise<StorageLocation[]>;
+  getStorageLocation(id: number): Promise<StorageLocation | undefined>;
+  createStorageLocation(location: InsertStorageLocation): Promise<StorageLocation>;
+  getStorageLocationsByOwnerId(ownerId: number): Promise<StorageLocation[]>;
+
+  // Storage unit operations
+  getStorageUnits(locationId: number): Promise<StorageUnit[]>;
+  getStorageUnit(id: number): Promise<StorageUnit | undefined>;
+  getAvailableStorageUnits(locationId: number): Promise<StorageUnit[]>;
+  createStorageUnit(unit: InsertStorageUnit): Promise<StorageUnit>;
+
+  // Reservation operations
+  getReservations(userId: number): Promise<Reservation[]>;
+  createReservation(reservation: InsertReservation): Promise<Reservation>;
+  updateReservationStatus(id: number, status: string): Promise<Reservation>;
+  getReservation(id: number): Promise<Reservation | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
@@ -35,53 +71,131 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createWineDesign(insertDesign: InsertWineDesign): Promise<WineDesign> {
-    const [design] = await db
-      .insert(wineDesigns)
-      .values(insertDesign)
+  async updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ stripeCustomerId, stripeSubscriptionId })
+      .where(eq(users.id, userId))
       .returning();
-    return design;
+    return user;
   }
 
-  async getWineDesign(id: string): Promise<WineDesign | undefined> {
-    const [design] = await db.select().from(wineDesigns).where(eq(wineDesigns.id, id));
-    return design || undefined;
-  }
-
-  async updateWineDesign(id: string, updates: Partial<WineDesign>): Promise<WineDesign | undefined> {
-    const [design] = await db
-      .update(wineDesigns)
-      .set(updates)
-      .where(eq(wineDesigns.id, id))
+  async updateUserApprovalStatus(userId: number, isApproved: boolean): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ isApproved })
+      .where(eq(users.id, userId))
       .returning();
-    return design || undefined;
+    return user;
   }
 
-  async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const [order] = await db
-      .insert(orders)
-      .values(insertOrder)
+  async updateUserSuperUserStatus(userId: number, isSuperUser: boolean): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ isSuperUser })
+      .where(eq(users.id, userId))
       .returning();
-    return order;
+    return user;
   }
 
-  async getOrder(id: string): Promise<Order | undefined> {
-    const [order] = await db.select().from(orders).where(eq(orders.id, id));
-    return order || undefined;
-  }
-
-  async updateOrderStatus(id: string, status: string, paymentIntentId?: string): Promise<Order | undefined> {
-    const updates: Partial<Order> = { status };
-    if (paymentIntentId) {
-      updates.portonePaymentId = paymentIntentId;
-    }
-    
-    const [order] = await db
-      .update(orders)
-      .set(updates)
-      .where(eq(orders.id, id))
+  async updatePartnerId(userId: number, partnerId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ partnerId })
+      .where(eq(users.id, userId))
       .returning();
-    return order || undefined;
+    return user;
+  }
+
+  async getFranchisePendingApprovals(): Promise<User[]> {
+    return await db.select().from(users).where(
+      and(
+        eq(users.userType, 'franchise'),
+        eq(users.isApproved, false)
+      )
+    );
+  }
+
+  async getApprovedFranchises(): Promise<User[]> {
+    return await db.select().from(users).where(
+      and(
+        eq(users.userType, 'franchise'),
+        eq(users.isApproved, true)
+      )
+    );
+  }
+
+  async getStorageLocations(): Promise<StorageLocation[]> {
+    return await db.select().from(storageLocations).where(eq(storageLocations.isActive, true));
+  }
+
+  async getStorageLocation(id: number): Promise<StorageLocation | undefined> {
+    const [location] = await db.select().from(storageLocations).where(eq(storageLocations.id, id));
+    return location || undefined;
+  }
+
+  async createStorageLocation(insertLocation: InsertStorageLocation): Promise<StorageLocation> {
+    const [location] = await db
+      .insert(storageLocations)
+      .values(insertLocation)
+      .returning();
+    return location;
+  }
+
+  async getStorageLocationsByOwnerId(ownerId: number): Promise<StorageLocation[]> {
+    return await db.select().from(storageLocations).where(eq(storageLocations.ownerId, ownerId));
+  }
+
+  async getStorageUnits(locationId: number): Promise<StorageUnit[]> {
+    return await db.select().from(storageUnits).where(eq(storageUnits.locationId, locationId));
+  }
+
+  async getStorageUnit(id: number): Promise<StorageUnit | undefined> {
+    const [unit] = await db.select().from(storageUnits).where(eq(storageUnits.id, id));
+    return unit || undefined;
+  }
+
+  async getAvailableStorageUnits(locationId: number): Promise<StorageUnit[]> {
+    return await db.select().from(storageUnits).where(
+      and(
+        eq(storageUnits.locationId, locationId),
+        eq(storageUnits.isAvailable, true)
+      )
+    );
+  }
+
+  async createStorageUnit(insertUnit: InsertStorageUnit): Promise<StorageUnit> {
+    const [unit] = await db
+      .insert(storageUnits)
+      .values(insertUnit)
+      .returning();
+    return unit;
+  }
+
+  async getReservations(userId: number): Promise<Reservation[]> {
+    return await db.select().from(reservations).where(eq(reservations.userId, userId));
+  }
+
+  async createReservation(insertReservation: InsertReservation): Promise<Reservation> {
+    const [reservation] = await db
+      .insert(reservations)
+      .values(insertReservation)
+      .returning();
+    return reservation;
+  }
+
+  async updateReservationStatus(id: number, status: string): Promise<Reservation> {
+    const [reservation] = await db
+      .update(reservations)
+      .set({ status })
+      .where(eq(reservations.id, id))
+      .returning();
+    return reservation;
+  }
+
+  async getReservation(id: number): Promise<Reservation | undefined> {
+    const [reservation] = await db.select().from(reservations).where(eq(reservations.id, id));
+    return reservation || undefined;
   }
 }
 

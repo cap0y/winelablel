@@ -3,56 +3,55 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
-  
-  /* Notion-style dark theme colors */
-  --notion-bg: hsl(0, 0%, 10.2%);
-  --notion-card: hsl(0, 0%, 17.6%);
-  --notion-border: hsl(0, 0%, 23.9%);
-  --notion-text-primary: hsl(0, 0%, 98%);
-  --notion-text-secondary: hsl(0, 0%, 63.1%);
-  --notion-text-muted: hsl(0, 0%, 44.7%);
-}
-
-.dark {
-  --background: hsl(0, 0%, 10.2%);
+  --background: hsl(240, 10%, 3.9%);
   --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(0, 0%, 14.9%);
-  --muted-foreground: hsl(0, 0%, 63.1%);
-  --popover: hsl(0, 0%, 10.2%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(0, 0%, 17.6%);
+  --card: hsl(240, 10%, 3.9%);
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(0, 0%, 23.9%);
-  --input: hsl(0, 0%, 23.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(0, 0%, 14.9%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(174, 100%, 37%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(0, 0%, 14.9%);
+  --accent: hsl(240, 3.7%, 15.9%);
   --accent-foreground: hsl(0, 0%, 98%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(0, 0%, 83.9%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+  
+  /* BOXFUL specific colors */
+  --primary-teal: hsl(174, 100%, 37%);
+  --primary-dark: hsl(174, 100%, 25%);
+  --bg-dark: hsl(0, 0%, 10%);
+  --surface-dark: hsl(0, 0%, 18%);
+  --surface-light: hsl(0, 0%, 24%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(174, 100%, 37%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
   --radius: 0.5rem;
 }
 
@@ -62,82 +61,83 @@
   }
 
   body {
-    @apply font-sans antialiased;
-    background-color: var(--notion-bg);
-    color: var(--notion-text-primary);
+    @apply font-sans antialiased bg-background text-foreground;
+    background-color: var(--bg-dark);
+    color: hsl(0, 0%, 98%);
   }
 }
 
-@layer components {
-  .glass-nav {
-    backdrop-filter: blur(10px);
-    background: rgba(26, 26, 26, 0.8);
-    border-bottom: 1px solid rgba(61, 61, 61, 0.3);
+@layer utilities {
+  .bg-primary-teal {
+    background-color: var(--primary-teal);
   }
   
-  .scroll-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+  .bg-primary-dark {
+    background-color: var(--primary-dark);
   }
   
-  .scroll-container::-webkit-scrollbar {
-    display: none;
+  .bg-surface-dark {
+    background-color: var(--surface-dark);
   }
   
-  .draggable-text {
-    cursor: move;
-    user-select: none;
-    transition: all 0.2s ease;
+  .bg-surface-light {
+    background-color: var(--surface-light);
   }
   
-  .draggable-text:hover {
-    outline: 2px solid hsl(248, 90%, 66%);
-    outline-offset: 2px;
+  .text-primary-teal {
+    color: var(--primary-teal);
   }
   
-  .canvas-container {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .design-preview {
-    background: linear-gradient(135deg, var(--notion-card) 0%, var(--notion-bg) 100%);
+  .border-primary-teal {
+    border-color: var(--primary-teal);
   }
 
-  .notion-card {
-    background-color: var(--notion-card);
-    border: 1px solid var(--notion-border);
-    color: var(--notion-text-primary);
+  .rotate-3d {
+    transform: rotateX(-10deg) rotateY(15deg);
   }
+}
 
-  .notion-input {
-    background-color: var(--notion-bg);
-    border: 1px solid var(--notion-border);
-    color: var(--notion-text-primary);
-  }
+/* === Google Translate 커스텀: 상단 배너 숨기기 === */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  z-index: -1 !important;
+}
+body {
+  top: 0 !important;
+}
+#google_translate_element {
+  display: none !important;
+}
+/* ============================================= */
 
-  .notion-input::placeholder {
-    color: var(--notion-text-muted);
-  }
+/* 네온 효과 클래스 추가 */
+.text-shadow-neon {
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.7), 0 0 10px rgba(0, 255, 255, 0.5);
+}
 
-  .notion-input:focus {
-    border-color: hsl(248, 90%, 66%);
-    outline: none;
-  }
+.glow-text-pink {
+  text-shadow: 0 0 5px rgba(255, 0, 255, 0.7), 0 0 10px rgba(255, 0, 255, 0.5);
+}
 
-  .notion-button {
-    background: linear-gradient(135deg, hsl(248, 90%, 66%) 0%, hsl(271, 91%, 65%) 100%);
-    border: none;
-    color: white;
-    transition: all 0.2s ease;
-  }
+.glow-effect-blue {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  position: relative;
+}
 
-  .notion-button:hover {
-    background: linear-gradient(135deg, hsl(248, 90%, 62%) 0%, hsl(271, 91%, 61%) 100%);
-    transform: scale(1.02);
-  }
-
-  .notion-button:active {
-    transform: scale(0.98);
-  }
+.glow-effect-blue::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.5);
+  opacity: 0.6;
+  pointer-events: none;
 }
