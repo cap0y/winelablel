@@ -18,9 +18,21 @@ export default function PWAInstaller() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
+      // PWA 설치 조건을 충족하는 경우에만 처리
+      console.log('PWA 설치 조건 충족: beforeinstallprompt 이벤트 발생');
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowInstallPrompt(true);
+      
+      // 사용자가 이미 앱을 설치했는지 확인
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        console.log('앱이 이미 설치되어 있습니다');
+        return;
+      }
+      
+      // 일정 시간 후에 설치 프롬프트 표시 (즉시 표시하지 않음)
+      setTimeout(() => {
+        setShowInstallPrompt(true);
+      }, 3000); // 3초 후 표시
     };
 
     const handleAppInstalled = () => {
@@ -29,6 +41,7 @@ export default function PWAInstaller() {
       console.log('PWA가 설치되었습니다');
     };
 
+    // 이벤트 리스너 등록
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
@@ -46,31 +59,67 @@ export default function PWAInstaller() {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('사용자가 PWA 설치를 수락했습니다');
-    } else {
-      console.log('사용자가 PWA 설치를 거부했습니다');
+    if (!deferredPrompt) {
+      console.log('설치 프롬프트가 준비되지 않았습니다');
+      return;
     }
-    
-    setDeferredPrompt(null);
+
+    try {
+      // 사용자에게 설치 프롬프트 표시
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        console.log('사용자가 PWA 설치를 수락했습니다');
+      } else {
+        console.log('사용자가 PWA 설치를 거부했습니다');
+      }
+    } catch (error) {
+      console.error('PWA 설치 중 오류 발생:', error);
+    } finally {
+      setDeferredPrompt(null);
+      setShowInstallPrompt(false);
+    }
+  };
+
+  const handleDismissInstall = () => {
     setShowInstallPrompt(false);
+    // 24시간 동안 다시 표시하지 않음
+    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
   };
 
   const handleUpdateClick = () => {
     window.location.reload();
   };
 
-  if (!showInstallPrompt && !showUpdateAvailable) return null;
+  // 이미 설치된 상태이거나 24시간 내에 거부한 경우 표시하지 않음
+  const shouldShowInstallPrompt = () => {
+    if (!showInstallPrompt || !deferredPrompt) return false;
+    
+    // 이미 설치된 상태인지 확인
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      return false;
+    }
+    
+    // 24시간 내에 거부했는지 확인
+    const dismissedTime = localStorage.getItem('pwa-install-dismissed');
+    if (dismissedTime) {
+      const timeDiff = Date.now() - parseInt(dismissedTime);
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      if (timeDiff < twentyFourHours) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  if (!shouldShowInstallPrompt() && !showUpdateAvailable) return null;
 
   return (
     <>
       {/* PWA 설치 프롬프트 */}
-      {showInstallPrompt && (
+      {shouldShowInstallPrompt() && (
         <div className="fixed bottom-4 left-4 right-4 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
@@ -93,7 +142,7 @@ export default function PWAInstaller() {
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setShowInstallPrompt(false)}
+                onClick={handleDismissInstall}
               >
                 <X className="w-4 h-4" />
               </Button>

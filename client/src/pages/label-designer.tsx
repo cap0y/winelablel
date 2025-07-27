@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Wine, Type, ImageIcon, Grid, ShoppingCart, Save, Undo, Redo, Download, Palette } from "lucide-react";
+import { Wine, Type, ImageIcon, Grid, ShoppingCart, Save, Undo, Redo, Download, Palette, ArrowLeft } from "lucide-react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
@@ -262,7 +262,7 @@ function DraggableElement({
   );
 }
 
-// 미리보기 컴포넌트
+// 미리보기 컴포넌트 (새로운 세로 레이아웃용)
 function LabelPreview({ 
   labelDesign, 
   wineBottle, 
@@ -284,11 +284,6 @@ function LabelPreview({
   labelDecorations?: any[],
   labelBorders?: any[]
 }) {
-  // wineBottle이 없으면 로딩 표시
-  if (!wineBottle) {
-    return <div className="flex justify-center items-center h-[80vh]">와인병 로딩 중...</div>;
-  }
-  
   const { 
     template, 
     text, 
@@ -301,17 +296,59 @@ function LabelPreview({
     subtextSize = 1   // 기본값 설정
   } = labelDesign;
 
-  // 와인병 라벨 크기 설정
-  const labelWidth = wineBottle.labelSize?.width || 18; // 기본값 18rem
-  const labelHeight = wineBottle.labelSize?.height || 34; // 기본값 34rem
-  const labelTop = wineBottle.labelSize?.position?.top || 65; // 기본값 65%
-  const labelLeft = wineBottle.labelSize?.position?.left || 75; // 기본값 75%
+  // 와인병 라벨 크기 설정 (기본값으로 fallback)
+  const labelWidth = wineBottle?.labelSize?.width || 18; // 기본값 18rem
+  const labelHeight = wineBottle?.labelSize?.height || 34; // 기본값 34rem
 
   const templateImage = labelBackgrounds.find((t: { id: string }) => t.id === template)?.image || '';
   const selectedFont = fonts.find(f => f.id === font)?.family || "'Noto Sans KR', sans-serif";
   
-  // 선택된 테두리 이미지 찾기
-  const borderImage = labelBorders.find((b: { id: string }) => b.id === borderStyle)?.image || '';
+  // 선택된 테두리 정보 찾기
+  const selectedBorder = labelBorders.find((b: { id: string }) => b.id === borderStyle);
+  const borderType = selectedBorder?.type || 'basic';
+  const borderImage = selectedBorder?.image || '';
+  const isImageBorder = borderType === 'image';
+  
+  // 기본 테두리 스타일 결정
+  const getBasicBorderClass = () => {
+    if (borderStyle === 'all') return 'border-2 border-solid border-primary';
+    if (borderStyle === 'horizontal') return 'border-t-2 border-b-2 border-solid border-primary';
+    if (borderStyle === 'vertical') return 'border-l-2 border-r-2 border-solid border-primary';
+    return 'border-2 border-dashed border-gray-400'; // none이거나 기본값
+  };
+  
+  // 테두리 이미지 위치에 따른 스타일 결정
+  const getBorderImageStyle = () => {
+    if (!isImageBorder || !borderImage) return {};
+    
+    const { borderPosition } = labelDesign;
+    
+    if (borderPosition === 'horizontal') {
+      // 상하에만 표시
+      return {
+        background: `
+          url(${borderImage}) top center / 100% 20px no-repeat,
+          url(${borderImage}) bottom center / 100% 20px no-repeat
+        `,
+      };
+    } else if (borderPosition === 'vertical') {
+      // 좌우에만 표시
+      return {
+        background: `
+          url(${borderImage}) left center / 20px 100% no-repeat,
+          url(${borderImage}) right center / 20px 100% no-repeat
+        `,
+      };
+    } else {
+      // 상하좌우 전체
+      return {
+        backgroundImage: `url(${borderImage})`,
+        backgroundSize: '100% 100%',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      };
+    }
+  };
 
   // 위치 상태
   const [textPosition, setTextPosition] = useState({ x: 50, y: 40 });
@@ -326,70 +363,6 @@ function LabelPreview({
   
   const [history, setHistory] = useState<any[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  
-  // decorationToAdd가 변경되면 장식 추가
-  useEffect(() => {
-    if (decorationToAdd && decorationToAdd !== "deco4") {
-      addDecoration(decorationToAdd);
-    }
-  }, [decorationToAdd]);
-  
-  // 위치 변경 핸들러 - 히스토리 추가
-  const handleDecorationChange = (id: string, newPosition: {x: number, y: number}) => {
-    setDecorations(prev => {
-      const updated = prev.map(item => 
-        item.id === id ? { ...item, position: newPosition } : item
-      );
-      // 위치 정보 업데이트를 부모에게 알림
-      if (onUpdatePositions) {
-        onUpdatePositions({
-          decorations: updated,
-          textPosition,
-          subtextPosition
-        });
-      }
-      return updated;
-    });
-    
-    const newHistory = [...history.slice(0, historyIndex + 1), { 
-      type: 'decoration', 
-      action: 'move',
-      id, 
-      position: newPosition 
-    }];
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  };
-  
-  const handleTextChange = (newPosition: {x: number, y: number}) => {
-    setTextPosition(newPosition);
-    // 위치 정보 업데이트를 부모에게 알림
-    if (onUpdatePositions) {
-      onUpdatePositions({
-        decorations,
-        textPosition: newPosition,
-        subtextPosition
-      });
-    }
-    const newHistory = [...history.slice(0, historyIndex + 1), { type: 'mainText', position: newPosition }];
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  };
-  
-  const handleSubtextChange = (newPosition: {x: number, y: number}) => {
-    setSubtextPosition(newPosition);
-    // 위치 정보 업데이트를 부모에게 알림
-    if (onUpdatePositions) {
-      onUpdatePositions({
-        decorations,
-        textPosition,
-        subtextPosition: newPosition
-      });
-    }
-    const newHistory = [...history.slice(0, historyIndex + 1), { type: 'subText', position: newPosition }];
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  };
   
   // 장식 추가
   const addDecoration = useCallback((decorationId: string) => {
@@ -415,6 +388,46 @@ function LabelPreview({
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   }, [history, historyIndex]);
+
+  // decorationToAdd가 변경되면 장식 추가
+  useEffect(() => {
+    if (decorationToAdd && decorationToAdd !== "deco4") {
+      addDecoration(decorationToAdd);
+    }
+  }, [decorationToAdd, addDecoration]);
+  
+  // 위치 변경 핸들러 - 히스토리 추가
+  const handleDecorationChange = (id: string, newPosition: {x: number, y: number}) => {
+    setDecorations(prev => {
+      const updated = prev.map(item => 
+        item.id === id ? { ...item, position: newPosition } : item
+      );
+      return updated;
+    });
+    
+    const newHistory = [...history.slice(0, historyIndex + 1), { 
+      type: 'decoration', 
+      action: 'move',
+      id, 
+      position: newPosition 
+    }];
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
+  
+  const handleTextChange = (newPosition: {x: number, y: number}) => {
+    setTextPosition(newPosition);
+    const newHistory = [...history.slice(0, historyIndex + 1), { type: 'mainText', position: newPosition }];
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
+  
+  const handleSubtextChange = (newPosition: {x: number, y: number}) => {
+    setSubtextPosition(newPosition);
+    const newHistory = [...history.slice(0, historyIndex + 1), { type: 'subText', position: newPosition }];
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
   
   // 장식 삭제
   const removeDecoration = (id: string) => {
@@ -515,158 +528,178 @@ function LabelPreview({
     }
   };
 
-  // 외부에서 접근하기 위한 getter 함수와 컴포넌트 노출 코드 제거 (불필요)
-  
-  // 컴포넌트 마운트 시 초기 위치 정보 전달
+  // 위치 정보가 변경될 때마다 부모에게 알림
   useEffect(() => {
-    if (onUpdatePositions) {
-      onUpdatePositions({
-        decorations,
-        textPosition,
-        subtextPosition
-      });
+    if (onUpdatePositions && typeof onUpdatePositions === 'function') {
+      // 렌더링 완료 후 다음 틱에서 실행하여 렌더링 중 상태 업데이트 방지
+      const timeoutId = setTimeout(() => {
+        onUpdatePositions({
+          decorations: decorations || [],
+          textPosition,
+          subtextPosition
+        });
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, []);
+  }, [decorations, textPosition, subtextPosition, onUpdatePositions]);
 
   return (
-      <div className="flex flex-col items-center bg-transparent p-0 rounded-lg w-full h-full">
-        {/* 와인병을 전체 화면 배경으로 */}
-        <div className="fixed top-0 bottom-0 left-0 right-0 w-full h-screen z-20 flex justify-start items-center pl-72">
-              <img 
-                src={wineBottle.image}
-                alt={wineBottle.name}
-                className="h-[95vh] object-cover opacity-100 scale-[1.8]"
-              />
-          {/* 테두리와 라벨 오버레이 (와인병 라벨 부분에 정확히 위치) */}
-          <div 
-            className="absolute z-50"
-            style={{ 
-              top: `${labelTop}%`,
-              left: `${labelLeft}%`,
-              width: `${labelWidth + 2}rem`, // 테두리를 위해 약간 더 큰 크기
-              height: `${labelHeight + 2}rem`, // 테두리를 위해 약간 더 큰 크기
-              transform: 'translate(-50%, -50%)'
-            }}
-          >
-            {/* 테두리 이미지 - 라벨을 감싸는 위치에 배치 */}
-            {borderStyle !== "border4" && borderImage && (
-              <div 
-                className="absolute inset-0 z-5" 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  backgroundImage: `url(${borderImage})`,
-                  backgroundSize: '100% 100%',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              />
-            )}
-            
-            {/* 라벨 내용 - 중앙에 정확히 위치 */}
-            <div 
-              className="absolute overflow-visible border border-dashed border-gray-400 z-10"
+    <div className="flex flex-col items-center w-full">
+      {/* 와인병이 없을 때 로딩 표시 */}
+      {!wineBottle && (
+        <div className="flex justify-center items-center h-[40vh]">
+          <div className="text-gray-400">와인병 로딩 중...</div>
+        </div>
+      )}
+      
+      {/* 와인병이 있을 때 미리보기 표시 */}
+      {wineBottle && (
+        <>
+          {/* 와인병 배경과 라벨 오버레이 */}
+          <div className={`relative ${isMobile ? 'mb-12' : 'mb-32'} flex justify-center`}>
+            {/* 와인병 배경 이미지 */}
+            <img 
+              src={wineBottle.image}
+              alt={wineBottle.name}
+              className="h-[750px] sm:h-[750px] md:h-[750px] lg:h-[750px] object-contain"
               style={{ 
-                backgroundColor: borderStyle === "border2" ? "#FFF8E1" : borderStyle === "border3" ? "#F5F5F5" : "#F9F1F2",
-                width: `${labelWidth}rem`,
-                height: `${labelHeight}rem`,
-                left: '50%',
-                top: '50%',
+                transform: isMobile 
+                  ? 'scale(1.1, 1.2)' 
+                  : 'scale(1.6, 1.4)'
+              }}
+            />
+            
+            {/* 와인병 정보 표시 */}
+            <div className="absolute top-0 right-0 bg-black/70 text-white p-3 rounded-lg text-sm z-30">
+              <div className="font-medium mb-1">{wineBottle.name}</div>
+              <div className="text-xs text-gray-300">{wineBottle.dimensions}</div>
+              <div className="text-xs text-gray-300">{wineBottle.capacity}</div>
+            </div>
+
+            {/* 라벨 오버레이 - 와인병 라벨 위치에 정확히 배치 */}
+            <div 
+              className="absolute z-20"
+              style={{ 
+                top: `${wineBottle.labelSize?.position?.top || 65}%`,
+                left: '50%', // 와인병 중앙에 정확히 위치
                 transform: 'translate(-50%, -50%)'
               }}
             >
-              {/* 배경 이미지 */}
-              {templateImage && (
-                <img 
-                  src={templateImage} 
-                  alt="라벨 배경" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-100" 
-                />
-              )}
+              <div className="text-center mb-2">
+                <p className={`text-xs text-gray-300 bg-black/50 ${isMobile ? 'px-1 py-0.5' : 'px-2 py-1'} rounded`}>
+                  라벨 크기: {labelWidth}cm × {labelHeight}cm
+                </p>
+              </div>
               
-              {/* 기존 내부 테두리 - 테두리 스타일이 border4(없음)가 아닐 때만 표시 */}
-              {borderStyle === "border1" && (
-                <div className="absolute inset-0 border-4 border-opacity-70"
-                    style={{ 
-                      borderColor: "#722F37",
-                      borderStyle: "solid"
-                    }} 
-                />
-              )}
-              
-              {/* 여러 장식 (드래그 가능) */}
-              {decorations.map((decoration) => (
-                <DraggableElement 
-                  key={decoration.id}
-                  position={decoration.position}
-                  onPositionChange={(newPos) => handleDecorationChange(decoration.id, newPos)}
-                  type="decoration"
+              <div 
+                className={`relative ${
+                  isImageBorder 
+                    ? '' 
+                    : borderStyle === 'none' 
+                      ? 'border-2 border-dashed border-gray-400' 
+                      : getBasicBorderClass()
+                }`}
+                style={{ 
+                  width: isMobile 
+                    ? `${labelWidth * 0.8}rem` // 모바일에서도 더 크게
+                    : `${labelWidth * 1.3}rem`, // 데스크톱에서 더 크게
+                  height: isMobile 
+                    ? `${labelHeight * 0.8}rem` // 모바일에서도 더 크게
+                    : `${labelHeight * 1.3}rem`, // 데스크톱에서 더 크게
+                  backgroundColor: "#F9F1F2",
+                }}
+              >
+                {/* 배경 이미지 */}
+                {templateImage && (
+                  <img 
+                    src={templateImage} 
+                    alt="라벨 배경" 
+                    className="absolute inset-0 w-full h-full object-cover opacity-100" 
+                  />
+                )}
+                
+                {/* 업로드된 테두리 이미지 */}
+                {isImageBorder && borderImage && (
+                  <div 
+                    className="absolute inset-0 pointer-events-none" 
+                    style={getBorderImageStyle()}
+                  />
+                )}
+                
+                {/* 여러 장식 (드래그 가능) */}
+                {decorations && decorations.length > 0 && decorations.map((decoration) => (
+                  <DraggableElement 
+                    key={decoration.id}
+                    position={decoration.position}
+                    onPositionChange={(newPos) => handleDecorationChange(decoration.id, newPos)}
+                    type="decoration"
+                  >
+                    <div className="relative">
+                      <button 
+                        className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 z-10 decoration-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation(); // 드래그 이벤트 중단
+                          removeDecoration(decoration.id);
+                        }}
+                      >
+                        ×
+                      </button>
+                      <img 
+                        src={labelDecorations.find((d: { id: string }) => d.id === decoration.decorationId)?.image ?? ''} 
+                        alt="장식" 
+                        className={`${isMobile ? 'w-16 h-16' : 'w-20 h-20'} object-contain`}
+                      />
+                    </div>
+                  </DraggableElement>
+                ))}
+                
+                {/* 텍스트 콘텐츠 (드래그 가능) */}
+                <DraggableElement
+                  position={textPosition}
+                  onPositionChange={handleTextChange}
+                  type="mainText"
                 >
-                  <div className="relative">
-                    <button 
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 z-10 decoration-delete-btn"
-                      onClick={(e) => {
-                        e.stopPropagation(); // 드래그 이벤트 중단
-                        removeDecoration(decoration.id);
-                      }}
-                    >
-                      ×
-                    </button>
-                    <img 
-                      src={labelDecorations.find((d: { id: string }) => d.id === decoration.decorationId)?.image ?? ''} 
-                      alt="장식" 
-                      className="w-16 h-16 object-contain"
-                    />
+                  <div
+                    className="text-center whitespace-normal break-words w-full p-0 m-0"
+                    style={{ 
+                      fontFamily: selectedFont,
+                      color: textColor,
+                      fontWeight: "bold",
+                      fontSize: isMobile 
+                        ? `${textSize * 0.8}rem` // 모바일에서도 더 크게
+                        : `${textSize * 1.3}rem` // 데스크톱에서 더 크게
+                    }}
+                  >
+                    {text || "와인 이름"}
                   </div>
                 </DraggableElement>
-              ))}
-              
-              {/* 텍스트 콘텐츠 (드래그 가능) */}
-              <DraggableElement
-                position={textPosition}
-                onPositionChange={handleTextChange}
-                type="mainText"
-              >
-                <div
-                  className="text-center whitespace-normal break-words w-full p-0 m-0"
-                  style={{ 
-                    fontFamily: selectedFont,
-                    color: textColor,
-                    fontWeight: "bold",
-                    fontSize: `${textSize}rem`
-                  }}
+                
+                <DraggableElement
+                  position={subtextPosition}
+                  onPositionChange={handleSubtextChange}
+                  type="subText"
                 >
-                  {text || "와인 이름"}
-                </div>
-              </DraggableElement>
-              
-              <DraggableElement
-                position={subtextPosition}
-                onPositionChange={handleSubtextChange}
-                type="subText"
-              >
-                <div
-                  className="text-center whitespace-normal w-full p-0 m-0"
-                  style={{ 
-                    fontFamily: selectedFont,
-                    color: textColor,
-                    fontSize: `${subtextSize}rem`
-                  }}
-                >
-                  {subtext || "부가 설명을 입력하세요"}
-                </div>
-              </DraggableElement>
+                  <div
+                    className="text-center whitespace-normal w-full p-0 m-0"
+                    style={{ 
+                      fontFamily: selectedFont,
+                      color: textColor,
+                      fontSize: isMobile 
+                        ? `${subtextSize * 0.8}rem` // 모바일에서도 더 크게
+                        : `${subtextSize * 1.3}rem` // 데스크톱에서 더 크게
+                    }}
+                  >
+                    {subtext || "부가 설명을 입력하세요"}
+                  </div>
+                </DraggableElement>
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Undo/Redo 버튼 */}
-        <div className="flex gap-2 mt-2">
-          <Button onClick={undo}><Undo className="w-4 h-4" /></Button>
-          <Button onClick={redo}><Redo className="w-4 h-4" /></Button>
-        </div>
-      </div>
-    );
+        </>
+      )}
+    </div>
+  );
 }
 
 // 디자인 옵션 카드 (수평 스크롤로 변경)
@@ -709,7 +742,8 @@ export default function LabelDesigner() {
     font: "font1",
     textColor: "#000000",
     backgroundColor: "#f5f5f5",
-    borderStyle: "border1",
+    borderStyle: "none", // 기본값을 "없음"으로 변경
+    borderPosition: "all", // 테두리 위치: "horizontal", "vertical", "all"
     decoration: "deco4", // 기본값을 "없음"으로 변경
     textSize: 1.25, // 메인 텍스트 크기 (rem 단위), 기본값 1.25rem
     subtextSize: 1 // 부가 텍스트 크기 (rem 단위), 기본값 1rem
@@ -725,6 +759,11 @@ export default function LabelDesigner() {
   const [isLoadingBackgrounds, setIsLoadingBackgrounds] = useState(true);
   const [isLoadingBorders, setIsLoadingBorders] = useState(true);
   const [isLoadingDecorations, setIsLoadingDecorations] = useState(true);
+
+  // 뒤로가기 함수
+  const handleGoBack = () => {
+    setLocation("/wine-bottles");
+  };
 
   useEffect(() => {
     // 와인병 정보 가져오기
@@ -777,39 +816,38 @@ export default function LabelDesigner() {
       }
     };
     
-    // 테두리 이미지 가져오기
+    // 테두리 옵션 설정 (업로드된 테두리 이미지만)
     const fetchLabelBorders = async () => {
       try {
         setIsLoadingBorders(true);
-        const response = await adminApi.getLabelBorders();
-        if (response.data && response.data.borders) {
-          const borders = response.data.borders.map((border: any) => ({
-            id: border.id,
-            name: border.name || border.id,
-            image: border.url
-          }));
-          
-          // 테두리가 없는 경우 기본 테두리 추가
-          if (borders.length === 0) {
-            borders.push(
-              { id: "border1", name: "기본", image: "/images/border/default.jpg" },
-              { id: "border4", name: "없음", image: "" }
-            );
-          } else {
-            // '없음' 옵션 항상 추가
-            if (!borders.find((b: { id: string }) => b.id === "border4")) {
-              borders.push({ id: "border4", name: "없음", image: "" });
-            }
+        
+        // 없음 옵션
+        let borders = [{ id: "none", name: "없음", type: "basic" }];
+        
+        // API에서 업로드된 테두리 이미지 가져오기
+        try {
+          const response = await adminApi.getLabelBorders();
+          if (response.data && response.data.borders) {
+            const uploadedBorders = response.data.borders.map((border: any) => ({
+              id: border.id,
+              name: border.name || border.id,
+              image: border.url,
+              type: "image"
+            }));
+            
+            // 업로드된 테두리들을 없음 옵션 뒤에 추가
+            borders = [{ id: "none", name: "없음", type: "basic" }, ...uploadedBorders];
           }
-          
-          setLabelBorders(borders);
+        } catch (apiError) {
+          console.log("API에서 테두리 이미지를 가져올 수 없습니다. 없음 옵션만 사용합니다.");
         }
+        
+        setLabelBorders(borders);
       } catch (error) {
-        console.error("테두리 이미지 로드 오류:", error);
-        // 오류 시 기본 테두리 설정
+        console.error("테두리 옵션 설정 오류:", error);
+        // 오류 시 없음 옵션만 설정
         setLabelBorders([
-          { id: "border1", name: "기본", image: "/images/border/default.jpg" },
-          { id: "border4", name: "없음", image: "" }
+          { id: "none", name: "없음", type: "basic" }
         ]);
       } finally {
         setIsLoadingBorders(false);
@@ -893,13 +931,13 @@ export default function LabelDesigner() {
   });
   
   // 위치 정보 업데이트 핸들러
-  const handleUpdatePositions = (data: {
+  const handleUpdatePositions = useCallback((data: {
     decorations: any[],
     textPosition: { x: number, y: number },
     subtextPosition: { x: number, y: number }
   }) => {
     setPositionData(data);
-  };
+  }, []);
   
   // 라벨 미리보기 요소를 참조하기 위한 ref
   const labelPreviewRef = useRef<HTMLDivElement>(null);
@@ -916,6 +954,7 @@ export default function LabelDesigner() {
         textColor: labelDesign.textColor,
         backgroundColor: labelDesign.backgroundColor,
         borderStyle: labelDesign.borderStyle,
+        borderPosition: labelDesign.borderPosition,
         decorations: positionData.decorations.map(deco => ({
           id: deco.id,
           decorationId: deco.decorationId,
@@ -932,12 +971,15 @@ export default function LabelDesigner() {
       // 라벨 미리보기 요소가 있을 경우 이미지로 캡처
       if (labelPreviewRef.current) {
         // 미리보기 요소에서 실제 라벨 부분만 캡처하기 위해 요소 찾기
-        const labelElement = labelPreviewRef.current.querySelector('.absolute.overflow-visible.border.border-dashed');
+        const labelElement = labelPreviewRef.current.querySelector('div[style*="width:"][style*="height:"]');
         
         if (labelElement) {
-          // 캡처 전에 경계선 임시 제거
-          const originalBorder = labelElement.className;
-          labelElement.className = labelElement.className.replace('border border-dashed border-gray-400', '');
+          // 캡처 전에 테두리 스타일 임시 제거 (점선 테두리인 경우만)
+          const originalClassName = labelElement.className;
+          const hasDashedBorder = originalClassName.includes('border-dashed');
+          if (hasDashedBorder) {
+            labelElement.className = originalClassName.replace(/border-\w*\s*/g, '').replace(/border-dashed/g, '');
+          }
           
           // 캡처 전에 모든 삭제 버튼(X 버튼) 숨기기
           const deleteButtons = labelElement.querySelectorAll('.decoration-delete-btn');
@@ -955,7 +997,9 @@ export default function LabelDesigner() {
           });
           
           // 원래 스타일 복원
-          labelElement.className = originalBorder;
+          if (hasDashedBorder) {
+            labelElement.className = originalClassName;
+          }
           
           // 삭제 버튼 다시 표시
           Array.from(deleteButtons).forEach(button => {
@@ -1001,255 +1045,323 @@ export default function LabelDesigner() {
   };
   
   return (
-    <div className="flex flex-col min-h-screen w-screen max-w-[100vw] overflow-x-hidden pt-8 pb-24">
-      <h1 className="text-2xl font-bold my-6 text-center z-50 relative">나만의 와인 라벨 디자인</h1>
-      
-      <div className="flex flex-row relative z-30">
-        {/* 왼쪽: 미리보기 */}
-        <div className="w-full">
-          <div className="sticky top-16 pt-8" ref={labelPreviewRef}>
-            <LabelPreview 
-              labelDesign={labelDesign} 
-              wineBottle={wineBottle} 
-              decorationToAdd={decorationToAdd}
-              onUpdatePositions={handleUpdatePositions}
-              labelBackgrounds={labelBackgrounds}
-              labelDecorations={labelDecorations}
-              labelBorders={labelBorders}
-            />
-          </div>
-        </div>
-        
-        {/* 오른쪽: 디자인 옵션 */}
-        <div className="w-1/2 pr-4 top-80 h-screen overflow-y-auto p-4 bg-opacity-90 bg-gray-900 fixed left-0">
-          <Tabs defaultValue="template" className="w-full flex flex-col">
-            <TabsList className="grid grid-cols-2 gap-2 w-full mb-12">
-              <TabsTrigger value="template" className="justify-center">
-                <ImageIcon className="w-4 h-4 mr-2" />
-                배경
-              </TabsTrigger>
-              <TabsTrigger value="text" className="justify-center">
-                <Type className="w-4 h-4 mr-2" />
-                텍스트
-              </TabsTrigger>
-              <TabsTrigger value="style" className="justify-center">
-                <Grid className="w-4 h-4 mr-2" />
-                스타일
-              </TabsTrigger>
-              <TabsTrigger value="color" className="justify-center">
-                <Palette className="w-4 h-4 mr-2" />
-                색상
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="template" className="mt-6 flex-1 pl-4">
-              {/* 배경 선택 */}
-              <DesignOptionCard
-                title="라벨 배경"
-                options={labelBackgrounds}
-                selectedId={labelDesign.template}
-                onChange={(id) => handleDesignChange("template", id)}
-                renderItem={(option) => (
-                  <>
-                    <div className="h-20 w-32 overflow-hidden rounded mb-2">
-                      <img src={option.image} alt={option.name} className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-sm">{option.name}</span>
-                  </>
-                )}
-              />
-              
-              {/* 장식 선택 */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-3">아이콘 및 장식 (클릭하면 추가됩니다)</h3>
-                <div className="flex overflow-x-auto gap-3 pb-2"> {/* 수평 스크롤 */}
-                  {labelDecorations.map(option => (
-                    <Card 
-                      key={option.id}
-                      className="cursor-pointer transition-all min-w-[100px] hover:shadow-md"
-                      onClick={() => handleAddDecoration(option.id)}
-                    >
-                      <CardContent className="p-3 flex flex-col items-center">
-                        <div className="h-16 w-16 flex items-center justify-center">
-                          {option.id !== "deco4" ? (
-                            <img src={option.image} alt={option.name} className="max-h-full max-w-full object-contain" />
-                          ) : (
-                            <div className="text-gray-400">없음</div>
-                          )}
-                        </div>
-                        <span className="text-sm mt-2">{option.name}</span>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                <p className="text-sm text-gray-400 mt-2">아이콘을 클릭하면 추가됩니다. 추가된 아이콘은 드래그하여 이동하거나 X 버튼을 눌러 삭제할 수 있습니다.</p>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="text" className="mt-6 flex-1 pl-4">
-              {/* 텍스트 입력 */}
-              <div className="space-y-4 mb-6">
-                <div>
-                  <Label htmlFor="main-text">메인 텍스트</Label>
-                  <Input 
-                    id="main-text"
-                    placeholder="와인 이름을 입력하세요" 
-                    value={labelDesign.text}
-                    onChange={(e) => handleDesignChange("text", e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="sub-text">부가 텍스트</Label>
-                  <Textarea 
-                    id="sub-text"
-                    placeholder="부가 설명을 입력하세요" 
-                    value={labelDesign.subtext}
-                    onChange={(e) => handleDesignChange("subtext", e.target.value)}
-                    rows={3}
-                  />
-                </div>
-                
-                {/* 텍스트 크기 조절 추가 */}
-                <div className="space-y-4 pt-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <Label htmlFor="text-size">메인 텍스트 크기: {labelDesign.textSize}rem</Label>
-                      <span className="text-xs text-gray-400">
-                        {labelDesign.textSize < 1 ? '작게' : labelDesign.textSize > 1.5 ? '크게' : '보통'}
-                      </span>
-                    </div>
-                    <Slider
-                      id="text-size"
-                      min={0.5}
-                      max={3}
-                      step={0.1}
-                      value={[labelDesign.textSize]}
-                      onValueChange={handleTextSizeChange}
-                      className="w-full"
-                    />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <Label htmlFor="subtext-size">부가 텍스트 크기: {labelDesign.subtextSize}rem</Label>
-                      <span className="text-xs text-gray-400">
-                        {labelDesign.subtextSize < 0.8 ? '작게' : labelDesign.subtextSize > 1.2 ? '크게' : '보통'}
-                      </span>
-                    </div>
-                    <Slider
-                      id="subtext-size"
-                      min={0.5}
-                      max={2.5}
-                      step={0.1}
-                      value={[labelDesign.subtextSize]}
-                      onValueChange={handleSubtextSizeChange}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              {/* 폰트 선택 */}
-              <div className="mb-6">
-                <Label htmlFor="font-select" className="block mb-2">폰트 스타일</Label>
-                <Select
-                  value={labelDesign.font}
-                  onValueChange={(value) => handleDesignChange("font", value)}
-                >
-                  <SelectTrigger id="font-select" className="mb-2">
-                    <SelectValue placeholder="폰트 스타일 선택" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    {fonts.map(font => (
-                      <SelectItem 
-                        key={font.id} 
-                        value={font.id}
-                        style={{ fontFamily: font.family }}
-                      >
-                        {font.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                {/* 폰트 미리보기 삭제 */}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="style" className="mt-6 flex-1 pl-4">
-              {/* 테두리 스타일 */}
-              <DesignOptionCard
-                title="테두리 스타일"
-                options={labelBorders}
-                selectedId={labelDesign.borderStyle}
-                onChange={(id) => handleDesignChange("borderStyle", id)}
-                renderItem={(option) => (
-                  <>
-                    <div className="h-16 w-16 flex items-center justify-center">
-                      {option.id !== "border4" ? (
-                        <div 
-                          className="h-14 w-14 border-4 border-double" 
-                          style={{ 
-                            borderColor: option.id === "border2" ? "gold" : 
-                                       option.id === "border3" ? "silver" : "#722F37" 
-                          }}
-                        />
-                      ) : (
-                        <div className="text-gray-400">없음</div>
-                      )}
-                    </div>
-                    <span className="text-sm mt-2">{option.name}</span>
-                  </>
-                )}
-              />
-            </TabsContent>
-            
-            <TabsContent value="color" className="mt-6 flex-1 pl-4">
-              {/* 색상 선택 */}
-              <div className="space-y-6 mb-6">
-                <div>
-                  <Label htmlFor="text-color" className="block mb-2">텍스트 색상</Label>
-                  <div className="flex items-center gap-4">
-                    <input 
-                      type="color" 
-                      id="text-color"
-                      value={labelDesign.textColor}
-                      onChange={(e) => handleDesignChange("textColor", e.target.value)}
-                      className="w-10 h-10 rounded overflow-hidden"
-                    />
-                    <span>{labelDesign.textColor}</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="bg-color" className="block mb-2">배경 색상</Label>
-                  <div className="flex items-center gap-4">
-                    <input 
-                      type="color" 
-                      id="bg-color"
-                      value={labelDesign.backgroundColor}
-                      onChange={(e) => handleDesignChange("backgroundColor", e.target.value)}
-                      className="w-10 h-10 rounded overflow-hidden"
-                    />
-                    <span>{labelDesign.backgroundColor}</span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-      
-      {/* 주문하기 버튼을 페이지 하단에 배치 */}
-      <div className="mt-auto pt-8 fixed bottom-20 left-1 px-4 w-1/2 z-50"> {/* right-4에서 left-4로 변경 */}
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* 헤더 영역 - 뒤로가기 버튼과 제목 */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-700">
         <Button 
-          className="w-full bg-[#722F37] hover:bg-[#722F37]/90 text-white py-6 text-xl"
-          onClick={handleCheckout}
+          variant="ghost" 
+          onClick={handleGoBack}
+          className="text-white hover:bg-gray-800"
         >
-          <ShoppingCart className="w-6 h-6 mr-3" />
-          주문하기
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          뒤로가기
         </Button>
+        <h1 className="text-xl font-bold">나만의 와인 라벨 디자인</h1>
+        <div className="w-20"></div> {/* 균형을 위한 빈 공간 */}
+      </div>
+
+      {/* 메인 콘텐츠 - 세로 레이아웃 */}
+      <div className="max-w-4xl mx-auto p-4" ref={labelPreviewRef}>
+        {/* 와인병과 라벨 미리보기 */}
+        <LabelPreview 
+          labelDesign={labelDesign} 
+          wineBottle={wineBottle} 
+          decorationToAdd={decorationToAdd}
+          onUpdatePositions={handleUpdatePositions}
+          labelBackgrounds={labelBackgrounds}
+          labelDecorations={labelDecorations}
+          labelBorders={labelBorders}
+        />
+        
+        {/* 디자인 옵션 탭 */}
+        <Tabs defaultValue="template" className="w-full">
+          <TabsList className="grid grid-cols-4 gap-2 w-full mb-6">
+            <TabsTrigger value="template" className="text-sm">
+              <ImageIcon className="w-4 h-4 mr-1" />
+              배경
+            </TabsTrigger>
+            <TabsTrigger value="text" className="text-sm">
+              <Type className="w-4 h-4 mr-1" />
+              텍스트
+            </TabsTrigger>
+            <TabsTrigger value="style" className="text-sm">
+              <Grid className="w-4 h-4 mr-1" />
+              스타일
+            </TabsTrigger>
+            <TabsTrigger value="color" className="text-sm">
+              <Palette className="w-4 h-4 mr-1" />
+              색상
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="template" className="space-y-6">
+            {/* 배경 선택 */}
+                         <DesignOptionCard
+               title="라벨 배경"
+               options={labelBackgrounds}
+               selectedId={labelDesign.template}
+               onChange={(id) => handleDesignChange("template", id)}
+               renderItem={(option) => (
+                 <div className="h-16 w-20 overflow-hidden rounded">
+                   <img src={option.image} alt={option.name} className="w-full h-full object-cover" />
+                 </div>
+               )}
+             />
+            
+            {/* 장식 선택 */}
+            <div>
+              <h3 className="text-lg font-medium mb-3">아이콘 및 장식 (클릭하면 추가됩니다)</h3>
+              <div className="flex overflow-x-auto gap-3 pb-2"> {/* 수평 스크롤 */}
+                                 {labelDecorations.map(option => (
+                   <Card 
+                     key={option.id}
+                     className="cursor-pointer transition-all min-w-[80px] hover:shadow-md bg-gray-800 border-gray-700"
+                     onClick={() => handleAddDecoration(option.id)}
+                   >
+                     <CardContent className="p-3 flex items-center justify-center">
+                       <div className="h-12 w-12 flex items-center justify-center">
+                         {option.id !== "deco4" ? (
+                           <img src={option.image} alt={option.name} className="max-h-full max-w-full object-contain" />
+                         ) : (
+                           <div className="text-gray-400">없음</div>
+                         )}
+                       </div>
+                     </CardContent>
+                   </Card>
+                 ))}
+              </div>
+              <p className="text-sm text-gray-400 mt-2">아이콘을 클릭하면 추가됩니다. 추가된 아이콘은 드래그하여 이동하거나 X 버튼을 눌러 삭제할 수 있습니다.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="text" className="space-y-6">
+            {/* 텍스트 입력 */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="main-text" className="text-white">메인 텍스트</Label>
+                <Input 
+                  id="main-text"
+                  placeholder="와인 이름을 입력하세요" 
+                  value={labelDesign.text}
+                  onChange={(e) => handleDesignChange("text", e.target.value)}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="sub-text" className="text-white">부가 텍스트</Label>
+                <Textarea 
+                  id="sub-text"
+                  placeholder="부가 설명을 입력하세요" 
+                  value={labelDesign.subtext}
+                  onChange={(e) => handleDesignChange("subtext", e.target.value)}
+                  rows={3}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+              </div>
+              
+              {/* 텍스트 크기 조절 */}
+              <div className="space-y-4 pt-4">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <Label htmlFor="text-size" className="text-white">메인 텍스트 크기: {labelDesign.textSize}rem</Label>
+                    <span className="text-xs text-gray-400">
+                      {labelDesign.textSize < 1 ? '작게' : labelDesign.textSize > 1.5 ? '크게' : '보통'}
+                    </span>
+                  </div>
+                  <Slider
+                    id="text-size"
+                    min={0.5}
+                    max={3}
+                    step={0.1}
+                    value={[labelDesign.textSize]}
+                    onValueChange={handleTextSizeChange}
+                    className="w-full"
+                  />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <Label htmlFor="subtext-size" className="text-white">부가 텍스트 크기: {labelDesign.subtextSize}rem</Label>
+                    <span className="text-xs text-gray-400">
+                      {labelDesign.subtextSize < 0.8 ? '작게' : labelDesign.subtextSize > 1.2 ? '크게' : '보통'}
+                    </span>
+                  </div>
+                  <Slider
+                    id="subtext-size"
+                    min={0.5}
+                    max={2.5}
+                    step={0.1}
+                    value={[labelDesign.subtextSize]}
+                    onValueChange={handleSubtextSizeChange}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* 폰트 선택 */}
+            <div>
+              <Label htmlFor="font-select" className="block mb-2 text-white">폰트 스타일</Label>
+              <Select
+                value={labelDesign.font}
+                onValueChange={(value) => handleDesignChange("font", value)}
+              >
+                <SelectTrigger id="font-select" className="mb-2 bg-gray-800 border-gray-600 text-white">
+                  <SelectValue placeholder="폰트 스타일 선택" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80 bg-gray-800 border-gray-600">
+                  {fonts.map(font => (
+                    <SelectItem 
+                      key={font.id} 
+                      value={font.id}
+                      style={{ fontFamily: font.family }}
+                      className="text-white hover:bg-gray-700"
+                    >
+                      {font.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </TabsContent>
+          
+                     <TabsContent value="style" className="space-y-6">
+             {/* 테두리 스타일 */}
+             <DesignOptionCard
+               title="테두리 스타일"
+               options={labelBorders}
+               selectedId={labelDesign.borderStyle}
+               onChange={(id) => handleDesignChange("borderStyle", id)}
+               renderItem={(option) => (
+                 <div className="h-12 w-12 flex items-center justify-center">
+                   {option.type === "image" ? (
+                     // 업로드된 테두리 이미지
+                     <div 
+                       className="h-10 w-10 border border-gray-500"
+                       style={{
+                         backgroundImage: `url(${option.image})`,
+                         backgroundSize: '100% 100%',
+                         backgroundPosition: 'center',
+                         backgroundRepeat: 'no-repeat'
+                       }}
+                     />
+                   ) : option.id === "none" ? (
+                     <div className="text-gray-400">없음</div>
+                   ) : option.id === "all" ? (
+                     <div className="h-8 w-8 border-2 border-solid border-primary" />
+                   ) : option.id === "horizontal" ? (
+                     <div className="h-8 w-8 border-t-2 border-b-2 border-solid border-primary" />
+                   ) : option.id === "vertical" ? (
+                     <div className="h-8 w-8 border-l-2 border-r-2 border-solid border-primary" />
+                   ) : (
+                     <div className="text-gray-400">없음</div>
+                   )}
+                 </div>
+               )}
+             />
+             
+             {/* 테두리 이미지 위치 선택 (이미지 테두리가 선택되었을 때만 표시) */}
+             {(() => {
+               const selectedBorderOption = labelBorders.find(b => b.id === labelDesign.borderStyle);
+               return selectedBorderOption?.type === "image" && (
+                 <div className="mt-6">
+                   <h3 className="text-lg font-medium mb-3 text-white">테두리 위치 선택</h3>
+                   <div className="space-y-3">
+                     <div className="flex items-center space-x-3">
+                       <input
+                         type="radio"
+                         id="border-horizontal"
+                         name="borderPosition"
+                         value="horizontal"
+                         checked={labelDesign.borderPosition === "horizontal"}
+                         onChange={(e) => handleDesignChange("borderPosition", e.target.value)}
+                         className="w-4 h-4 text-primary bg-gray-800 border-gray-600 focus:ring-primary"
+                       />
+                       <label htmlFor="border-horizontal" className="text-white text-sm">
+                         상하 (위아래만)
+                       </label>
+                     </div>
+                     
+                     <div className="flex items-center space-x-3">
+                       <input
+                         type="radio"
+                         id="border-vertical"
+                         name="borderPosition"
+                         value="vertical"
+                         checked={labelDesign.borderPosition === "vertical"}
+                         onChange={(e) => handleDesignChange("borderPosition", e.target.value)}
+                         className="w-4 h-4 text-primary bg-gray-800 border-gray-600 focus:ring-primary"
+                       />
+                       <label htmlFor="border-vertical" className="text-white text-sm">
+                         좌우 (양옆만)
+                       </label>
+                     </div>
+                     
+                     <div className="flex items-center space-x-3">
+                       <input
+                         type="radio"
+                         id="border-all"
+                         name="borderPosition"
+                         value="all"
+                         checked={labelDesign.borderPosition === "all"}
+                         onChange={(e) => handleDesignChange("borderPosition", e.target.value)}
+                         className="w-4 h-4 text-primary bg-gray-800 border-gray-600 focus:ring-primary"
+                       />
+                       <label htmlFor="border-all" className="text-white text-sm">
+                         상하좌우 (전체)
+                       </label>
+                     </div>
+                   </div>
+                 </div>
+               );
+             })()}
+           </TabsContent>
+          
+          <TabsContent value="color" className="space-y-6">
+            {/* 색상 선택 */}
+            <div className="space-y-6">
+              <div>
+                <Label htmlFor="text-color" className="block mb-2 text-white">텍스트 색상</Label>
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="color" 
+                    id="text-color"
+                    value={labelDesign.textColor}
+                    onChange={(e) => handleDesignChange("textColor", e.target.value)}
+                    className="w-10 h-10 rounded overflow-hidden"
+                  />
+                  <span className="text-white">{labelDesign.textColor}</span>
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="bg-color" className="block mb-2 text-white">배경 색상</Label>
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="color" 
+                    id="bg-color"
+                    value={labelDesign.backgroundColor}
+                    onChange={(e) => handleDesignChange("backgroundColor", e.target.value)}
+                    className="w-10 h-10 rounded overflow-hidden"
+                  />
+                  <span className="text-white">{labelDesign.backgroundColor}</span>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+        
+        {/* 주문하기 버튼 */}
+        <div className="mt-8 mb-4">
+          <Button 
+            className="w-full bg-[#722F37] hover:bg-[#722F37]/90 text-white py-4 text-lg"
+            onClick={handleCheckout}
+          >
+            <ShoppingCart className="w-5 h-5 mr-2" />
+            주문하기
+          </Button>
+        </div>
       </div>
     </div>
   );
