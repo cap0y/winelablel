@@ -1,4 +1,4 @@
-import { Wine, Instagram, MessageCircle, Phone, Mail } from "lucide-react";
+import { Instagram, MessageCircle, Phone, Mail } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Footer() {
@@ -9,12 +9,14 @@ export default function Footer() {
         <div className="flex overflow-x-auto gap-8 text-sm pb-2 md:grid md:grid-cols-4">
           {/* 1. 회사 정보 */}
           <div className="min-w-[250px] md:min-w-0">
-            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-              <Wine className="text-white w-5 h-5" />
+            <div className="flex items-center mb-2">
+              <img
+                src="/images/CCLEMANG_Logo_v.png"
+                alt="끄레망 로고"
+                className="h-8 w-auto"
+              />
+              <span className="text-xl font-bold text-white ml-2">끄레망</span>
             </div>
-            <span className="text-xl font-bold text-white">
-              끄레망 와인라벨
-            </span>
             <div className="space-y-2 text-gray-300">
               <p>상호 : (주)끄레망 대표자 : 김윤미</p>
               <p>사업자등록번호: 602-81-55426</p>
