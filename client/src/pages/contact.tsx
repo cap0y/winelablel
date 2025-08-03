@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Phone,
@@ -106,7 +101,7 @@ export default function Contact() {
           <CardContent className="p-6 flex flex-col items-center space-y-2">
             <Phone className="text-primary w-6 h-6" />
             <p className="font-medium">전화문의</p>
-            <p className="text-sm text-gray-400">02-555-5155</p>
+            <p className="text-sm text-gray-400">051.245.2983</p>
           </CardContent>
         </Card>
 
@@ -114,7 +109,7 @@ export default function Contact() {
           <CardContent className="p-6 flex flex-col items-center space-y-2">
             <Mail className="text-primary w-6 h-6" />
             <p className="font-medium">이메일 문의</p>
-            <p className="text-sm text-gray-400">support@끄레망.kr</p>
+            <p className="text-sm text-gray-400">info@cclemang.com</p>
           </CardContent>
         </Card>
 
@@ -129,12 +124,37 @@ export default function Contact() {
 
       {/* 상담 시간 */}
       <section className="px-4">
-        <Card className="bg-gray-800 border-gray-700 max-w-md mx-auto">
-          <CardContent className="p-6 flex items-center justify-center space-x-3">
-            <Clock className="text-primary w-6 h-6" />
+        <Card className="bg-gray-800 border-gray-700 max-w-2xl mx-auto mb-8">
+          <CardContent className="p-6 text-center">
+            <Clock className="text-primary w-8 h-8 mx-auto mb-4" />
+            <h3 className="font-bold text-lg mb-2">고객센터 운영시간</h3>
+            <p className="text-gray-300 mb-2">평일 09:00 ~ 18:00</p>
             <p className="text-sm text-gray-400">
-              상담 시간 : 평일 10:00 - 18:00 (점심시간 12:00 - 13:00)
+              주말 및 공휴일은 휴무입니다.
             </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* 사업자 정보 */}
+      <section className="px-4 mb-8">
+        <Card className="bg-gray-800 border-gray-700 max-w-2xl mx-auto">
+          <CardContent className="p-6">
+            <h3 className="font-bold text-lg mb-4 text-center">사업자 정보</h3>
+            <div className="space-y-2 text-sm text-gray-300">
+              <p>
+                <span className="font-medium text-white">회사명:</span>{" "}
+                (주)끄레망
+              </p>
+              <p>
+                <span className="font-medium text-white">사업자등록번호:</span>{" "}
+                602-81-55426
+              </p>
+              <p>
+                <span className="font-medium text-white">주소:</span> 부산시
+                서구 흑교로 109번길 6, 5층
+              </p>
+            </div>
           </CardContent>
         </Card>
       </section>
