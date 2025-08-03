@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/auth-context";
+import AddressSearch from "@/components/ui/address-search";
 
 // PortOne configuration
 declare global {
@@ -21,7 +22,7 @@ declare global {
 }
 
 // 결제 폼 컴포넌트
-function PaymentForm({ orderData, amount, customerInfo }: { 
+function PaymentForm({ orderData, amount, customerInfo, createdOrder }: { 
   orderData: any;
   amount: number; 
   customerInfo: { 
@@ -30,7 +31,8 @@ function PaymentForm({ orderData, amount, customerInfo }: {
     phone: string;
     address: string;
     zipCode: string;
-  }
+  };
+  createdOrder: any;
 }) {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,40 +48,22 @@ function PaymentForm({ orderData, amount, customerInfo }: {
       return;
     }
 
+    if (!createdOrder) {
+      toast({
+        title: "주문 정보 없음",
+        description: "주문 정보가 없습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      // 라벨 이미지 데이터 가져오기
-      const labelImageData = sessionStorage.getItem('labelPreviewImage') || '';
-      
-      // 먼저 주문 생성 (와인 라벨 정보 저장)
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          customerName: customerInfo.name,
-          customerEmail: customerInfo.email,
-          bottleId: orderData.bottleType.id,
-          bottleName: orderData.bottleType.name,
-          labelDesign: orderData.labelDesign,
-          labelImage: labelImageData, // 캡처한 이미지 데이터 추가
-          amount: amount,
-          quantity: orderData.quantity
-        })
-      });
-      
-      const orderResult = await orderResponse.json();
-      
-      if (!orderResult.success) {
-        throw new Error(orderResult.message || "주문 생성 실패");
-      }
-      
-      // 주문이 성공하면 결제 시작
+      // 주문이 이미 생성되어 있으므로 바로 결제 시작
       const paymentResponse = await window.PortOne.requestPayment({
         storeId: "store-e4038486-8d83-41a5-acf1-844a009e0d94",
-        paymentId: orderResult.order.id,
+        paymentId: createdOrder.id,
         orderName: `와인 라벨 주문 - ${orderData.quantity}매`,
         totalAmount: amount,
         currency: "KRW",
@@ -94,14 +78,14 @@ function PaymentForm({ orderData, amount, customerInfo }: {
         failRedirectUrl: `${window.location.origin}/payment/failure`,
         noticeUrls: [`${window.location.origin}/api/payment-webhook`],
         customData: {
-          orderId: orderResult.order.id,
+          orderId: createdOrder.id,
         },
       });
 
       if (paymentResponse.code === "SUCCESS") {
         // Verify payment
         const verificationResponse = await apiRequest("POST", "/api/verify-payment", {
-          orderId: orderResult.order.id,
+          orderId: createdOrder.id,
           paymentId: paymentResponse.paymentId,
           amount: amount,
         });
@@ -110,7 +94,7 @@ function PaymentForm({ orderData, amount, customerInfo }: {
 
         if (verificationData.success) {
           const orderSummary = {
-            orderId: orderResult.order.id,
+            orderId: createdOrder.id,
             paymentId: paymentResponse.paymentId,
             bottleType: orderData.bottleType,
             quantity: orderData.quantity,
@@ -125,7 +109,7 @@ function PaymentForm({ orderData, amount, customerInfo }: {
             description: "주문이 완료되었습니다!",
           });
 
-          setLocation(`/payment/success?orderId=${orderResult.order.id}`);
+          setLocation(`/payment/success?orderId=${createdOrder.id}`);
         } else {
           // 결제 검증 실패 - 결제 취소 또는 실패
           toast({
@@ -141,21 +125,35 @@ function PaymentForm({ orderData, amount, customerInfo }: {
         }
       } else if (paymentResponse.code === "CANCEL") {
         // 사용자가 결제를 취소한 경우
-        toast({
-          title: "결제 취소",
-          description: "결제가 취소되었습니다.",
-          variant: "destructive",
-        });
-        
         // 주문 상태를 취소로 변경
         try {
-          await fetch(`/api/orders/${orderResult.order.id}/cancel`, {
+          await fetch(`/api/orders/${createdOrder.id}/cancel`, {
+            method: 'PATCH'
+          });
+          
+          toast({
+            title: "결제 취소",
+            description: "사용자가 결제를 취소하였습니다.",
+            variant: "destructive",
+          });
+        } catch (err) {
+          console.error('주문 취소 처리 오류:', err);
+          toast({
+            title: "결제 취소",
+            description: "결제가 취소되었습니다. 주문 상태 업데이트 중 오류가 발생했지만 결제는 취소되었습니다.",
+            variant: "destructive",
+          });
+        }
+        return; // 함수 종료하여 catch 블록으로 가지 않도록 함
+      } else {
+        // 기타 결제 실패 경우
+        try {
+          await fetch(`/api/orders/${createdOrder.id}/cancel`, {
             method: 'PATCH'
           });
         } catch (err) {
           console.error('주문 취소 처리 오류:', err);
         }
-      } else {
         throw new Error(paymentResponse.message || "결제 실패");
       }
     } catch (error: any) {
@@ -204,6 +202,12 @@ export default function Checkout() {
     zipCode: ""
   });
   
+  // 상세 주소를 별도로 관리 (추가)
+  const [addressDetail, setAddressDetail] = useState("");
+  
+  // 생성된 주문 정보 저장 (추가)
+  const [createdOrder, setCreatedOrder] = useState<any>(null);
+  
   // 배송 방식 선택 (기본값: 일반 배송)
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   
@@ -215,6 +219,8 @@ export default function Checkout() {
   
   // 캡처된 라벨 이미지 URL 저장
   const [labelImageUrl, setLabelImageUrl] = useState<string | null>(null);
+  // 전체 와인병 미리보기 이미지 URL 저장 (추가)
+  const [bottlePreviewUrl, setBottlePreviewUrl] = useState<string | null>(null);
 
   // URL 파라미터에서 병 타입 가져오기
   const params = new URLSearchParams(window.location.search);
@@ -224,67 +230,64 @@ export default function Checkout() {
   const getWineBottle = (bottleId: string) => {
     const bottles = [
       {
-        id: "bordeaux-red-black",
-        name: "보르도 레드 (블랙)",
+        id: "bordeaux-red",
+        name: "까베르네쇼비뇽 레드",
         image: "/images/wine-bottle-1.png",
         type: "red",
-        dimensions: "높이 30cm x 지름 8cm",
+        bottleType: "bordeaux",
+        dimensions: "높이 30cm x 지름 7.5cm",
         capacity: "750ml",
         price: 5000,
       },
       {
-        id: "white-gold",
-        name: "화이트 와인 (골드)",
+        id: "bordeaux-white",
+        name: "쇼비뇽블랑 화이트",
         image: "/images/wine-bottle-2.png",
         type: "white",
-        dimensions: "높이 29cm x 지름 7.5cm",
+        bottleType: "bordeaux",
+        dimensions: "높이 30cm x 지름 7.5cm",
         capacity: "750ml",
         price: 5200,
       },
       {
-        id: "rose-copper",
-        name: "로제 와인 (코퍼)",
+        id: "bordeaux-rose",
+        name: "쇼비뇽블랑 로제",
         image: "/images/wine-bottle-3.png",
         type: "rose",
-        dimensions: "높이 29cm x 지름 7.5cm",
+        bottleType: "bordeaux",
+        dimensions: "높이 30cm x 지름 7.5cm",
         capacity: "750ml",
         price: 5500,
       },
       {
-        id: "white-black",
-        name: "화이트 와인 (블랙)",
-        image: "/images/wine-bottle-4.png",
-        type: "white",
-        dimensions: "높이 31cm x 지름 7.5cm",
-        capacity: "750ml",
-        price: 5300,
-      },
-      {
-        id: "red-gold",
-        name: "레드 와인 (골드)",
+        id: "burgundy-red",
+        name: "샤도네이 레드",
         image: "/images/wine-bottle-5.png",
         type: "red",
-        dimensions: "높이 30cm x 지름 8cm",
+        bottleType: "burgundy",
+        dimensions: "높이 29cm x 지름 8cm",
         capacity: "750ml",
         price: 5800,
       },
       {
-        id: "red-black-slim",
-        name: "레드 와인 슬림 (블랙)",
+        id: "burgundy-white",
+        name: "샤도네이 화이트",
         image: "/images/wine-bottle-6.png",
-        type: "red",
-        dimensions: "높이 32cm x 지름 7cm",
+        type: "white",
+        bottleType: "burgundy",
+        dimensions: "높이 29cm x 지름 8cm",
         capacity: "750ml",
-        price: 6000,
+        price: 5300,
       },
       {
-        id: "red-gold-premium",
-        name: "레드 와인 프리미엄 (골드)",
+        id: "burgundy-rose",
+        name: "샤도네이 로제",
         image: "/images/wine-bottle-7.png",
-        type: "red",
-        dimensions: "높이 30cm x 지름 8.5cm",
+        type: "rose",
+        bottleType: "burgundy",
+        dimensions: "높이 29cm x 지름 8cm",
         capacity: "750ml",
-        price: 6500,
+        price: 6000,
       }
     ];
     
@@ -294,21 +297,22 @@ export default function Checkout() {
   const bottleInfo = getWineBottle(bottleId);
   
   // 배송비 계산
-  const getDeliveryFee = (method: string) => {
+  const getDeliveryFee = (method: string, basePrice: number) => {
     switch (method) {
       case "express":
         return 5000;
       case "same-day":
         return 8000;
       default:
-        return 3000;
+        // 일반 배송: 3만원 이상 시 무료, 미만 시 3000원
+        return basePrice >= 30000 ? 0 : 3000;
     }
   };
   
   // 총 금액 계산
   const calculateTotal = () => {
     const basePrice = bottleInfo.price * quantity;
-    const deliveryFee = getDeliveryFee(deliveryMethod);
+    const deliveryFee = getDeliveryFee(deliveryMethod, basePrice);
     return basePrice + deliveryFee;
   };
   
@@ -318,6 +322,10 @@ export default function Checkout() {
   useEffect(() => {
     const designData = sessionStorage.getItem('labelDesign');
     const imageData = sessionStorage.getItem('labelPreviewImage');
+    const bottleImageData = sessionStorage.getItem('bottlePreviewImage'); // 추가
+    
+    console.log("라벨 이미지 데이터 있음:", !!imageData);
+    console.log("와인병 전체 이미지 데이터 있음:", !!bottleImageData);
     
     if (designData) {
       try {
@@ -342,6 +350,15 @@ export default function Checkout() {
     // 캡처된 라벨 이미지가 있으면 상태에 저장
     if (imageData) {
       setLabelImageUrl(imageData);
+      console.log("라벨 이미지 URL 설정 완료");
+    }
+    
+    // 캡처된 전체 와인병 미리보기 이미지가 있으면 상태에 저장
+    if (bottleImageData) {
+      setBottlePreviewUrl(bottleImageData);
+      console.log("와인병 전체 이미지 URL 설정 완료");
+    } else {
+      console.log("와인병 전체 이미지가 없습니다.");
     }
     
     // 사용자 정보가 있다면 설정
@@ -366,8 +383,10 @@ export default function Checkout() {
     };
   }, []);
 
-  const handleUserInfoSubmit = (e: React.FormEvent) => {
+  const handleUserInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const fullAddress = addressDetail ? `${userInfo.address} ${addressDetail}` : userInfo.address;
+    
     if (!userInfo.name || !userInfo.email || !userInfo.address || !userInfo.zipCode) {
       toast({
         title: "입력 오류",
@@ -376,7 +395,72 @@ export default function Checkout() {
       });
       return;
     }
-    setShowPaymentForm(true);
+
+    try {
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          customerName: userInfo.name,
+          customerEmail: userInfo.email,
+          customerPhone: userInfo.phone,
+          customerAddress: fullAddress,
+          customerZipCode: userInfo.zipCode,
+          bottleId: bottleInfo.id,
+          bottleName: bottleInfo.name,
+          labelDesign: labelDesign,
+          labelImage: labelImageUrl,
+          amount: totalAmount,
+          quantity: quantity,
+          deliveryMethod: deliveryMethod,
+          deliveryFee: getDeliveryFee(deliveryMethod, bottleInfo.price * quantity),
+          status: '결제대기',
+          paymentStatus: '결제대기'
+        })
+      });
+
+      const orderResult = await orderResponse.json();
+
+      if (orderResult.success) {
+        setCreatedOrder(orderResult.order);
+        setShowPaymentForm(true);
+        toast({
+          title: "주문 생성 성공",
+          description: "주문이 성공적으로 생성되었습니다.",
+        });
+      } else {
+        toast({
+          title: "주문 생성 실패",
+          description: orderResult.message || "주문 생성에 실패했습니다.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "주문 생성 오류",
+        description: error.message || "주문 생성 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // 주소 검색 결과 처리 핸들러
+  const handleAddressSelect = (selectedAddress: {
+    roadAddr: string;
+    siNm: string;
+    sggNm: string;
+    zipNo: string;
+    latitude?: number;
+    longitude?: number;
+  }) => {
+    // 선택한 주소와 우편번호를 상태에 저장
+    setUserInfo({
+      ...userInfo,
+      address: selectedAddress.roadAddr,
+      zipCode: selectedAddress.zipNo
+    });
   };
 
   return (
@@ -417,18 +501,52 @@ export default function Checkout() {
             <div className="mb-6">
               <h3 className="font-medium mb-3 text-[#00ffff]">라벨 디자인 미리보기</h3>
               <div className="bg-gray-800/80 p-4 rounded-lg border border-[#00ffff]/30 shadow-[0_0_15px_rgba(0,255,255,0.2)] relative">
-                {labelImageUrl ? (
+                {bottlePreviewUrl ? (
+                  // 와인병 전체 미리보기
                   <div className="flex justify-center">
-                    <div className="relative w-full max-w-[250px] mx-auto">
-                      {/* 캡처된 라벨 이미지 표시 */}
+                    <img 
+                      src={bottlePreviewUrl}
+                      alt="와인병 미리보기" 
+                      className="max-w-full h-auto rounded"
+                      onLoad={() => console.log("와인병 전체 이미지 로드 완료")}
+                      onError={(e) => console.error("와인병 이미지 로드 실패:", e)}
+                    />
+                  </div>
+                ) : labelImageUrl ? (
+                  // 라벨 이미지만 있는 경우 대체 표시
+                  <div className="flex flex-col items-center">
+                    {/* 실제 크기 표시 */}
+                    <div className="text-white text-xs mb-2 bg-black/50 px-2 py-1 rounded-full">
+                      실제 라벨 크기: {bottleInfo.type === 'burgundy' ? '7.94cm × 7.44cm' : '6.94cm × 7.94cm'}
+                    </div>
+                    
+                    {/* 와인병 위에 라벨 표시 */}
+                    <div className="relative">
+                      {/* 와인병 이미지 */}
                       <img 
-                        src={labelImageUrl}
-                        alt="와인 라벨 디자인" 
-                        className="w-full h-auto object-contain rounded shadow-lg shadow-[#00ffff]/10"
+                        src={bottleInfo.image} 
+                        alt={bottleInfo.name}
+                        className="h-[450px] object-contain"
                       />
                       
-                      {/* 강조 테두리 효과 */}
-                      <div className="absolute inset-0 border-2 border-[#00ffff]/30 rounded pointer-events-none"></div>
+                      {/* 라벨 오버레이 */}
+                      <div className="absolute" style={{
+                        top: '60%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: bottleInfo.type === 'burgundy' ? '140px' : '120px',
+                      }}>
+                        <img 
+                          src={labelImageUrl}
+                          alt="와인 라벨 디자인" 
+                          className="w-full h-auto object-contain rounded"
+                          style={{
+                            border: '1px dashed rgba(0, 255, 255, 0.3)'
+                          }}
+                          onLoad={() => console.log("라벨 이미지 로드 완료")}
+                          onError={(e) => console.error("라벨 이미지 로드 실패:", e)}
+                        />
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -466,29 +584,16 @@ export default function Checkout() {
                     <RadioGroupItem value="standard" id="standard-delivery" className="text-[#ff00ff] focus:ring-[#ff00ff]" />
                     <Label htmlFor="standard-delivery" className="flex items-center cursor-pointer w-full">
                       <Truck className="w-5 h-5 mr-2 text-gray-300" />
-                      <div>
-                        <span className="font-medium text-white">일반 배송</span>
-                        <span className="text-sm text-gray-400 ml-2">(3,000원)</span>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700 hover:border-[#ff00ff]/50 transition-colors">
-                    <RadioGroupItem value="express" id="express-delivery" className="text-[#ff00ff] focus:ring-[#ff00ff]" />
-                    <Label htmlFor="express-delivery" className="flex items-center cursor-pointer w-full">
-                      <Package2 className="w-5 h-5 mr-2 text-gray-300" />
-                      <div>
-                        <span className="font-medium text-white">특급 배송</span>
-                        <span className="text-sm text-gray-400 ml-2">(5,000원)</span>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700 hover:border-[#ff00ff]/50 transition-colors">
-                    <RadioGroupItem value="same-day" id="same-day-delivery" className="text-[#ff00ff] focus:ring-[#ff00ff]" />
-                    <Label htmlFor="same-day-delivery" className="flex items-center cursor-pointer w-full">
-                      <Truck className="w-5 h-5 mr-2 text-gray-300" />
-                      <div>
-                        <span className="font-medium text-white">당일 배송</span>
-                        <span className="text-sm text-gray-400 ml-2">(8,000원)</span>
+                      <div className="flex-1">
+                        <div className="flex items-center">
+                          <span className="font-medium text-white">일반 배송</span>
+                          {(bottleInfo.price * quantity) >= 30000 ? (
+                            <span className="text-sm text-green-400 ml-2 font-semibold">(무료배송)</span>
+                          ) : (
+                            <span className="text-sm text-gray-400 ml-2">(3,000원)</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-500">3만원 이상 주문시 무료배송</span>
                       </div>
                     </Label>
                   </div>
@@ -497,7 +602,12 @@ export default function Checkout() {
               
               <div className="flex justify-between">
                 <span>배송비</span>
-                <span className="font-medium text-white">{getDeliveryFee(deliveryMethod).toLocaleString()}원</span>
+                <span className="font-medium text-white">
+                  {getDeliveryFee(deliveryMethod, bottleInfo.price * quantity) === 0 ? 
+                    <span className="text-green-400">무료</span> : 
+                    `${getDeliveryFee(deliveryMethod, bottleInfo.price * quantity).toLocaleString()}원`
+                  }
+                </span>
               </div>
               
               <Separator className="border-gray-700" />
@@ -549,6 +659,13 @@ export default function Checkout() {
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                   />
                 </div>
+                
+                {/* 주소 검색 기능 추가 */}
+                <div className="pt-2">
+                  <Label className="text-white mb-2 block">주소 검색 *</Label>
+                  <AddressSearch onSelect={handleAddressSelect} />
+                </div>
+                
                 <div>
                   <Label htmlFor="zipCode" className="text-white">우편번호 *</Label>
                   <Input
@@ -558,6 +675,7 @@ export default function Checkout() {
                     onChange={(e) => setUserInfo({ ...userInfo, zipCode: e.target.value })}
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                     required
+                    readOnly
                   />
                 </div>
                 <div>
@@ -569,6 +687,18 @@ export default function Checkout() {
                     onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                     required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="addressDetail" className="text-white">상세 주소</Label>
+                  <Input
+                    id="addressDetail"
+                    type="text"
+                    value={addressDetail}
+                    placeholder="아파트, 동/호수, 상세주소 입력"
+                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    onChange={(e) => setAddressDetail(e.target.value)}
                   />
                 </div>
                 
@@ -593,7 +723,11 @@ export default function Checkout() {
               deliveryMethod
             }}
             amount={totalAmount} 
-            customerInfo={userInfo}
+            customerInfo={{
+              ...userInfo,
+              address: addressDetail ? `${userInfo.address} ${addressDetail}` : userInfo.address
+            }}
+            createdOrder={createdOrder}
           />
         )}
       </section>

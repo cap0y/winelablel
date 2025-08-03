@@ -12,6 +12,7 @@ import { Star, Search, Heart, Wine, Filter, X, Send, Clock, MessageSquare, Thumb
 import { useAuth } from "@/contexts/auth-context";
 import { galleryApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
+import React from "react";
 
 // 갤러리 아이템 타입 정의
 interface GalleryItem {
@@ -47,7 +48,7 @@ function GalleryCard({ item, onLikeToggle, isUserLiked, onClick }: {
   const formattedDate = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')}`;
   
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg cursor-pointer" onClick={onClick}>
+    <Card className="overflow-hidden transition-all hover:shadow-lg hover:shadow-cyan-500/20 cursor-pointer bg-gray-900 border-gray-700 hover:border-cyan-500/50" onClick={onClick}>
       <div className="relative">
         <img 
           src={item.labelImage} 
@@ -55,7 +56,7 @@ function GalleryCard({ item, onLikeToggle, isUserLiked, onClick }: {
           className="w-full h-48 object-cover" 
         />
         <button 
-          className={`absolute top-2 right-2 p-1.5 rounded-full ${isUserLiked ? 'bg-rose-500 text-white' : 'bg-white/80 text-gray-600'}`}
+          className={`absolute top-2 right-2 p-1.5 rounded-full transition-all hover:scale-110 ${isUserLiked ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/50' : 'bg-white/80 text-gray-600 hover:bg-rose-100'}`}
           onClick={(e) => {
             e.stopPropagation();
             onLikeToggle();
@@ -64,18 +65,18 @@ function GalleryCard({ item, onLikeToggle, isUserLiked, onClick }: {
           <Heart className={`w-4 h-4 ${isUserLiked ? 'fill-white' : ''}`} />
         </button>
       </div>
-      <CardContent className="p-4">
-        <h3 className="font-medium mb-1">{item.title}</h3>
-        <p className="text-sm text-gray-500 mb-2">by {item.designer}</p>
+      <CardContent className="p-4 bg-gray-900">
+        <h3 className="font-medium mb-1 text-cyan-300">{item.title}</h3>
+        <p className="text-sm text-gray-400 mb-2">by <span className="text-cyan-400">{item.designer}</span></p>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-400 flex items-center">
+          <span className="text-xs text-gray-500 flex items-center">
             <Clock className="w-3 h-3 mr-1" />
             {formattedDate}
           </span>
           <div className="flex items-center">
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mr-1" />
-            <span className="text-sm">{item.rating}</span>
-            <span className="text-xs text-gray-400 ml-1">({item.ratingCount})</span>
+            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
+            <span className="text-sm text-yellow-300">{item.rating}</span>
+            <span className="text-xs text-gray-500 ml-1">({item.ratingCount})</span>
             <span className="text-xs text-rose-400 ml-2 flex items-center">
               <Heart className="w-3 h-3 mr-1 fill-rose-400" />
               {item.likes}
@@ -104,47 +105,20 @@ function StarRating({ rating, setRating, readOnly = false }: {
             type="button"
             disabled={readOnly}
             onClick={() => setRating && setRating(value)}
-            className={`${!readOnly ? 'cursor-pointer' : ''} p-0.5`}
+            className={`${!readOnly ? 'cursor-pointer hover:scale-110 transition-transform' : ''} p-0.5`}
           >
             <Star
-              className={`w-5 h-5 ${
+              className={`w-5 h-5 transition-colors ${
                 isFullStar
-                  ? 'text-yellow-500 fill-yellow-500'
+                  ? 'text-yellow-400 fill-yellow-400 drop-shadow-sm'
                   : isHalfStar
-                  ? 'text-yellow-500 fill-gradient-lr-yellow'
-                  : 'text-gray-300'
+                  ? 'text-yellow-400 fill-gradient-lr-yellow'
+                  : 'text-gray-600 hover:text-yellow-500'
               }`}
             />
           </button>
         );
       })}
-    </div>
-  );
-}
-
-// 댓글 컴포넌트
-function CommentItem({ comment }: { comment: Comment }) {
-  const date = new Date(comment.createdAt);
-  const formattedDate = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')}`;
-  
-  return (
-    <div className="py-3 border-b border-gray-100 last:border-0">
-      <div className="flex items-start">
-        <Avatar className="w-8 h-8 mr-3">
-          {comment.photoURL ? (
-            <AvatarImage src={comment.photoURL} alt={comment.displayName || comment.username} />
-          ) : (
-            <AvatarFallback>{(comment.displayName || comment.username || '?').substring(0, 2)}</AvatarFallback>
-          )}
-        </Avatar>
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-1">
-            <span className="font-medium text-sm">{comment.displayName || comment.username}</span>
-            <span className="text-xs text-gray-400">{formattedDate}</span>
-          </div>
-          <p className="text-sm text-gray-700">{comment.content}</p>
-        </div>
-      </div>
     </div>
   );
 }
@@ -227,77 +201,101 @@ function LabelDetailDialog({ labelId, isOpen, onClose }: {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto p-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto p-0 bg-gray-900 border-gray-800 text-white">
         {isLoading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#722F37] mx-auto mb-4"></div>
-            <p>라벨 정보를 불러오는 중...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+            <p className="text-gray-300">라벨 정보를 불러오는 중...</p>
           </div>
         ) : error ? (
-          <div className="p-8 text-center text-red-500">
+          <div className="p-8 text-center text-red-400">
             <p>라벨 정보를 불러오는 중 오류가 발생했습니다.</p>
           </div>
         ) : label ? (
           <div className="grid md:grid-cols-2">
-            <div className="bg-gray-100 flex items-center justify-center p-4">
+            <div className="bg-gray-800 flex items-center justify-center p-4">
               <img 
                 src={label.labelImage} 
                 alt={label.title} 
-                className="max-w-full max-h-[60vh] object-contain"
+                className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-lg"
               />
             </div>
-            <div className="p-6 flex flex-col h-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 flex flex-col h-full max-h-[80vh] overflow-hidden bg-gray-900">
               <DialogHeader className="mb-4">
-                <div className="flex justify-between items-center">
-                  <DialogTitle className="text-2xl">{label.title}</DialogTitle>
-                  <DialogClose className="w-6 h-6 rounded-full hover:bg-gray-100 flex items-center justify-center">
-                    <X className="w-4 h-4" />
-                  </DialogClose>
-                </div>
+                <DialogTitle className="text-2xl text-cyan-400 font-bold">{label.title}</DialogTitle>
               </DialogHeader>
               
               <div className="mb-6 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">by {label.designer}</span>
+                  <span className="text-gray-300 font-medium">by <span className="text-cyan-300">{label.designer}</span></span>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mr-1" />
-                      <span>{label.rating}</span>
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
+                      <span className="text-yellow-300 font-semibold">{label.rating}</span>
                       <span className="text-xs text-gray-400 ml-1">({label.ratingCount})</span>
                     </div>
                     <button 
-                      className="flex items-center gap-1 text-sm"
+                      className="flex items-center gap-1 text-sm hover:scale-105 transition-transform"
                       onClick={handleLikeToggle}
                     >
-                      <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-500 text-rose-500' : 'text-gray-400'}`} />
-                      <span>{label.likes}</span>
+                      <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-400 text-rose-400' : 'text-gray-400 hover:text-rose-300'}`} />
+                      <span className="text-gray-300">{label.likes}</span>
                     </button>
                   </div>
                 </div>
-                <p className="text-sm text-gray-500">{label.bottleName}</p>
+                <p className="text-sm text-gray-400 bg-gray-800/50 px-3 py-1 rounded-full inline-block w-fit">
+                  {label.bottleName}
+                </p>
                 
                 {user && (
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="text-sm mr-2">별점 주기:</span>
-                      <StarRating rating={userRating} setRating={handleRating} />
+                  <div className="mt-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="text-sm mr-3 text-gray-300 font-medium">별점 주기:</span>
+                        <StarRating rating={userRating} setRating={handleRating} />
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
               
               <div className="flex-1 overflow-auto mb-4">
-                <h3 className="font-medium mb-3 flex items-center">
-                  <MessageSquare className="w-4 h-4 mr-1" />
+                <h3 className="font-medium mb-3 flex items-center text-cyan-400 border-b border-gray-700 pb-2">
+                  <MessageSquare className="w-4 h-4 mr-2 text-cyan-500" />
                   댓글 ({label.comments?.length || 0})
                 </h3>
-                <div className="overflow-auto pr-2">
+                <div className="overflow-auto pr-2 max-h-60">
                   {label.comments?.length ? (
                     label.comments.map((comment: Comment) => (
-                      <CommentItem key={comment.id} comment={comment} />
+                      <div key={comment.id} className="py-3 border-b border-gray-700 last:border-0">
+                        <div className="flex items-start">
+                          <Avatar className="w-8 h-8 mr-3 border border-gray-600">
+                            {comment.photoURL ? (
+                              <AvatarImage src={comment.photoURL} alt={comment.displayName || comment.username} />
+                            ) : (
+                              <AvatarFallback className="bg-gray-700 text-gray-300">
+                                {(comment.displayName || comment.username || '?').substring(0, 2)}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-medium text-sm text-cyan-300">
+                                {comment.displayName || comment.username}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-300 bg-gray-800/30 p-2 rounded-lg">
+                              {comment.content}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-400 text-center py-4">
+                    <p className="text-sm text-gray-500 text-center py-4 bg-gray-800/30 rounded-lg">
                       아직 댓글이 없습니다. 첫 댓글을 작성해보세요!
                     </p>
                   )}
@@ -305,25 +303,27 @@ function LabelDetailDialog({ labelId, isOpen, onClose }: {
               </div>
               
               {user && (
-                <form onSubmit={handleCommentSubmit} className="pt-3 border-t border-gray-100">
+                <form onSubmit={handleCommentSubmit} className="pt-3 border-t border-gray-700">
                   <div className="flex gap-2 items-start">
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-8 h-8 border border-gray-600">
                       {user.photoURL ? (
                         <AvatarImage src={user.photoURL} alt={user.displayName || user.username} />
                       ) : (
-                        <AvatarFallback>{(user.displayName || user.username || '?').substring(0, 2)}</AvatarFallback>
+                        <AvatarFallback className="bg-gray-700 text-gray-300">
+                          {(user.displayName || user.username || '?').substring(0, 2)}
+                        </AvatarFallback>
                       )}
                     </Avatar>
                     <Textarea 
                       placeholder="댓글을 남겨보세요..."
-                      className="flex-1 min-h-[60px] resize-none"
+                      className="flex-1 min-h-[60px] resize-none bg-gray-800 border-gray-600 text-gray-200 placeholder-gray-500 focus:border-cyan-500"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                     />
                     <Button 
                       type="submit" 
                       size="sm" 
-                      className="mt-1"
+                      className="mt-1 bg-cyan-600 hover:bg-cyan-700 text-white border-none"
                       disabled={!comment.trim()}
                     >
                       <Send className="w-4 h-4" />
@@ -335,7 +335,7 @@ function LabelDetailDialog({ labelId, isOpen, onClose }: {
           </div>
         ) : (
           <div className="p-8 text-center">
-            <p>라벨 정보를 찾을 수 없습니다.</p>
+            <p className="text-gray-400">라벨 정보를 찾을 수 없습니다.</p>
           </div>
         )}
       </DialogContent>
@@ -356,8 +356,35 @@ export default function Gallery() {
   // 라벨 목록 가져오기
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['galleryLabels'],
-    queryFn: () => galleryApi.getLabels().then(res => res.data)
+    queryFn: () => galleryApi.getLabels().then(res => res.data),
+    staleTime: 60000, // 1분간 데이터 신선한 상태 유지
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 자동 갱신 방지
   });
+  
+  // 필터링된 아이템 목록
+  const filteredItems = React.useMemo(() => {
+    if (!data?.labels) return [];
+    
+    return data.labels.filter((item: GalleryItem) => {
+      if (!searchTerm.trim()) return true; // 검색어가 없으면 모든 아이템 표시
+      
+      const searchLower = searchTerm.toLowerCase();
+      // 검색어 필터링
+      return (
+        (item.title || '').toLowerCase().includes(searchLower) ||
+        (item.designer || '').toLowerCase().includes(searchLower) ||
+        (item.bottleName || '').toLowerCase().includes(searchLower)
+      );
+    });
+  }, [data?.labels, searchTerm]);
+
+  // 디버깅 정보
+  useEffect(() => {
+    console.log("데이터 로드됨:", !!data);
+    console.log("라벨 개수:", data?.labels?.length || 0);
+    console.log("검색어:", searchTerm);
+    console.log("필터링된 결과 개수:", filteredItems.length);
+  }, [data, searchTerm, filteredItems.length]);
   
   // 사용자가 좋아요한 라벨 확인
   const handleLikeToggle = async (labelId: string) => {
@@ -396,20 +423,9 @@ export default function Gallery() {
     refetch(); // 목록 새로고침
   };
   
-  // 필터링된 아이템 목록
-  const filteredItems = data?.labels?.filter((item: GalleryItem) => {
-    // 검색어 필터링
-    const matchesSearch = 
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.designer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.bottleName.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesSearch;
-  }) || [];
-
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6 text-center">인기 라벨 디자인 갤러리</h1>
+    <div className="container mx-auto px-4 py-6 min-h-screen bg-gray-950">
+      <h1 className="text-2xl font-bold mb-6 text-center text-cyan-400">인기 라벨 디자인 갤러리</h1>
       
       {/* 검색 필드 */}
       <div className="mb-8">
@@ -417,9 +433,20 @@ export default function Gallery() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input 
             placeholder="디자인, 디자이너, 와인 이름으로 검색" 
-            className="pl-10"
+            className="pl-10 bg-gray-900 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-cyan-500"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              const newSearchTerm = e.target.value;
+              console.log("검색어 변경:", newSearchTerm);
+              setSearchTerm(newSearchTerm);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                console.log("검색 실행:", searchTerm);
+                // 검색 실행 시 포커스 제거하여 키보드 닫기
+                e.currentTarget.blur();
+              }
+            }}
           />
         </div>
       </div>
@@ -427,11 +454,11 @@ export default function Gallery() {
       {/* 갤러리 그리드 */}
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#722F37] mx-auto mb-4"></div>
-          <p className="text-gray-500">라벨 디자인을 불러오는 중...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">라벨 디자인을 불러오는 중...</p>
         </div>
       ) : error ? (
-        <div className="text-center py-12 text-red-500">
+        <div className="text-center py-12 text-red-400">
           <p>라벨 디자인을 불러오는 중 오류가 발생했습니다.</p>
         </div>
       ) : filteredItems.length > 0 ? (
@@ -448,15 +475,15 @@ export default function Gallery() {
         </div>
       ) : (
         <div className="text-center py-12">
-          <Wine className="mx-auto mb-4 text-gray-400 w-12 h-12" />
-          <h3 className="text-xl font-medium mb-2">검색 결과가 없습니다</h3>
+          <Wine className="mx-auto mb-4 text-gray-500 w-12 h-12" />
+          <h3 className="text-xl font-medium mb-2 text-gray-300">검색 결과가 없습니다</h3>
           <p className="text-gray-500">다른 검색어를 입력해보세요</p>
         </div>
       )}
       
       <div className="mt-8 text-center">
         <Link href="/wine-bottles">
-          <Button className="bg-[#722F37] hover:bg-[#722F37]/90 text-white">
+          <Button className="bg-cyan-600 hover:bg-cyan-700 text-white border-none shadow-lg hover:shadow-cyan-500/25 transition-all">
             <Wine className="mr-2 w-4 h-4" />
             나만의 라벨 디자인하기
           </Button>

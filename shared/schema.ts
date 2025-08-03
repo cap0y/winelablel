@@ -1,4 +1,5 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -40,6 +41,10 @@ export const orders = pgTable("orders", {
   labelImage: text("label_image"), // base64로 인코딩된 라벨 이미지 데이터
   deliveryMethod: text("delivery_method").default('standard'), // 'standard', 'express', 'same-day'
   deliveryFee: integer("delivery_fee").default(3000),
+  trackingNumber: text("tracking_number"), // 운송장 번호
+  shippingCompany: text("shipping_company"), // 배송 회사 (cj, lotte 등)
+  shippingNotified: boolean("shipping_notified").default(false), // 배송 알림 전송 여부
+  shippingNotifiedAt: timestamp("shipping_notified_at"), // 배송 알림 전송 시간
   userId: integer("user_id").references(() => users.id), // 회원 주문인 경우 사용자 ID
   publishToGallery: boolean("publish_to_gallery").default(false), // 갤러리에 공개 여부
   title: text("title"), // 갤러리에 표시될 라벨 제목
@@ -72,6 +77,26 @@ export const labelLikes = pgTable("label_likes", {
   id: serial("id").primaryKey(),
   orderId: text("order_id").references(() => orders.id).notNull(),
   userId: integer("user_id").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// 라벨 배경 카테고리 테이블 추가
+export const labelCategories = pgTable("label_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// 배경 이미지와 카테고리 관계 테이블
+export const labelBackgroundCategories = pgTable("label_background_categories", {
+  id: serial("id").primaryKey(),
+  backgroundId: text("background_id").notNull(),
+  categoryId: integer("category_id").references(() => labelCategories.id).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -117,6 +142,36 @@ export const reservations = pgTable("reservations", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// 와인병 테이블 정의
+export const wineBottles = pgTable("wine_bottles", {
+  id: text("id").primaryKey(), // bordeaux-red, burgundy-white 등
+  name: text("name").notNull(),
+  image: text("image").notNull(),
+  type: text("type").notNull(), // red, white, rose
+  bottleType: text("bottle_type").notNull(), // bordeaux, burgundy
+  dimensions: text("dimensions").notNull(),
+  capacity: text("capacity").notNull(),
+  price: integer("price").notNull(),
+  labelWidth: decimal("label_width", { precision: 10, scale: 2 }).notNull(),
+  labelHeight: decimal("label_height", { precision: 10, scale: 2 }).notNull(),
+  labelPositionTop: integer("label_position_top").notNull(),
+  labelPositionLeft: integer("label_position_left").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// 알림 테이블 추가
+export const notifications = pgTable("notifications", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`), // UUID 자동 생성
+  customerEmail: text("customer_email").notNull(), // 알림 받을 고객 이메일
+  type: text("type").notNull(), // 'shipping', 'order', 'system'
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  orderId: text("order_id").references(() => orders.id), // 관련 주문 ID (선택사항)
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // 주문 테이블 스키마 추가
 export const insertOrderSchema = createInsertSchema(orders).pick({
   id: true,
@@ -135,6 +190,10 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   labelImage: true,
   deliveryMethod: true,
   deliveryFee: true,
+  trackingNumber: true,
+  shippingCompany: true,
+  shippingNotified: true,
+  shippingNotifiedAt: true,
   userId: true,
 });
 
@@ -214,6 +273,21 @@ export const insertLabelLikeSchema = createInsertSchema(labelLikes).pick({
   userId: true,
 });
 
+export const insertLabelCategorySchema = createInsertSchema(labelCategories).pick({
+  name: true,
+  slug: true,
+  description: true,
+  isActive: true,
+  displayOrder: true,
+});
+
+export const insertLabelBackgroundCategorySchema = createInsertSchema(labelBackgroundCategories).pick({
+  backgroundId: true,
+  categoryId: true,
+});
+
+export const insertWineBottleSchema = createInsertSchema(wineBottles);
+
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
 
@@ -237,3 +311,9 @@ export type LabelRating = typeof labelRatings.$inferSelect;
 
 export type InsertLabelLike = z.infer<typeof insertLabelLikeSchema>;
 export type LabelLike = typeof labelLikes.$inferSelect;
+
+export type InsertLabelCategory = z.infer<typeof insertLabelCategorySchema>;
+export type LabelCategory = typeof labelCategories.$inferSelect;
+
+export type InsertLabelBackgroundCategory = z.infer<typeof insertLabelBackgroundCategorySchema>;
+export type LabelBackgroundCategory = typeof labelBackgroundCategories.$inferSelect;

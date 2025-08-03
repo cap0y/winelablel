@@ -8,7 +8,10 @@
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "migrate": "tsx scripts/run-migration.js",
+    "migrate:label-categories": "tsx scripts/run-label-categories-migration.js",
+    "migrate:wine-bottles": "tsx scripts/run-wine-bottles-migration.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

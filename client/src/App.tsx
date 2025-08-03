@@ -22,6 +22,7 @@ import ProfilePage from "@/pages/profile";
 import PaymentSuccess from "@/pages/payment/success";
 import PaymentFailure from "@/pages/payment/failure";
 import PWAInstaller from "@/components/PWAInstaller";
+import OrderManagement from "@/components/admin/OrderManagement";
 
 // OrderHistory 임포트 경로 수정
 import OrderHistory from "@/pages/order-history";
@@ -49,6 +50,7 @@ function Router() {
           <Route path="/profile/:tab" component={ProfilePage} />
           <Route path="/orders" component={OrderHistory} />
           <Route path="/orders/:orderId" component={OrderHistory} />
+          <Route path="/admin/orders" component={OrderManagement} />
           <Route component={NotFound} />
         </Switch>
       </main>

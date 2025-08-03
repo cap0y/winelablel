@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { adminApi } from '@/services/api';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -6,6 +6,8 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 // 차트 컬러
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28BFF', '#FF6384'];
@@ -13,46 +15,103 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28BFF', '#FF6384'
 const SalesStatistics = () => {
   const [activeTab, setActiveTab] = useState('summary');
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [summary, setSummary] = useState<any>(null);
   const [dailySales, setDailySales] = useState<any[]>([]);
   const [monthlySales, setMonthlySales] = useState<any[]>([]);
   const [bottleSales, setBottleSales] = useState<any[]>([]);
-
-  // 데이터 로드
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      
-      try {
-        // 선택된 탭에 따라 필요한 데이터만 로드
-        if (activeTab === 'summary' || activeTab === 'dashboard') {
-          const summaryResponse = await adminApi.getSalesSummary();
-          setSummary(summaryResponse.data.data);
-        }
-        
-        if (activeTab === 'daily' || activeTab === 'dashboard') {
-          const dailyResponse = await adminApi.getDailySales();
-          setDailySales(dailyResponse.data.data);
-        }
-        
-        if (activeTab === 'monthly' || activeTab === 'dashboard') {
-          const monthlyResponse = await adminApi.getMonthlySales();
-          setMonthlySales(monthlyResponse.data.data);
-        }
-        
-        if (activeTab === 'bottles' || activeTab === 'dashboard') {
-          const bottlesResponse = await adminApi.getBottleSales();
-          setBottleSales(bottlesResponse.data.data);
-        }
-      } catch (error) {
-        console.error('통계 데이터 로드 오류:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  
+  // 캐싱 관련 상태
+  const [dataLoaded, setDataLoaded] = useState({
+    summary: false,
+    daily: false,
+    monthly: false,
+    bottles: false
+  });
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const [cacheExpiry] = useState<number>(300000); // 5분 캐시
+  
+  // 모든 통계 데이터를 병렬로 로드하는 함수
+  const fetchAllData = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
     
-    fetchData();
-  }, [activeTab]);
+    // 캐시가 유효하고 강제 새로고침이 아닌 경우 생략
+    if (!forceRefresh && dataLoaded.summary && dataLoaded.daily && dataLoaded.monthly && dataLoaded.bottles && (now - lastFetchTime) < cacheExpiry) {
+      console.log("캐시된 통계 데이터 사용");
+      return;
+    }
+    
+    if (forceRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+    
+    try {
+      // 모든 API를 병렬로 호출하여 성능 향상
+      const [summaryResponse, dailyResponse, monthlyResponse, bottlesResponse] = await Promise.allSettled([
+        adminApi.getSalesSummary(),
+        adminApi.getDailySales(),
+        adminApi.getMonthlySales(),
+        adminApi.getBottleSales()
+      ]);
+      
+      // 성공한 응답들 처리
+      if (summaryResponse.status === 'fulfilled') {
+        setSummary(summaryResponse.value.data.data);
+      }
+      
+      if (dailyResponse.status === 'fulfilled') {
+        setDailySales(dailyResponse.value.data.data);
+      }
+      
+      if (monthlyResponse.status === 'fulfilled') {
+        setMonthlySales(monthlyResponse.value.data.data);
+      }
+      
+      if (bottlesResponse.status === 'fulfilled') {
+        setBottleSales(bottlesResponse.value.data.data);
+      }
+      
+      // 캐시 상태 업데이트
+      setDataLoaded({
+        summary: summaryResponse.status === 'fulfilled',
+        daily: dailyResponse.status === 'fulfilled',
+        monthly: monthlyResponse.status === 'fulfilled',
+        bottles: bottlesResponse.status === 'fulfilled'
+      });
+      
+      setLastFetchTime(now);
+      
+    } catch (error) {
+      console.error('통계 데이터 로드 오류:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [dataLoaded, lastFetchTime, cacheExpiry]);
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    fetchAllData();
+  }, []); // 빈 의존성 배열로 초기 로드만 실행
+  
+  // 자동 새로고침 (10분마다)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchAllData(true);
+    }, 600000); // 10분
+    
+    return () => clearInterval(interval);
+  }, [fetchAllData]);
+
+  // 차트 데이터를 useMemo로 메모이제이션
+  const chartData = useMemo(() => {
+    return {
+      recentDailySales: [...dailySales].reverse().slice(0, 30),
+      topBottles: bottleSales.slice(0, 5)
+    };
+  }, [dailySales, bottleSales]);
 
   // 한국어 날짜 포맷 (월)
   const formatMonth = (month: string) => {
@@ -73,7 +132,14 @@ const SalesStatistics = () => {
 
   // 차트 컴포넌트들
   const renderSummary = () => {
-    if (!summary) return <div>데이터 로드 중...</div>;
+    if (!summary) return (
+      <div className="flex justify-center items-center h-32 text-gray-400">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500 mx-auto mb-2"></div>
+          <p>요약 데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    );
     
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -124,10 +190,21 @@ const SalesStatistics = () => {
   };
   
   const renderDailyChart = () => {
-    if (dailySales.length === 0) return <div>데이터 로드 중...</div>;
-    
-    // 최근 30일 데이터만 표시
-    const recentData = [...dailySales].reverse().slice(0, 30);
+    if (chartData.recentDailySales.length === 0) return (
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle>일별 매출 추이</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center items-center h-64 text-gray-400">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500 mx-auto mb-2"></div>
+              <p>일별 데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
     
     return (
       <Card className="bg-gray-800 border-gray-700">
@@ -138,7 +215,7 @@ const SalesStatistics = () => {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={recentData}
+                data={chartData.recentDailySales}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" />
@@ -270,6 +347,31 @@ const SalesStatistics = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-100">매출 통계</h2>
+        <div className="flex items-center space-x-3">
+          {isRefreshing && (
+            <div className="flex items-center space-x-2 text-cyan-400">
+              <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">새로고침 중...</span>
+            </div>
+          )}
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => fetchAllData(true)}
+            disabled={isRefreshing}
+            className="bg-gray-800 hover:bg-gray-700 text-gray-300"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            새로고침
+          </Button>
+          <div className="text-sm text-gray-500">
+            마지막 업데이트: {lastFetchTime ? new Date(lastFetchTime).toLocaleTimeString() : '없음'}
+          </div>
+        </div>
+      </div>
+      
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-5 gap-2">
           <TabsTrigger value="dashboard">대시보드</TabsTrigger>
@@ -280,15 +382,21 @@ const SalesStatistics = () => {
         </TabsList>
         
         <TabsContent value="dashboard" className="mt-6">
-          {isLoading ? <div>데이터 로드 중...</div> : renderDashboard()}
+          {isLoading ? (
+            <div className="flex flex-col justify-center items-center h-64 space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+              <p className="text-gray-400">통계 데이터를 불러오는 중...</p>
+              <p className="text-sm text-gray-500">모든 데이터를 병렬로 로딩합니다.</p>
+            </div>
+          ) : renderDashboard()}
         </TabsContent>
         
         <TabsContent value="summary" className="mt-6">
-          {isLoading ? <div>데이터 로드 중...</div> : renderSummary()}
+          {renderSummary()}
         </TabsContent>
         
         <TabsContent value="daily" className="mt-6">
-          {isLoading ? <div>데이터 로드 중...</div> : renderDailyChart()}
+          {renderDailyChart()}
         </TabsContent>
         
         <TabsContent value="monthly" className="mt-6">

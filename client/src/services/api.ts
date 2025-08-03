@@ -26,6 +26,22 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// 사용자 업로드 이미지 API
+export const uploadApi = {
+  // 업로드 이미지 목록 가져오기
+  getUploads: () => api.get('/api/labels/uploads'),
+  
+  // 이미지 업로드하기
+  uploadImage: (formData: FormData) => 
+    api.post('/api/labels/uploads', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+  
+  // 업로드 이미지 삭제하기
+  deleteUpload: (filename: string) => 
+    api.delete(`/api/labels/uploads/${filename}`)
+};
+
 export const userApi = {
   // 사용자 로그인
   login: (email: string, password: string) => api.post('/api/login', { email, password }),
@@ -37,13 +53,18 @@ export const userApi = {
   getUserByEmail: (email: string) => api.get(`/api/users/by-email/${email}`),
   
   // 사용자 주문 목록 조회
-  getUserOrders: (email: string) => api.get(`/api/user-orders?email=${email}`)
+  getUserOrders: (email: string) => api.get(`/api/user-orders?email=${email}`),
+  
+  // 사용자 주문 통계 조회
+  getUserStats: (email: string) => api.get(`/api/user-stats?email=${email}`)
 };
 
 // 갤러리 관련 API
 export const galleryApi = {
-  // 갤러리에 표시될 라벨 목록
-  getLabels: () => api.get('/api/gallery/labels'),
+  // 라벨 갤러리 목록 - 캐시 무효화 옵션 추가
+  getLabels: () => api.get('/api/gallery/labels', {
+    params: { _t: new Date().getTime() } // 캐시 방지 타임스탬프 추가
+  }),
   
   // 인기 라벨 이미지 (슬라이더용)
   getPopularLabelImages: (limit = 5) => api.get(`/api/gallery/labels/popular?limit=${limit}`),
@@ -82,6 +103,27 @@ export const adminApi = {
   // 와인 테두리 목록 가져오기
   getLabelBorders: () => api.get('/api/admin/labels/borders'),
   
+  // 와인병 목록 가져오기
+  getWineBottles: () => api.get('/api/admin/bottles'),
+  
+  // 와인병 상세 정보 가져오기
+  getWineBottle: (bottleId: string) => api.get(`/api/admin/bottles/${bottleId}`),
+  
+  // 와인병 추가
+  createWineBottle: (bottleData: any) => api.post('/api/admin/bottles', bottleData),
+  
+  // 와인병 정보 수정
+  updateWineBottle: (bottleId: string, bottleData: any) => api.put(`/api/admin/bottles/${bottleId}`, bottleData),
+  
+  // 와인병 삭제
+  deleteWineBottle: (bottleId: string) => api.delete(`/api/admin/bottles/${bottleId}`),
+  
+  // 와인병 이미지 업로드
+  uploadWineBottleImage: (formData: FormData) => 
+    api.post('/api/admin/bottles/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+  
   // 와인 라벨 배경 업로드
   uploadLabelBackground: (formData: FormData) => 
     api.post('/api/admin/labels/backgrounds/upload', formData, {
@@ -111,6 +153,25 @@ export const adminApi = {
   // 와인 테두리 삭제
   deleteLabelBorder: (filename: string) => 
     api.delete(`/api/admin/labels/borders/${filename}`),
+
+  // 라벨 배경 카테고리 목록 조회
+  getLabelCategories: () => api.get('/api/admin/labels/categories'),
+
+  // 라벨 배경 카테고리 생성
+  createLabelCategory: (categoryData: { name: string, description?: string, displayOrder?: number }) => 
+    api.post('/api/admin/labels/categories', categoryData),
+
+  // 라벨 배경 카테고리 수정
+  updateLabelCategory: (categoryId: number, categoryData: { name?: string, description?: string, displayOrder?: number, isActive?: boolean }) => 
+    api.patch(`/api/admin/labels/categories/${categoryId}`, categoryData),
+
+  // 라벨 배경 카테고리 삭제
+  deleteLabelCategory: (categoryId: number) => 
+    api.delete(`/api/admin/labels/categories/${categoryId}`),
+
+  // 배경 이미지에 카테고리 할당
+  assignCategoriesToBackground: (backgroundId: string, categoryIds: number[]) => 
+    api.post(`/api/admin/labels/backgrounds/${backgroundId}/categories`, { categoryIds }),
   
   // 주문 목록 가져오기
   getOrders: () => api.get('/api/admin/orders'),
@@ -122,17 +183,38 @@ export const adminApi = {
   updateOrderStatus: (orderId: string, status: string) => 
     api.patch(`/api/admin/orders/${orderId}/status`, { status }),
 
+  // 배송 정보 업데이트 (운송장 정보 및 배송사)
+  updateShippingInfo: (orderId: string, data: { trackingNumber: string, shippingCompany: string }) => 
+    api.patch(`/api/admin/orders/${orderId}/shipping`, data),
+  
+  // 배송 알림 전송
+  sendShippingNotification: (orderId: string) => 
+    api.post(`/api/admin/orders/${orderId}/notify-shipping`),
+  
   // 매출 통계 API - 일별 매출
   getDailySales: () => api.get('/api/admin/stats/daily'),
   
   // 매출 통계 API - 월별 매출
   getMonthlySales: () => api.get('/api/admin/stats/monthly'),
   
-  // 매출 통계 API - 와인별 매출
-  getBottleSales: () => api.get('/api/admin/stats/bottles'),
+  // 매출 통계 API - 요약 정보
+  getSalesSummary: () => api.get('/api/admin/stats/summary'),
   
-  // 매출 통계 API - 요약 통계
-  getSalesSummary: () => api.get('/api/admin/stats/summary')
+  // 매출 통계 API - 와인별 판매량
+  getBottleSales: () => api.get('/api/admin/stats/bottles')
+};
+
+// 라벨 디자인 관련 API
+export const labelApi = {
+  // 카테고리별 배경 이미지 조회
+  getBackgroundsByCategory: (categorySlug: string) => 
+    api.get(`/api/labels/backgrounds/category/${categorySlug}`),
+
+  // 모든 카테고리 목록 조회 (활성화된 카테고리만)
+  getCategories: () => api.get('/api/labels/categories'),
+  
+  // 와인병 목록 조회
+  getWineBottles: () => api.get('/api/admin/bottles')
 };
 
 export default api;
