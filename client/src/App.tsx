@@ -26,6 +26,9 @@ import OrderManagement from "@/components/admin/OrderManagement";
 
 // OrderHistory 임포트 경로 수정
 import OrderHistory from "@/pages/order-history";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsOfService from "@/pages/terms-of-service";
+import CookiePolicy from "@/pages/cookie-policy";
 
 function Router() {
   return (
@@ -51,6 +54,9 @@ function Router() {
           <Route path="/orders" component={OrderHistory} />
           <Route path="/orders/:orderId" component={OrderHistory} />
           <Route path="/admin/orders" component={OrderManagement} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/terms-of-service" component={TermsOfService} />
+          <Route path="/cookie-policy" component={CookiePolicy} />
           <Route component={NotFound} />
         </Switch>
       </main>
