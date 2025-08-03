@@ -72,20 +72,23 @@ export default function Footer() {
           <div className="min-w-[180px] md:min-w-0">
             <h3 className="font-semibold text-white mb-3">정책 및 약관</h3>
             <div className="space-y-2">
-              <Link href="/privacy-policy">
-                <a className="block text-gray-300 hover:text-white transition-colors">
-                  개인정보처리방침
-                </a>
+              <Link
+                href="/privacy-policy"
+                className="block text-gray-300 hover:text-white transition-colors"
+              >
+                개인정보처리방침
               </Link>
-              <Link href="/terms-of-service">
-                <a className="block text-gray-300 hover:text-white transition-colors">
-                  이용약관
-                </a>
+              <Link
+                href="/terms-of-service"
+                className="block text-gray-300 hover:text-white transition-colors"
+              >
+                이용약관
               </Link>
-              <Link href="/cookie-policy">
-                <a className="block text-gray-300 hover:text-white transition-colors">
-                  쿠키정책
-                </a>
+              <Link
+                href="/cookie-policy"
+                className="block text-gray-300 hover:text-white transition-colors"
+              >
+                쿠키정책
               </Link>
               <p className="text-sm text-gray-400">
                 © 2021 (주)끄레망. All rights reserved.
