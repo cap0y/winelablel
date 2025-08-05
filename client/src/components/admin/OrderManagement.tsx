@@ -101,7 +101,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "bordeaux-red",
       name: "까베르네쇼비뇽 레드",
-      image: "http://localhost:3000/images/wine-bottle-1.png",
+      image: "/images/wine-bottle-1.png",
       type: "red",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -116,7 +116,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "bordeaux-white",
       name: "쇼비뇽블랑 화이트",
-      image: "http://localhost:3000/images/wine-bottle-2.png",
+      image: "/images/wine-bottle-2.png",
       type: "white",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -131,7 +131,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "bordeaux-rose",
       name: "쇼비뇽블랑 로제",
-      image: "http://localhost:3000/images/wine-bottle-3.png",
+      image: "/images/wine-bottle-3.png",
       type: "rose",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -146,7 +146,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "burgundy-red",
       name: "샤도네이 레드",
-      image: "http://localhost:3000/images/wine-bottle-5.png",
+      image: "/images/wine-bottle-5.png",
       type: "red",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
@@ -161,7 +161,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "burgundy-white",
       name: "샤도네이 화이트",
-      image: "http://localhost:3000/images/wine-bottle-6.png",
+      image: "/images/wine-bottle-6.png",
       type: "white",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
@@ -176,7 +176,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "burgundy-rose",
       name: "샤도네이 로제",
-      image: "http://localhost:3000/images/wine-bottle-7.png",
+      image: "/images/wine-bottle-7.png",
       type: "rose",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
@@ -192,21 +192,6 @@ const getWineBottle = (bottleId: string) => {
 
   return bottles.find((bottle) => bottle.id === bottleId);
 };
-
-// 장식 이미지 데이터 (label-designer.tsx에서 가져옴) - 제거
-// const labelDecorations = [
-//   { id: "deco1", name: "장식1", image: "http://localhost:3000/images/icon/default.jpg" },
-//   { id: "deco2", name: "장식2", image: "http://localhost:3000/images/icon/gold-border.png" },
-//   { id: "deco3", name: "장식3", image: "http://localhost:3000/images/icon/grape.png" },
-//   { id: "deco4", name: "없음", image: "" },
-//   { id: "grape", name: "포도", image: "http://localhost:3000/images/icon/grape.png" },
-//   { id: "leaf", name: "나뭇잎", image: "http://localhost:3000/images/icon/leaf.png" },
-//   { id: "wine", name: "와인", image: "http://localhost:3000/images/icon/wine.png" },
-//   { id: "crown", name: "왕관", image: "http://localhost:3000/images/icon/crown.png" },
-//   { id: "star", name: "별", image: "http://localhost:3000/images/icon/star.png" },
-//   { id: "heart", name: "하트", image: "http://localhost:3000/images/icon/heart.png" },
-//   { id: "ribbon", name: "리본", image: "http://localhost:3000/images/icon/ribbon.png" }
-// ];
 
 // DraggableElement 컴포넌트 추가 (장식 표시용)
 function StaticElement({
@@ -1020,7 +1005,7 @@ const OrderManagement = () => {
 
             <!-- 와인병과 라벨 미리보기 -->
             <div class="wine-bottle-container">
-              <img src="${wineBottle?.image || "http://localhost:3000/images/wine-bottle-1.png"}" alt="${order.bottleName}" class="wine-bottle" />
+              <img src="${wineBottle?.image || "/images/wine-bottle-1.png"}" alt="${order.bottleName}" class="wine-bottle" />
 
               <!-- 라벨 오버레이 -->
               <div class="label-overlay">
@@ -1030,7 +1015,7 @@ const OrderManagement = () => {
                   <img src="${order.labelImage}" alt="라벨 디자인" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" />
                 `
                     : `
-                  <img src="http://localhost:3000/images/label/${order.labelDesign?.template || "default"}.jpg" alt="라벨 배경" class="label-background" />
+                  <img src="/images/label/${order.labelDesign?.template || "default"}.jpg" alt="라벨 배경" class="label-background" />
 
                   <div class="label-text">${order.labelDesign?.text || "와인 이름"}</div>
                   <div class="label-subtext">${order.labelDesign?.subtext || "부가 설명"}</div>
@@ -1042,7 +1027,7 @@ const OrderManagement = () => {
                             (deco: any) => `
                     <img 
                       class="label-decoration" 
-                      src="http://localhost:3000/images/icon/${deco.decorationId}.png" 
+                      src="/images/icon/${deco.decorationId}.png" 
                       alt="장식" 
                       style="left: ${deco.position.x}%; top: ${deco.position.y}%;"
                     />
@@ -1056,7 +1041,7 @@ const OrderManagement = () => {
               </div>
             </div>
 
-            <!-- 주문 정보 -->
+            <!-- 주 �� 정보 -->
             <div class="order-info">
               <h3>주문 상세 정보</h3>
 
@@ -2064,10 +2049,7 @@ const OrderManagement = () => {
                             const bottle = selectedOrder.bottleId
                               ? getWineBottle(selectedOrder.bottleId)
                               : null;
-                            return (
-                              bottle?.image ||
-                              "http://localhost:3000/images/wine-bottle-1.png"
-                            );
+                            return bottle?.image || "/images/wine-bottle-1.png";
                           })()}
                           alt={selectedOrder.bottleName || "와인병"}
                           className="h-[550px] object-contain"
@@ -2121,7 +2103,7 @@ const OrderManagement = () => {
                                       src={
                                         decoration.image ||
                                         decoration.decorationUrl ||
-                                        `http://localhost:3000/images/icon/${decoration.decorationId || "default"}.png`
+                                        `/images/icon/${decoration.decorationId || "default"}.png`
                                       }
                                       alt="장식"
                                       className="w-12 h-12 object-contain"

@@ -58,6 +58,32 @@ app.use(
   }),
 );
 
+// 이미지 파일들을 위한 정적 파일 서빙 추가
+console.log(
+  "[DEBUG] Setting up static file serving for /images -> public/images",
+);
+console.log("[DEBUG] Current working directory:", process.cwd());
+
+app.use(
+  "/images",
+  express.static("public/images", {
+    setHeaders: (res, path) => {
+      console.log("[DEBUG] Serving image file:", path);
+      if (path.endsWith(".png")) {
+        res.setHeader("Content-Type", "image/png");
+      } else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+        res.setHeader("Content-Type", "image/jpeg");
+      } else if (path.endsWith(".gif")) {
+        res.setHeader("Content-Type", "image/gif");
+      } else if (path.endsWith(".webp")) {
+        res.setHeader("Content-Type", "image/webp");
+      }
+      // 캐시 설정 (1일)
+      res.setHeader("Cache-Control", "public, max-age=86400");
+    },
+  }),
+);
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
