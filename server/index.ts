@@ -4,47 +4,79 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { registerPaymentRoutes } from "./payment";
 import { registerTranslationRoutes } from "./translate";
-import 'dotenv/config';
+import "dotenv/config";
 
 const app = express();
 
 // CORS 설정
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://끄레망.replit.app', 'https://끄레망--neon.replit.app']
-    : ['http://localhost:3000', 'http://localhost:5000'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? ["https://끄레망.replit.app", "https://끄레망--neon.replit.app"]
+        : ["http://localhost:3000", "http://localhost:5000"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  }),
+);
 
 // 요청 크기 제한 증가 (기본 100kb에서 50MB로 변경)
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 
 // PWA 정적 파일 서빙 (manifest.json, service worker 등)
-app.use('/manifest.json', express.static('public/manifest.json', {
-  setHeaders: (res) => {
-    res.setHeader('Content-Type', 'application/manifest+json');
-  }
-}));
+app.use(
+  "/manifest.json",
+  express.static("public/manifest.json", {
+    setHeaders: (res) => {
+      res.setHeader("Content-Type", "application/manifest+json");
+    },
+  }),
+);
 
-app.use('/sw.js', express.static('public/sw.js', {
-  setHeaders: (res) => {
-    res.setHeader('Content-Type', 'application/javascript');
-    res.setHeader('Service-Worker-Allowed', '/');
-  }
-}));
+app.use(
+  "/sw.js",
+  express.static("public/sw.js", {
+    setHeaders: (res) => {
+      res.setHeader("Content-Type", "application/javascript");
+      res.setHeader("Service-Worker-Allowed", "/");
+    },
+  }),
+);
 
-app.use('/icons', express.static('public/icons', {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    } else if (path.endsWith('.svg')) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-    }
-  }
-}));
+app.use(
+  "/icons",
+  express.static("public/icons", {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".png")) {
+        res.setHeader("Content-Type", "image/png");
+      } else if (path.endsWith(".svg")) {
+        res.setHeader("Content-Type", "image/svg+xml");
+      }
+    },
+  }),
+);
+
+// 이미지 파일들을 위한 정적 파일 서빙 추가
+app.use(
+  "/images",
+  express.static("public/images", {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".png")) {
+        res.setHeader("Content-Type", "image/png");
+      } else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+        res.setHeader("Content-Type", "image/jpeg");
+      } else if (path.endsWith(".gif")) {
+        res.setHeader("Content-Type", "image/gif");
+      } else if (path.endsWith(".webp")) {
+        res.setHeader("Content-Type", "image/webp");
+      }
+      // 캐시 설정 (1일)
+      res.setHeader("Cache-Control", "public, max-age=86400");
+    },
+  }),
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -78,7 +110,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
-  
+
   // 결제 라우트 등록
   registerPaymentRoutes(app);
   // DeepL 번역 프록시 라우트 등록
@@ -105,7 +137,7 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '3000', 10);
+  const port = parseInt(process.env.PORT || "3000", 10);
   server.listen(port, () => {
     log(`serving on port ${port}`);
   });
