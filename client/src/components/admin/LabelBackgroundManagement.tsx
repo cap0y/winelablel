@@ -15,14 +15,38 @@ import {
 } from "@/components/ui/table";
 import { adminApi, uploadApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, Plus, Edit, Check, X, ImageIcon, Grid, List, Download } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Upload,
+  Trash2,
+  Plus,
+  Edit,
+  Check,
+  X,
+  ImageIcon,
+  Grid,
+  List,
+  Download,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function LabelBackgroundManagement() {
   const { toast } = useToast();
-  
+
   // 상태 관리
   const [backgrounds, setBackgrounds] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -30,13 +54,13 @@ export default function LabelBackgroundManagement() {
   const [isLoading, setIsLoading] = useState(false); // 초기 로딩 상태를 false로 변경
   const [activeTab, setActiveTab] = useState("backgrounds");
   const [uploadingBackground, setUploadingBackground] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'category'>('grid'); // 전체보기를 기본값으로 변경
-  
+  const [viewMode, setViewMode] = useState<"grid" | "category">("grid"); // 전체보기를 기본값으로 변경
+
   // 캐싱을 위한 상태 추가
   const [backgroundsLoaded, setBackgroundsLoaded] = useState(false);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [userUploadsLoaded, setUserUploadsLoaded] = useState(false);
-  
+
   // 카테고리 관리 상태
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -47,7 +71,7 @@ export default function LabelBackgroundManagement() {
   const [isAssigningCategories, setIsAssigningCategories] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState<any>(null);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
-  
+
   // 데이터 로드
   useEffect(() => {
     // 컴포넌트 마운트 시 현재 탭에 맞는 데이터 즉시 로드
@@ -59,11 +83,11 @@ export default function LabelBackgroundManagement() {
       fetchCategories();
     }
   }, []); // 빈 의존성 배열로 마운트 시에만 실행
-  
+
   // 배경 이미지 로드
   const fetchBackgrounds = async () => {
     if (backgroundsLoaded) return; // 이미 로드된 경우 중복 요청 방지
-    
+
     setIsLoading(true);
     try {
       const response = await adminApi.getLabelBackgrounds();
@@ -82,7 +106,7 @@ export default function LabelBackgroundManagement() {
       setIsLoading(false);
     }
   };
-  
+
   // 카테고리 로드
   const fetchCategories = async () => {
     try {
@@ -100,11 +124,11 @@ export default function LabelBackgroundManagement() {
       });
     }
   };
-  
+
   // 사용자 업로드 이미지 로드
   const fetchUserUploads = async () => {
     if (userUploadsLoaded) return; // 이미 로드된 경우 중복 요청 방지
-    
+
     try {
       const response = await uploadApi.getUploads();
       if (response.data.success) {
@@ -142,37 +166,41 @@ export default function LabelBackgroundManagement() {
   // 카테고리별로 배경 이미지 그룹화하는 함수
   const getBackgroundsByCategory = () => {
     const backgroundsByCategory: { [key: string]: any[] } = {};
-    
+
     // 카테고리별로 그룹화
-    categories.forEach(category => {
-      backgroundsByCategory[category.name] = backgrounds.filter(bg => 
-        bg.categories && bg.categories.some((cat: any) => cat.id === category.id)
+    categories.forEach((category) => {
+      backgroundsByCategory[category.name] = backgrounds.filter(
+        (bg) =>
+          bg.categories &&
+          bg.categories.some((cat: any) => cat.id === category.id),
       );
     });
-    
+
     // 카테고리가 할당되지 않은 배경들
-    const uncategorizedBackgrounds = backgrounds.filter(bg => 
-      !bg.categories || bg.categories.length === 0
+    const uncategorizedBackgrounds = backgrounds.filter(
+      (bg) => !bg.categories || bg.categories.length === 0,
     );
-    
+
     if (uncategorizedBackgrounds.length > 0) {
-      backgroundsByCategory['미분류'] = uncategorizedBackgrounds;
+      backgroundsByCategory["미분류"] = uncategorizedBackgrounds;
     }
-    
+
     return backgroundsByCategory;
   };
 
   // 배경 이미지 업로드
-  const handleBackgroundUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBackgroundUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    
+
     const file = files[0];
     const formData = new FormData();
-    formData.append('file', file);
-    
+    formData.append("file", file);
+
     setUploadingBackground(true);
-    
+
     try {
       const response = await adminApi.uploadLabelBackground(formData);
       if (response.data.success) {
@@ -180,16 +208,16 @@ export default function LabelBackgroundManagement() {
           title: "업로드 성공",
           description: "배경 이미지가 성공적으로 업로드되었습니다.",
         });
-        
+
         // 새로 업로드된 배경 이미지를 선택하여 카테고리 할당 다이얼로그 표시
         const newBackground = response.data.file;
         setSelectedBackground({
           id: newBackground.id,
-          filename: newBackground.filename
+          filename: newBackground.filename,
         });
         setSelectedCategoryIds([]);
         setIsAssigningCategories(true);
-        
+
         // 배경 목록 새로고침
         refreshBackgrounds();
       }
@@ -206,11 +234,11 @@ export default function LabelBackgroundManagement() {
       event.target.value = "";
     }
   };
-  
+
   // 배경 이미지 삭제
   const handleDeleteBackground = async (filename: string) => {
     if (!confirm("정말 이 배경 이미지를 삭제하시겠습니까?")) return;
-    
+
     try {
       const response = await adminApi.deleteLabelBackground(filename);
       if (response.data.success) {
@@ -229,7 +257,7 @@ export default function LabelBackgroundManagement() {
       });
     }
   };
-  
+
   // 새 카테고리 추가
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -240,13 +268,13 @@ export default function LabelBackgroundManagement() {
       });
       return;
     }
-    
+
     try {
       const response = await adminApi.createLabelCategory({
         name: newCategoryName.trim(),
         description: newCategoryDescription.trim(),
       });
-      
+
       if (response.data.success) {
         toast({
           title: "추가 성공",
@@ -267,7 +295,7 @@ export default function LabelBackgroundManagement() {
       });
     }
   };
-  
+
   // 카테고리 수정
   const handleUpdateCategory = async () => {
     if (!editingCategory || !editingCategory.name.trim()) {
@@ -278,15 +306,15 @@ export default function LabelBackgroundManagement() {
       });
       return;
     }
-    
+
     try {
       const response = await adminApi.updateLabelCategory(editingCategory.id, {
         name: editingCategory.name.trim(),
         description: editingCategory.description.trim(),
         isActive: editingCategory.isActive,
-        displayOrder: editingCategory.displayOrder
+        displayOrder: editingCategory.displayOrder,
       });
-      
+
       if (response.data.success) {
         toast({
           title: "수정 성공",
@@ -305,11 +333,11 @@ export default function LabelBackgroundManagement() {
       });
     }
   };
-  
+
   // 카테고리 삭제
   const handleDeleteCategory = async (categoryId: number) => {
     if (!confirm("정말 이 카테고리를 삭제하시겠습니까?")) return;
-    
+
     try {
       const response = await adminApi.deleteLabelCategory(categoryId);
       if (response.data.success) {
@@ -329,17 +357,17 @@ export default function LabelBackgroundManagement() {
       });
     }
   };
-  
+
   // 배경 이미지에 카테고리 할당
   const handleAssignCategories = async () => {
     if (!selectedBackground) return;
-    
+
     try {
       const response = await adminApi.assignCategoriesToBackground(
         selectedBackground.id,
-        selectedCategoryIds
+        selectedCategoryIds,
       );
-      
+
       if (response.data.success) {
         toast({
           title: "할당 성공",
@@ -364,16 +392,18 @@ export default function LabelBackgroundManagement() {
   const openAssignCategoriesDialog = (background: any) => {
     setSelectedBackground(background);
     // 기존에 할당된 카테고리들을 미리 선택된 상태로 설정
-    const currentCategoryIds = background.categories ? background.categories.map((cat: any) => cat.id) : [];
+    const currentCategoryIds = background.categories
+      ? background.categories.map((cat: any) => cat.id)
+      : [];
     setSelectedCategoryIds(currentCategoryIds);
     setIsAssigningCategories(true);
   };
-  
+
   // 카테고리 체크박스 변경 처리
   const handleCategoryCheckboxChange = (categoryId: number) => {
-    setSelectedCategoryIds(prev => {
+    setSelectedCategoryIds((prev) => {
       if (prev.includes(categoryId)) {
-        return prev.filter(id => id !== categoryId);
+        return prev.filter((id) => id !== categoryId);
       } else {
         return [...prev, categoryId];
       }
@@ -383,14 +413,14 @@ export default function LabelBackgroundManagement() {
   // 배경 이미지 다운로드
   const handleDownloadBackground = async (background: any) => {
     try {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = background.url;
       link.download = background.filename || `background_${background.id}.jpg`;
-      link.target = '_blank';
+      link.target = "_blank";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast({
         title: "다운로드 시작",
         description: "배경 이미지 다운로드가 시작되었습니다.",
@@ -408,14 +438,14 @@ export default function LabelBackgroundManagement() {
   // 사용자 업로드 이미지 다운로드
   const handleDownloadUserUpload = async (upload: any) => {
     try {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = upload.url;
       link.download = upload.filename || `user_upload_${upload.id}.jpg`;
-      link.target = '_blank';
+      link.target = "_blank";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast({
         title: "다운로드 시작",
         description: "사용자 업로드 이미지 다운로드가 시작되었습니다.",
@@ -434,32 +464,32 @@ export default function LabelBackgroundManagement() {
   const BackgroundImageCard = ({ background }: { background: any }) => (
     <div className="relative group flex-shrink-0 w-48">
       <div className="aspect-[4/3] bg-gray-800 rounded-md overflow-hidden border border-gray-700">
-        <img 
-          src={background.url} 
-          alt={background.name} 
-          className="w-full h-full object-cover" 
+        <img
+          src={background.url}
+          alt={background.name}
+          className="w-full h-full object-cover"
         />
       </div>
       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center space-x-2">
-        <Button 
-          size="sm" 
-          variant="outline" 
+        <Button
+          size="sm"
+          variant="outline"
           className="bg-green-900/20 hover:bg-green-800/30 text-green-400 border-green-700"
           onClick={() => handleDownloadBackground(background)}
         >
           <Download className="w-4 h-4" />
         </Button>
-        <Button 
-          size="sm" 
-          variant="outline" 
+        <Button
+          size="sm"
+          variant="outline"
           className="bg-blue-900/20 hover:bg-blue-800/30 text-blue-400 border-blue-700"
           onClick={() => openAssignCategoriesDialog(background)}
         >
           <Edit className="w-4 h-4" />
         </Button>
-        <Button 
-          size="sm" 
-          variant="outline" 
+        <Button
+          size="sm"
+          variant="outline"
           className="bg-red-900/20 hover:bg-red-800/30 text-red-400 border-red-700"
           onClick={() => handleDeleteBackground(background.filename)}
         >
@@ -472,7 +502,7 @@ export default function LabelBackgroundManagement() {
         {background.categories && background.categories.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {background.categories.map((cat: any) => (
-              <span 
+              <span
                 key={cat.id}
                 className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-cyan-900/30 text-cyan-400 border border-cyan-700"
               >
@@ -489,10 +519,10 @@ export default function LabelBackgroundManagement() {
   const UserUploadImageCard = ({ upload }: { upload: any }) => (
     <div className="relative group flex-shrink-0 w-48">
       <div className="aspect-[4/3] bg-gray-800 rounded-md overflow-hidden border border-purple-500/50">
-        <img 
-          src={upload.url} 
-          alt={upload.name} 
-          className="w-full h-full object-cover" 
+        <img
+          src={upload.url}
+          alt={upload.name}
+          className="w-full h-full object-cover"
         />
       </div>
       <div className="absolute top-2 right-2">
@@ -501,9 +531,9 @@ export default function LabelBackgroundManagement() {
         </span>
       </div>
       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
-        <Button 
-          size="sm" 
-          variant="outline" 
+        <Button
+          size="sm"
+          variant="outline"
           className="bg-green-900/20 hover:bg-green-800/30 text-green-400 border-green-700"
           onClick={() => handleDownloadUserUpload(upload)}
         >
@@ -512,14 +542,24 @@ export default function LabelBackgroundManagement() {
       </div>
       <div className="mt-2">
         <p className="text-sm text-purple-300 truncate">{upload.name}</p>
-        <p className="text-xs text-gray-400 truncate">업로드: {new Date(upload.createdAt).toLocaleDateString()}</p>
+        <p className="text-xs text-gray-400 truncate">
+          업로드: {new Date(upload.createdAt).toLocaleDateString()}
+        </p>
       </div>
     </div>
   );
 
   // 수평 스크롤 컨테이너 컴포넌트
-  const HorizontalScrollContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-    <div className={`flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 ${className}`}>
+  const HorizontalScrollContainer = ({
+    children,
+    className = "",
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div
+      className={`flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 ${className}`}
+    >
       {children}
     </div>
   );
@@ -531,8 +571,8 @@ export default function LabelBackgroundManagement() {
     const backgroundRows = [
       backgrounds.slice(0, rowSize),
       backgrounds.slice(rowSize, rowSize * 2),
-      backgrounds.slice(rowSize * 2)
-    ].filter(row => row.length > 0);
+      backgrounds.slice(rowSize * 2),
+    ].filter((row) => row.length > 0);
 
     return (
       <div className="space-y-6">
@@ -544,12 +584,15 @@ export default function LabelBackgroundManagement() {
             </h4>
             <HorizontalScrollContainer>
               {row.map((background) => (
-                <BackgroundImageCard key={background.id} background={background} />
+                <BackgroundImageCard
+                  key={background.id}
+                  background={background}
+                />
               ))}
             </HorizontalScrollContainer>
           </div>
         ))}
-        
+
         {/* 4번째 줄: 사용자 업로드 이미지 */}
         <div>
           <h4 className="text-sm font-medium text-purple-400 mb-3">
@@ -574,7 +617,7 @@ export default function LabelBackgroundManagement() {
   // 탭 변경 핸들러
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
-    
+
     // 탭 변경 시 즉시 데이터 로드
     if (newTab === "backgrounds" && !backgroundsLoaded) {
       fetchBackgrounds();
@@ -596,7 +639,7 @@ export default function LabelBackgroundManagement() {
             <TabsTrigger value="backgrounds">배경 이미지</TabsTrigger>
             <TabsTrigger value="categories">카테고리</TabsTrigger>
           </TabsList>
-          
+
           {/* 배경 이미지 관리 탭 */}
           <TabsContent value="backgrounds">
             <div className="space-y-4">
@@ -604,71 +647,88 @@ export default function LabelBackgroundManagement() {
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
                   <Button
-                    variant={viewMode === 'category' ? 'default' : 'outline'}
+                    variant={viewMode === "category" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setViewMode('category')}
-                    className={viewMode === 'category' ? 'bg-cyan-900/30 text-cyan-400 border-cyan-700' : 'bg-gray-800/50 text-gray-300 border-gray-700'}
+                    onClick={() => setViewMode("category")}
+                    className={
+                      viewMode === "category"
+                        ? "bg-cyan-900/30 text-cyan-400 border-cyan-700"
+                        : "bg-gray-800/50 text-gray-300 border-gray-700"
+                    }
                   >
                     <Grid className="w-4 h-4 mr-2" />
                     카테고리별
                   </Button>
                   <Button
-                    variant={viewMode === 'grid' ? 'default' : 'outline'}
+                    variant={viewMode === "grid" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setViewMode('grid')}
-                    className={viewMode === 'grid' ? 'bg-cyan-900/30 text-cyan-400 border-cyan-700' : 'bg-gray-800/50 text-gray-300 border-gray-700'}
+                    onClick={() => setViewMode("grid")}
+                    className={
+                      viewMode === "grid"
+                        ? "bg-cyan-900/30 text-cyan-400 border-cyan-700"
+                        : "bg-gray-800/50 text-gray-300 border-gray-700"
+                    }
                   >
                     <List className="w-4 h-4 mr-2" />
                     전체보기
                   </Button>
                 </div>
-                
-                <Label 
-                  htmlFor="background-upload" 
+
+                <Label
+                  htmlFor="background-upload"
                   className="flex items-center px-4 py-2 rounded-md bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700 cursor-pointer"
                 >
-                  <Upload className="w-4 h-4 mr-2" /> 
+                  <Upload className="w-4 h-4 mr-2" />
                   배경 이미지 업로드
                 </Label>
-                <Input 
-                  id="background-upload" 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={handleBackgroundUpload} 
+                <Input
+                  id="background-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleBackgroundUpload}
                   disabled={uploadingBackground}
                 />
               </div>
-              
+
               {/* 배경 이미지 목록 */}
               {isLoading ? (
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
                 </div>
-              ) : viewMode === 'category' ? (
+              ) : viewMode === "category" ? (
                 // 카테고리별 보기 - 각 카테고리별로 수평 스크롤
                 <div className="space-y-4">
-                  {Object.entries(getBackgroundsByCategory()).map(([categoryName, categoryBackgrounds]) => (
-                    <div key={categoryName} className="space-y-3">
-                      <div className="flex items-center space-x-2">
-                        <h3 className="text-lg font-semibold text-cyan-400">{categoryName}</h3>
-                        <span className="text-sm text-gray-400">({categoryBackgrounds.length}개)</span>
-                      </div>
-                      
-                      {categoryBackgrounds.length === 0 ? (
-                        <div className="bg-gray-800/30 rounded-lg p-6 text-center text-gray-400 border border-gray-700">
-                          이 카테고리에 할당된 배경 이미지가 없습니다.
+                  {Object.entries(getBackgroundsByCategory()).map(
+                    ([categoryName, categoryBackgrounds]) => (
+                      <div key={categoryName} className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="text-lg font-semibold text-cyan-400">
+                            {categoryName}
+                          </h3>
+                          <span className="text-sm text-gray-400">
+                            ({categoryBackgrounds.length}개)
+                          </span>
                         </div>
-                      ) : (
-                        <HorizontalScrollContainer>
-                          {categoryBackgrounds.map((background) => (
-                            <BackgroundImageCard key={background.id} background={background} />
-                          ))}
-                        </HorizontalScrollContainer>
-                      )}
-                    </div>
-                  ))}
-                  
+
+                        {categoryBackgrounds.length === 0 ? (
+                          <div className="bg-gray-800/30 rounded-lg p-6 text-center text-gray-400 border border-gray-700">
+                            이 카테고리에 할당된 배경 이미지가 없습니다.
+                          </div>
+                        ) : (
+                          <HorizontalScrollContainer>
+                            {categoryBackgrounds.map((background) => (
+                              <BackgroundImageCard
+                                key={background.id}
+                                background={background}
+                              />
+                            ))}
+                          </HorizontalScrollContainer>
+                        )}
+                      </div>
+                    ),
+                  )}
+
                   {Object.keys(getBackgroundsByCategory()).length === 0 && (
                     <div className="text-center py-8 text-gray-400">
                       업로드된 배경 이미지가 없습니다.
@@ -689,21 +749,21 @@ export default function LabelBackgroundManagement() {
               )}
             </div>
           </TabsContent>
-          
+
           {/* 카테고리 관리 탭 */}
           <TabsContent value="categories">
             <div className="space-y-4">
               {/* 새 카테고리 추가 버튼 */}
               <div className="flex justify-end">
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   onClick={() => setIsAddingCategory(true)}
                   className="bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700"
                 >
                   <Plus className="w-4 h-4 mr-2" /> 새 카테고리
                 </Button>
               </div>
-              
+
               {/* 카테고리 목록 */}
               <Table className="border-collapse">
                 <TableHeader className="bg-gray-800/50">
@@ -712,65 +772,96 @@ export default function LabelBackgroundManagement() {
                     <TableHead className="text-gray-300">설명</TableHead>
                     <TableHead className="text-gray-300">순서</TableHead>
                     <TableHead className="text-gray-300">상태</TableHead>
-                    <TableHead className="text-gray-300 text-right">관리</TableHead>
+                    <TableHead className="text-gray-300 text-right">
+                      관리
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {categories.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-400">
+                      <TableCell
+                        colSpan={5}
+                        className="text-center py-8 text-gray-400"
+                      >
                         등록된 카테고리가 없습니다.
                       </TableCell>
                     </TableRow>
                   ) : (
                     categories.map((category) => (
-                      <TableRow key={category.id} className="border-b border-gray-800">
-                        {editingCategory && editingCategory.id === category.id ? (
+                      <TableRow
+                        key={category.id}
+                        className="border-b border-gray-800"
+                      >
+                        {editingCategory &&
+                        editingCategory.id === category.id ? (
                           <>
                             <TableCell>
-                              <Input 
-                                value={editingCategory.name} 
-                                onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
+                              <Input
+                                value={editingCategory.name}
+                                onChange={(e) =>
+                                  setEditingCategory({
+                                    ...editingCategory,
+                                    name: e.target.value,
+                                  })
+                                }
                                 className="bg-gray-800 border-gray-700 text-gray-200"
                               />
                             </TableCell>
                             <TableCell>
-                              <Input 
-                                value={editingCategory.description || ''} 
-                                onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
+                              <Input
+                                value={editingCategory.description || ""}
+                                onChange={(e) =>
+                                  setEditingCategory({
+                                    ...editingCategory,
+                                    description: e.target.value,
+                                  })
+                                }
                                 className="bg-gray-800 border-gray-700 text-gray-200"
                               />
                             </TableCell>
                             <TableCell>
-                              <Input 
+                              <Input
                                 type="number"
-                                value={editingCategory.displayOrder} 
-                                onChange={(e) => setEditingCategory({...editingCategory, displayOrder: parseInt(e.target.value) || 0})}
+                                value={editingCategory.displayOrder}
+                                onChange={(e) =>
+                                  setEditingCategory({
+                                    ...editingCategory,
+                                    displayOrder: parseInt(e.target.value) || 0,
+                                  })
+                                }
                                 className="bg-gray-800 border-gray-700 text-gray-200 w-16"
                               />
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center">
-                                <Checkbox 
-                                  checked={editingCategory.isActive} 
-                                  onCheckedChange={(checked) => setEditingCategory({...editingCategory, isActive: !!checked})}
+                                <Checkbox
+                                  checked={editingCategory.isActive}
+                                  onCheckedChange={(checked) =>
+                                    setEditingCategory({
+                                      ...editingCategory,
+                                      isActive: !!checked,
+                                    })
+                                  }
                                   className="data-[state=checked]:bg-cyan-600"
                                 />
-                                <span className="ml-2 text-gray-300">활성화</span>
+                                <span className="ml-2 text-gray-300">
+                                  활성화
+                                </span>
                               </div>
                             </TableCell>
                             <TableCell className="text-right space-x-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="bg-green-900/20 hover:bg-green-800/30 text-green-400 border-green-700"
                                 onClick={handleUpdateCategory}
                               >
                                 <Check className="w-4 h-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
                                 onClick={() => setEditingCategory(null)}
                               >
@@ -784,30 +875,34 @@ export default function LabelBackgroundManagement() {
                               {category.name}
                             </TableCell>
                             <TableCell className="text-gray-300">
-                              {category.description || '-'}
+                              {category.description || "-"}
                             </TableCell>
                             <TableCell className="text-gray-300">
                               {category.displayOrder}
                             </TableCell>
                             <TableCell>
-                              <span className={`inline-flex h-6 items-center rounded-full px-2 text-xs font-medium ${category.isActive ? 'bg-green-900/20 text-green-400 border border-green-700' : 'bg-gray-800 text-gray-400 border border-gray-700'}`}>
-                                {category.isActive ? '활성화' : '비활성화'}
+                              <span
+                                className={`inline-flex h-6 items-center rounded-full px-2 text-xs font-medium ${category.isActive ? "bg-green-900/20 text-green-400 border border-green-700" : "bg-gray-800 text-gray-400 border border-gray-700"}`}
+                              >
+                                {category.isActive ? "활성화" : "비활성화"}
                               </span>
                             </TableCell>
                             <TableCell className="text-right space-x-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="bg-blue-900/20 hover:bg-blue-800/30 text-blue-400 border-blue-700"
                                 onClick={() => setEditingCategory(category)}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="bg-red-900/20 hover:bg-red-800/30 text-red-400 border-red-700"
-                                onClick={() => handleDeleteCategory(category.id)}
+                                onClick={() =>
+                                  handleDeleteCategory(category.id)
+                                }
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -823,43 +918,53 @@ export default function LabelBackgroundManagement() {
           </TabsContent>
         </Tabs>
       </CardContent>
-      
+
       {/* 새 카테고리 추가 다이얼로그 */}
       <Dialog open={isAddingCategory} onOpenChange={setIsAddingCategory}>
         <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 shadow-[0_0_15px_rgba(0,200,255,0.15)]">
           <DialogHeader>
-            <DialogTitle className="text-cyan-400">새 카테고리 추가</DialogTitle>
+            <DialogTitle className="text-cyan-400">
+              새 카테고리 추가
+            </DialogTitle>
+            <DialogDescription>
+              새로운 라벨 배경 카테고리를 추가합니다. 카테고리 이름은 필수 입력
+              사항입니다.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="category-name" className="text-gray-300">카테고리 이름</Label>
-              <Input 
-                id="category-name" 
-                value={newCategoryName} 
+              <Label htmlFor="category-name" className="text-gray-300">
+                카테고리 이름
+              </Label>
+              <Input
+                id="category-name"
+                value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 className="bg-gray-800 border-gray-700 text-gray-200 mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="category-description" className="text-gray-300">설명 (선택사항)</Label>
-              <Input 
-                id="category-description" 
-                value={newCategoryDescription} 
+              <Label htmlFor="category-description" className="text-gray-300">
+                설명 (선택사항)
+              </Label>
+              <Input
+                id="category-description"
+                value={newCategoryDescription}
                 onChange={(e) => setNewCategoryDescription(e.target.value)}
                 className="bg-gray-800 border-gray-700 text-gray-200 mt-1"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsAddingCategory(false)}
               className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
             >
               취소
             </Button>
-            <Button 
-              variant="default" 
+            <Button
+              variant="default"
               onClick={handleAddCategory}
               className="bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700"
             >
@@ -870,29 +975,40 @@ export default function LabelBackgroundManagement() {
       </Dialog>
 
       {/* 배경 이미지에 카테고리 할당 다이얼로그 */}
-      <Dialog open={isAssigningCategories} onOpenChange={setIsAssigningCategories}>
+      <Dialog
+        open={isAssigningCategories}
+        onOpenChange={setIsAssigningCategories}
+      >
         <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 shadow-[0_0_15px_rgba(0,200,255,0.15)]">
           <DialogHeader>
             <DialogTitle className="text-cyan-400">카테고리 할당</DialogTitle>
+            <DialogDescription>
+              선택된 배경 이미지에 카테고리를 할당합니다. 할당할 카테고리를
+              선택하고 "저장" 버튼을 클릭하세요.
+            </DialogDescription>
           </DialogHeader>
           {selectedBackground && (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <div className="w-20 h-20 bg-gray-800 rounded-md overflow-hidden border border-gray-700">
-                  <img 
-                    src={`/images/label/${selectedBackground.filename}`} 
+                  <img
+                    src={`/images/label/${selectedBackground.filename}`}
                     alt="배경 이미지"
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div>
                   <p className="text-gray-200">{selectedBackground.id}</p>
-                  <p className="text-sm text-gray-400">{selectedBackground.filename}</p>
+                  <p className="text-sm text-gray-400">
+                    {selectedBackground.filename}
+                  </p>
                 </div>
               </div>
-              
+
               <div>
-                <Label className="text-gray-300 mb-2 block">카테고리 선택</Label>
+                <Label className="text-gray-300 mb-2 block">
+                  카테고리 선택
+                </Label>
                 <ScrollArea className="h-60 border border-gray-800 rounded-md p-2">
                   {categories.length === 0 ? (
                     <div className="py-4 text-center text-gray-400">
@@ -901,14 +1017,19 @@ export default function LabelBackgroundManagement() {
                   ) : (
                     <div className="space-y-2">
                       {categories.map((category) => (
-                        <div key={category.id} className="flex items-center space-x-2">
-                          <Checkbox 
+                        <div
+                          key={category.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
                             id={`category-${category.id}`}
                             checked={selectedCategoryIds.includes(category.id)}
-                            onCheckedChange={() => handleCategoryCheckboxChange(category.id)}
+                            onCheckedChange={() =>
+                              handleCategoryCheckboxChange(category.id)
+                            }
                             className="data-[state=checked]:bg-cyan-600"
                           />
-                          <Label 
+                          <Label
                             htmlFor={`category-${category.id}`}
                             className="text-gray-200 cursor-pointer flex-1"
                           >
@@ -928,15 +1049,15 @@ export default function LabelBackgroundManagement() {
             </div>
           )}
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsAssigningCategories(false)}
               className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
             >
               취소
             </Button>
-            <Button 
-              variant="default" 
+            <Button
+              variant="default"
               onClick={handleAssignCategories}
               className="bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700"
             >
@@ -947,4 +1068,4 @@ export default function LabelBackgroundManagement() {
       </Dialog>
     </Card>
   );
-} 
+}

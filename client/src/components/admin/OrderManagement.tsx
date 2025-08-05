@@ -24,6 +24,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -533,7 +534,7 @@ const OrderManagement = () => {
       try {
         await adminApi.updateOrderStatus(orderId, newStatus);
 
-        // 상태 변경 알m�� 전송
+        // 상태 변경 알림 전송
         const order = previousOrders.find((o) => o.id === orderId);
         if (order && order.customerEmail) {
           const statusMessages = {
@@ -1717,6 +1718,9 @@ const OrderManagement = () => {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gray-900 border border-gray-800 text-gray-100 shadow-[0_0_15px_rgba(0,200,255,0.15)]">
           <DialogHeader className="border-b border-gray-800 pb-4">
             <DialogTitle className="text-cyan-400">주문 상세 정보</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              선택한 주문의 상세 정보와 라벨 디자인을 확인할 수 있습니다.
+            </DialogDescription>
           </DialogHeader>
 
           {selectedOrder && (
