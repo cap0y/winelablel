@@ -5,8 +5,6 @@ import { setupVite, serveStatic, log } from "./vite";
 import { registerPaymentRoutes } from "./payment";
 import { registerTranslationRoutes } from "./translate";
 import "dotenv/config";
-import path from "path";
-import fs from "fs";
 
 const app = express();
 
@@ -56,33 +54,6 @@ app.use(
       } else if (path.endsWith(".svg")) {
         res.setHeader("Content-Type", "image/svg+xml");
       }
-    },
-  }),
-);
-
-// 이미지 파일들을 위한 정적 파일 서빙 추가
-const publicImagesPath = path.join(process.cwd(), "public", "images");
-console.log("[DEBUG] Static images path:", publicImagesPath);
-console.log(
-  "[DEBUG] Static images path exists:",
-  fs.existsSync(publicImagesPath),
-);
-
-app.use(
-  "/images",
-  express.static(publicImagesPath, {
-    setHeaders: (res, path) => {
-      if (path.endsWith(".png")) {
-        res.setHeader("Content-Type", "image/png");
-      } else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
-        res.setHeader("Content-Type", "image/jpeg");
-      } else if (path.endsWith(".gif")) {
-        res.setHeader("Content-Type", "image/gif");
-      } else if (path.endsWith(".webp")) {
-        res.setHeader("Content-Type", "image/webp");
-      }
-      // 캐시 설정 (1일)
-      res.setHeader("Cache-Control", "public, max-age=86400");
     },
   }),
 );
