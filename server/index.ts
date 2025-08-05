@@ -5,6 +5,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { registerPaymentRoutes } from "./payment";
 import { registerTranslationRoutes } from "./translate";
 import "dotenv/config";
+import path from "path";
+import fs from "fs";
 
 const app = express();
 
@@ -59,9 +61,16 @@ app.use(
 );
 
 // 이미지 파일들을 위한 정적 파일 서빙 추가
+const publicImagesPath = path.join(process.cwd(), "public", "images");
+console.log("[DEBUG] Static images path:", publicImagesPath);
+console.log(
+  "[DEBUG] Static images path exists:",
+  fs.existsSync(publicImagesPath),
+);
+
 app.use(
   "/images",
-  express.static("public/images", {
+  express.static(publicImagesPath, {
     setHeaders: (res, path) => {
       if (path.endsWith(".png")) {
         res.setHeader("Content-Type", "image/png");
