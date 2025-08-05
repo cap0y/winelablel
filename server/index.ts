@@ -15,7 +15,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? ["https://끄레망.replit.app", "https://끄레망--neon.replit.app"]
+        ? ["https://winelabel.replit.app", "https://끄레망--neon.replit.app"]
         : ["http://localhost:3000", "http://localhost:5000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
