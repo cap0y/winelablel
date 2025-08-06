@@ -1896,11 +1896,13 @@ export default function LabelDesigner() {
               ) : (
                 <div>
                   <h3 className="text-base font-medium mb-2">라벨 배경</h3>
-                  <div className="flex overflow-x-auto gap-3 pb-2">
+                  <div className="flex overflow-x-auto gap-1 pb-2 -mx-4 px-4">
+                    {" "}
+                    {/* 수평 스크롤 */}
                     {labelBackgrounds.map((background) => (
                       <Card
                         key={background.id}
-                        className={`cursor-pointer transition-all min-w-[140px] ${
+                        className={`cursor-pointer transition-all min-w-[120px] ${
                           labelDesign.template === background.id
                             ? "ring-2 ring-[#722F37]"
                             : "hover:shadow-md"
@@ -1909,12 +1911,12 @@ export default function LabelDesigner() {
                           handleDesignChange("template", background.id)
                         }
                       >
-                        <CardContent className="p-3 flex flex-col items-center">
-                          <div className="h-20 w-24 overflow-hidden rounded relative">
+                        <CardContent className="p-4 flex flex-col items-center">
+                          <div className="h-24 w-24 overflow-hidden rounded relative flex items-center justify-center">
                             <img
                               src={background.image}
                               alt={background.name}
-                              className="w-full h-full object-cover"
+                              className="max-w-full max-h-full object-contain"
                             />
                             {background.categoryName && (
                               <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-xs p-0.5 text-cyan-300 text-center">
@@ -1935,7 +1937,7 @@ export default function LabelDesigner() {
                   <h3 className="text-base font-medium mb-2">
                     내 업로드 이미지
                   </h3>
-                  <div className="flex overflow-x-auto gap-2 pb-2">
+                  <div className="flex overflow-x-auto gap-3 pb-2 -mx-4 px-4">
                     {uploadedImages.map((upload) => (
                       <Card
                         key={upload.id}
@@ -1948,12 +1950,12 @@ export default function LabelDesigner() {
                           handleDesignChange("template", upload.id)
                         }
                       >
-                        <CardContent className="p-2 flex flex-col items-center">
-                          <div className="h-20 w-24 overflow-hidden rounded">
+                        <CardContent className="p-4 flex flex-col items-center">
+                          <div className="h-24 w-24 overflow-hidden rounded flex items-center justify-center">
                             <img
                               src={upload.image}
                               alt={upload.name}
-                              className="w-full h-full object-cover"
+                              className="max-w-full max-h-full object-contain"
                             />
                           </div>
                         </CardContent>
@@ -1977,17 +1979,17 @@ export default function LabelDesigner() {
                 <h3 className="text-base font-medium mb-2">
                   아이콘 및 장식 (클릭하면 추가됩니다)
                 </h3>
-                <div className="flex overflow-x-auto gap-2 pb-2">
+                <div className="flex overflow-x-auto gap-3 pb-2 -mx-4 px-4">
                   {" "}
                   {/* 수평 스크롤 */}
                   {labelDecorations.map((option) => (
                     <Card
                       key={option.id}
-                      className="cursor-pointer transition-all min-w-[80px] hover:shadow-md bg-gray-800 border-gray-700"
+                      className="cursor-pointer transition-all min-w-[120px] hover:shadow-md bg-white border-gray-300"
                       onClick={() => handleAddDecoration(option.id)}
                     >
-                      <CardContent className="p-3 flex items-center justify-center">
-                        <div className="h-16 w-16 flex items-center justify-center">
+                      <CardContent className="p-4 flex items-center justify-center">
+                        <div className="h-24 w-24 flex items-center justify-center">
                           {option.id !== "deco4" ? (
                             <img
                               src={option.image}
@@ -1995,7 +1997,7 @@ export default function LabelDesigner() {
                               className="max-h-full max-w-full object-contain"
                             />
                           ) : (
-                            <div className="text-gray-400">없음</div>
+                            <div className="text-gray-500 text-sm">없음</div>
                           )}
                         </div>
                       </CardContent>
