@@ -10,6 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (August 2025)
 
+### Deployment Port Configuration Fixes (Today)
+- **Port Configuration**: Fixed server to use PORT environment variable consistently, defaulting to 5000 instead of 3000
+- **Environment Variable Handling**: Added explicit PORT environment variable validation and production logging  
+- **Health Check Enhancement**: Enhanced `/health` endpoint with production environment validation and better error handling
+- **Server Error Handling**: Added comprehensive error handling for server startup failures with detailed logging
+- **CORS Configuration**: Updated CORS to include `0.0.0.0:5000` for consistent development environment support
+- **Environment Documentation**: Created `.env.example` file documenting all required environment variables
+- **Production Debugging**: Added detailed production environment logging for deployment troubleshooting
+
 ### Port Configuration Deployment Fixes (January 2025)
 - **Port Default Fix**: Changed server default port from 3000 to 5000 to match deployment configuration expectations
 - **Production Logging**: Added comprehensive production environment logging for deployment debugging
