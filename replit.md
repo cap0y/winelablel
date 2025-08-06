@@ -1,8 +1,8 @@
-# 끄레망 - Self-Storage Management Platform
+# 끄레망 와인라벨 - Wine Label Design Platform
 
 ## Overview
 
-끄레망 is a comprehensive self-storage management platform that enables users to find, reserve, and manage storage units across multiple locations. The application provides a modern, mobile-first interface for browsing storage facilities, viewing available units, and completing reservations with integrated payment processing.
+끄레망 와인라벨 is a comprehensive wine label design platform with a Notion-style dark theme. Users can create, customize, and order wine labels through an intuitive drag-and-drop interface. The application features multilingual support (Korean, English, Japanese), gallery browsing of popular designs, and integrated payment processing through PortOne for Korean domestic payments.
 
 ## User Preferences
 
@@ -10,7 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (August 2025)
 
-### Deployment Optimization Fixes
+### Port Configuration Deployment Fixes (January 2025)
+- **Port Default Fix**: Changed server default port from 3000 to 5000 to match deployment configuration expectations
+- **Production Logging**: Added comprehensive production environment logging for deployment debugging
+- **Enhanced Health Check**: Improved `/health` endpoint with environment variable validation, memory monitoring, and error handling
+- **Deployment Documentation**: Created `DEPLOYMENT.md` with comprehensive deployment troubleshooting guide
+- **Environment Validation**: Added production environment checks for required variables (DATABASE_URL)
+
+### Previous Deployment Optimization Fixes
 - **Server Configuration**: Changed server to listen on `0.0.0.0` instead of localhost for proper port forwarding in Cloud Run
 - **Health Check Endpoint**: Added `/health` endpoint for deployment readiness verification
 - **CORS Updates**: Enhanced CORS configuration with regex patterns to support all Replit deployment domains (`*.replit.app`, `*.repl.co`)

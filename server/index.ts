@@ -19,20 +19,59 @@ app.use(
             /\.replit\.app$/,
             /\.repl\.co$/
           ]
-        : ["http://localhost:3000", "http://localhost:5000"],
+        : ["http://localhost:3000", "http://localhost:5000", "http://0.0.0.0:5000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   }),
 );
 
-// Health check endpoint for deployment readiness
-app.get("/health", (_req, res) => {
-  res.status(200).json({ 
-    status: "healthy", 
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
+// Enhanced health check endpoint for deployment readiness
+app.get("/health", async (_req, res) => {
+  try {
+    const healthStatus = {
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "unknown",
+      port: process.env.PORT || "5000",
+      memory: {
+        used: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+        total: Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100
+      }
+    };
+
+    // Additional checks for production environment
+    if (process.env.NODE_ENV === "production") {
+      // Verify required environment variables
+      const requiredEnvVars = ["DATABASE_URL"];
+      const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+      
+      if (missingVars.length > 0) {
+        return res.status(503).json({
+          status: "unhealthy",
+          error: "Missing required environment variables",
+          missingVars,
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+          environment: process.env.NODE_ENV || "unknown",
+          port: process.env.PORT || "5000",
+          memory: {
+            used: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+            total: Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100
+          }
+        });
+      }
+    }
+
+    res.status(200).json(healthStatus);
+  } catch (error) {
+    res.status(503).json({
+      status: "unhealthy",
+      error: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // 요청 크기 제한 증가 (기본 100kb에서 50MB로 변경)
@@ -152,8 +191,26 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "3000", 10);
+  const port = parseInt(process.env.PORT || "5000", 10);
+  
+  // Production environment logging for debugging
+  if (process.env.NODE_ENV === "production") {
+    console.log(`[PRODUCTION] Starting server with PORT=${process.env.PORT || "5000"} (resolved to ${port})`);
+    console.log(`[PRODUCTION] NODE_ENV=${process.env.NODE_ENV}`);
+    console.log(`[PRODUCTION] Server binding to 0.0.0.0:${port}`);
+  }
+  
   server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
+    const message = `serving on port ${port}`;
+    log(message);
+    if (process.env.NODE_ENV === "production") {
+      console.log(`[PRODUCTION] Server successfully started: ${message}`);
+    }
+  }).on('error', (err) => {
+    console.error(`[ERROR] Failed to start server on port ${port}:`, err);
+    if (process.env.NODE_ENV === "production") {
+      console.error(`[PRODUCTION] Server startup failed. PORT=${process.env.PORT || "not set"}, resolved port=${port}`);
+    }
+    process.exit(1);
   });
 })();
