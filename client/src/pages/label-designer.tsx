@@ -1885,7 +1885,7 @@ export default function LabelDesigner() {
                     {labelBackgrounds.map((background) => (
                       <Card
                         key={background.id}
-                        className={`cursor-pointer transition-all min-w-[120px] ${
+                        className={`cursor-pointer transition-all min-w-[140px] ${
                           labelDesign.template === background.id
                             ? "ring-2 ring-[#722F37]"
                             : "hover:shadow-md"
@@ -1895,7 +1895,7 @@ export default function LabelDesigner() {
                         }
                       >
                         <CardContent className="p-3 flex flex-col items-center">
-                          <div className="h-14 w-16 overflow-hidden rounded relative">
+                          <div className="h-20 w-24 overflow-hidden rounded relative">
                             <img
                               src={background.image}
                               alt={background.name}
@@ -1924,7 +1924,7 @@ export default function LabelDesigner() {
                     {uploadedImages.map((upload) => (
                       <Card
                         key={upload.id}
-                        className={`relative cursor-pointer transition-all min-w-[100px] ${
+                        className={`relative cursor-pointer transition-all min-w-[120px] ${
                           labelDesign.template === upload.id
                             ? "ring-2 ring-[#722F37]"
                             : "hover:shadow-md"
@@ -1934,7 +1934,7 @@ export default function LabelDesigner() {
                         }
                       >
                         <CardContent className="p-2 flex flex-col items-center">
-                          <div className="h-14 w-16 overflow-hidden rounded">
+                          <div className="h-20 w-24 overflow-hidden rounded">
                             <img
                               src={upload.image}
                               alt={upload.name}
@@ -1968,11 +1968,11 @@ export default function LabelDesigner() {
                   {labelDecorations.map((option) => (
                     <Card
                       key={option.id}
-                      className="cursor-pointer transition-all min-w-[60px] hover:shadow-md bg-gray-800 border-gray-700"
+                      className="cursor-pointer transition-all min-w-[80px] hover:shadow-md bg-gray-800 border-gray-700"
                       onClick={() => handleAddDecoration(option.id)}
                     >
-                      <CardContent className="p-2 flex items-center justify-center">
-                        <div className="h-10 w-10 flex items-center justify-center">
+                      <CardContent className="p-3 flex items-center justify-center">
+                        <div className="h-16 w-16 flex items-center justify-center">
                           {option.id !== "deco4" ? (
                             <img
                               src={option.image}
