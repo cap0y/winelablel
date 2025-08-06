@@ -20,10 +20,12 @@ Preferred communication style: Simple, everyday language.
 - **Production Debugging**: Added detailed production environment logging for deployment troubleshooting
 
 ### Port Configuration Deployment Fixes (January 2025)
-- **Port Default Fix**: Changed server default port from 3000 to 5000 to match deployment configuration expectations
-- **Production Logging**: Added comprehensive production environment logging for deployment debugging
+- **Aggressive PORT Override**: Server now force-sets PORT=5000 in production mode regardless of incoming environment variables
+- **Multi-layer Port Fallback**: Robust port resolution with validation, error handling, and comprehensive logging
+- **Enhanced Deployment Logging**: Added detailed startup diagnostics showing all PORT-related environment variables and process info
+- **Alternative Startup Script**: Created `start-production.js` for explicit environment control if needed
 - **Enhanced Health Check**: Improved `/health` endpoint with environment variable validation, memory monitoring, and error handling
-- **Deployment Documentation**: Created `DEPLOYMENT.md` with comprehensive deployment troubleshooting guide
+- **Comprehensive Documentation**: Updated `DEPLOYMENT.md` with detailed troubleshooting steps and expected log outputs
 - **Environment Validation**: Added production environment checks for required variables (DATABASE_URL)
 
 ### Previous Deployment Optimization Fixes

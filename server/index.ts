@@ -6,6 +6,17 @@ import { registerPaymentRoutes } from "./payment";
 import { registerTranslationRoutes } from "./translate";
 import "dotenv/config";
 
+// Aggressive PORT management for deployment consistency
+// Force PORT to 5000 regardless of environment for Replit deployment compatibility
+const originalPort = process.env.PORT;
+if (process.env.NODE_ENV === "production") {
+  process.env.PORT = "5000";
+  console.log(`[DEPLOYMENT] Force-setting PORT=5000 for production (was: ${originalPort || "undefined"})`);
+} else if (!process.env.PORT) {
+  process.env.PORT = "5000";
+  console.log("[DEPLOYMENT] Setting default PORT=5000 for development");
+}
+
 const app = express();
 
 // CORS 설정
@@ -191,13 +202,45 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
   
-  // Production environment logging for debugging
+  // Multi-fallback port resolution for maximum deployment compatibility
+  const portFromEnv = process.env.PORT;
+  let port = 5000; // Default to 5000 as per Replit configuration
+  
+  try {
+    if (portFromEnv) {
+      const parsedPort = parseInt(portFromEnv, 10);
+      if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort < 65536) {
+        port = parsedPort;
+      } else {
+        console.warn(`[WARNING] Invalid PORT value "${portFromEnv}", using default 5000`);
+      }
+    }
+  } catch (error) {
+    console.warn(`[WARNING] Error parsing PORT "${portFromEnv}", using default 5000:`, error);
+  }
+  
+  // Comprehensive deployment logging
+  console.log(`[SERVER] ===== DEPLOYMENT DEBUG INFO =====`);
+  console.log(`[SERVER] Raw PORT environment variable: "${portFromEnv || "undefined"}"`);
+  console.log(`[SERVER] Final resolved port: ${port}`);
+  console.log(`[SERVER] NODE_ENV: "${process.env.NODE_ENV || "undefined"}"`);
+  console.log(`[SERVER] Target bind address: 0.0.0.0:${port}`);
+  console.log(`[SERVER] Process arguments:`, process.argv);
+  
   if (process.env.NODE_ENV === "production") {
-    console.log(`[PRODUCTION] Starting server with PORT=${process.env.PORT || "5000"} (resolved to ${port})`);
-    console.log(`[PRODUCTION] NODE_ENV=${process.env.NODE_ENV}`);
-    console.log(`[PRODUCTION] Server binding to 0.0.0.0:${port}`);
+    console.log(`[PRODUCTION] ===== PRODUCTION DEPLOYMENT =====`);
+    console.log(`[PRODUCTION] All PORT-related environment variables:`);
+    Object.keys(process.env)
+      .filter(key => key.toLowerCase().includes('port'))
+      .forEach(key => console.log(`[PRODUCTION] - ${key}: "${process.env[key]}"`));
+    
+    // Validate deployment requirements
+    if (port !== 5000) {
+      console.warn(`[PRODUCTION] WARNING: Port ${port} differs from expected 5000!`);
+    }
+    
+    console.log(`[PRODUCTION] Server will start on: 0.0.0.0:${port}`);
   }
   
   server.listen(port, "0.0.0.0", () => {

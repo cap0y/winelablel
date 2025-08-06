@@ -60,12 +60,49 @@ For Replit Deployments or similar platforms:
 
 ## Troubleshooting
 
-If deployment fails with port configuration errors:
+### Common Port Configuration Issues
 
-1. Check that `PORT` environment variable is being set by the deployment platform
-2. Verify health check endpoint responds with 200 status
-3. Review server startup logs for production environment messages
-4. Ensure the server binds to `0.0.0.0:${PORT}` (not localhost)
+**Problem**: "The server is configured to listen on port 3000 by default instead of the configured port 5000"
+
+**Solutions Applied**:
+
+1. **Aggressive PORT Override**: The server now force-sets `PORT=5000` in production mode regardless of incoming environment variables
+2. **Multi-layer Fallback**: Port resolution with validation and error handling 
+3. **Comprehensive Logging**: Detailed startup logs show all PORT-related environment variables
+4. **Alternative Startup Script**: Created `start-production.js` for explicit environment control
+
+**Debugging Steps**:
+
+1. Check deployment logs for `[SERVER] ===== DEPLOYMENT DEBUG INFO =====` section
+2. Verify `Final resolved port: 5000` appears in logs
+3. Look for `[PRODUCTION] WARNING: Port X differs from expected 5000!` warnings
+4. Ensure health check at `/health` returns status 200
+
+**Expected Production Logs**:
+```
+[DEPLOYMENT] Force-setting PORT=5000 for production (was: undefined)
+[SERVER] ===== DEPLOYMENT DEBUG INFO =====
+[SERVER] Raw PORT environment variable: "5000"
+[SERVER] Final resolved port: 5000
+[SERVER] NODE_ENV: "production"
+[SERVER] Target bind address: 0.0.0.0:5000
+[PRODUCTION] ===== PRODUCTION DEPLOYMENT =====
+[PRODUCTION] Server will start on: 0.0.0.0:5000
+[PRODUCTION] Server successfully started: serving on port 5000
+```
+
+### Alternative Deployment Methods
+
+If the standard approach continues to fail:
+
+1. **Use Alternative Startup Script**: 
+   - Modify deployment to use `node start-production.js` instead of `npm run start`
+   - This provides explicit PORT environment control
+
+2. **Verify Replit Configuration**:
+   - Ensure `.replit` file has `PORT = "5000"` in `[env]` section
+   - Verify `localPort = 5000` and `externalPort = 80` in `[[ports]]` section
+   - Check `waitForPort = 5000` in workflow configuration
 
 ## Server Startup Logs
 
