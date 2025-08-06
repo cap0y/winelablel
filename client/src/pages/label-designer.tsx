@@ -327,6 +327,7 @@ function LabelPreview({
   labelBackgrounds = [],
   labelDecorations = [],
   labelBorders = [],
+  uploadedImages = [],
 }: {
   labelDesign: any;
   wineBottle: any;
@@ -339,6 +340,7 @@ function LabelPreview({
   labelBackgrounds?: any[];
   labelDecorations?: any[];
   labelBorders?: any[];
+  uploadedImages?: any[];
 }) {
   const {
     template,
@@ -359,6 +361,18 @@ function LabelPreview({
   const templateImage =
     labelBackgrounds.find((t: { id: string }) => t.id === template)?.image ||
     "";
+
+  // Fallback: labelBackgrounds에서 찾지 못하면 uploadedImages에서 직접 찾기
+  let finalTemplateImage = templateImage;
+  if (!templateImage && template && uploadedImages.length > 0) {
+    const uploadedImage = uploadedImages.find(
+      (img: any) => img.id === template,
+    );
+    if (uploadedImage) {
+      finalTemplateImage = uploadedImage.image;
+    }
+  }
+
   const selectedFont =
     fonts.find((f) => f.id === font)?.family || "'Noto Sans KR', sans-serif";
 
@@ -748,9 +762,9 @@ function LabelPreview({
                 )}
 
                 {/* 배경 이미지 */}
-                {templateImage && (
+                {finalTemplateImage && (
                   <img
-                    src={templateImage}
+                    src={finalTemplateImage}
                     alt="라벨 배경"
                     className="absolute inset-0 w-full h-full object-contain opacity-100"
                   />
@@ -1770,6 +1784,7 @@ export default function LabelDesigner() {
             labelBackgrounds={labelBackgrounds}
             labelDecorations={labelDecorations}
             labelBorders={labelBorders}
+            uploadedImages={uploadedImages}
           />
 
           {/* 결제하기 버튼 추가 */}
