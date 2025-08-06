@@ -13,13 +13,27 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? ["https://winelabel.replit.app", "https://끄레망--neon.replit.app"]
+        ? [
+            "https://winelabel.replit.app", 
+            "https://끄레망--neon.replit.app",
+            /\.replit\.app$/,
+            /\.repl\.co$/
+          ]
         : ["http://localhost:3000", "http://localhost:5000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   }),
 );
+
+// Health check endpoint for deployment readiness
+app.get("/health", (_req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
 
 // 요청 크기 제한 증가 (기본 100kb에서 50MB로 변경)
 app.use(express.json({ limit: "50mb" }));
@@ -59,16 +73,11 @@ app.use(
 );
 
 // 이미지 파일들을 위한 정적 파일 서빙 추가
-console.log(
-  "[DEBUG] Setting up static file serving for /images -> public/images",
-);
-console.log("[DEBUG] Current working directory:", process.cwd());
 
 app.use(
   "/images",
   express.static("public/images", {
     setHeaders: (res, path) => {
-      console.log("[DEBUG] Serving image file:", path);
       if (path.endsWith(".png")) {
         res.setHeader("Content-Type", "image/png");
       } else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
@@ -144,7 +153,7 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "3000", 10);
-  server.listen(port, () => {
+  server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
 })();
