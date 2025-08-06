@@ -93,16 +93,32 @@ For Replit Deployments or similar platforms:
 
 ### Alternative Deployment Methods
 
-If the standard approach continues to fail:
+If the standard approach continues to fail, try these solutions in order:
 
-1. **Use Alternative Startup Script**: 
-   - Modify deployment to use `node start-production.js` instead of `npm run start`
-   - This provides explicit PORT environment control
+**Option 1: Use Dedicated Deployment Script**
+- Modify `.replit` deployment configuration to use `node deploy-prod.js` instead of `npm run start`
+- This script forces environment variables before any code execution
+- Provides explicit validation and error handling
 
-2. **Verify Replit Configuration**:
-   - Ensure `.replit` file has `PORT = "5000"` in `[env]` section
-   - Verify `localPort = 5000` and `externalPort = 80` in `[[ports]]` section
-   - Check `waitForPort = 5000` in workflow configuration
+**Option 2: Manual Environment Override**
+- Use the alternative startup script: `node start-production.js`
+- This provides explicit PORT environment control
+
+**Option 3: Verify Replit Configuration**
+- Ensure `.replit` file has correct port mapping:
+  ```toml
+  [env]
+  PORT = "5000"
+  
+  [[ports]]
+  localPort = 5000
+  externalPort = 80
+  ```
+- Check that no other files reference port 3000
+
+**Option 4: Force Rebuild**
+- Run `npm run build` to ensure latest changes are compiled
+- Verify built file `dist/index.js` contains port 5000 configuration
 
 ## Server Startup Logs
 
