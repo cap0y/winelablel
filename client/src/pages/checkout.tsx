@@ -3,14 +3,28 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, FileEdit, Truck, Home, Wine, Package2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  FileEdit,
+  Truck,
+  Home,
+  Wine,
+  Package2,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/contexts/auth-context";
 import AddressSearch from "@/components/ui/address-search";
 
@@ -22,12 +36,17 @@ declare global {
 }
 
 // 결제 폼 컴포넌트
-function PaymentForm({ orderData, amount, customerInfo, createdOrder }: { 
+function PaymentForm({
+  orderData,
+  amount,
+  customerInfo,
+  createdOrder,
+}: {
   orderData: any;
-  amount: number; 
-  customerInfo: { 
-    name: string; 
-    email: string; 
+  amount: number;
+  customerInfo: {
+    name: string;
+    email: string;
     phone: string;
     address: string;
     zipCode: string;
@@ -42,7 +61,8 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
     if (!window.PortOne) {
       toast({
         title: "결제 시스템 오류",
-        description: "결제 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
+        description:
+          "결제 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
         variant: "destructive",
       });
       return;
@@ -84,11 +104,15 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
 
       if (paymentResponse.code === "SUCCESS") {
         // Verify payment
-        const verificationResponse = await apiRequest("POST", "/api/verify-payment", {
-          orderId: createdOrder.id,
-          paymentId: paymentResponse.paymentId,
-          amount: amount,
-        });
+        const verificationResponse = await apiRequest(
+          "POST",
+          "/api/verify-payment",
+          {
+            orderId: createdOrder.id,
+            paymentId: paymentResponse.paymentId,
+            amount: amount,
+          },
+        );
 
         const verificationData = await verificationResponse.json();
 
@@ -100,7 +124,7 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
             quantity: orderData.quantity,
             amount,
             customer: customerInfo,
-            labelDesign: orderData.labelDesign
+            labelDesign: orderData.labelDesign,
           };
           sessionStorage.setItem("lastOrder", JSON.stringify(orderSummary));
 
@@ -114,10 +138,12 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
           // 결제 검증 실패 - 결제 취소 또는 실패
           toast({
             title: "결제 실패",
-            description: verificationData.message || "결제가 정상적으로 처리되지 않았습니다.",
+            description:
+              verificationData.message ||
+              "결제가 정상적으로 처리되지 않았습니다.",
             variant: "destructive",
           });
-          
+
           // 3초 후 현재 페이지 새로고침 (주문 상태 갱신을 위해)
           setTimeout(() => {
             window.location.reload();
@@ -128,19 +154,20 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
         // 주문 상태를 취소로 변경
         try {
           await fetch(`/api/orders/${createdOrder.id}/cancel`, {
-            method: 'PATCH'
+            method: "PATCH",
           });
-          
+
           toast({
             title: "결제 취소",
             description: "사용자가 결제를 취소하였습니다.",
             variant: "destructive",
           });
         } catch (err) {
-          console.error('주문 취소 처리 오류:', err);
+          console.error("주문 취소 처리 오류:", err);
           toast({
             title: "결제 취소",
-            description: "결제가 취소되었습니다. 주문 상태 업데이트 중 오류가 발생했지만 결제는 취소되었습니다.",
+            description:
+              "결제가 취소되었습니다. 주문 상태 업데이트 중 오류가 발생했지만 결제는 취소되었습니다.",
             variant: "destructive",
           });
         }
@@ -149,10 +176,10 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
         // 기타 결제 실패 경우
         try {
           await fetch(`/api/orders/${createdOrder.id}/cancel`, {
-            method: 'PATCH'
+            method: "PATCH",
           });
         } catch (err) {
-          console.error('주문 취소 처리 오류:', err);
+          console.error("주문 취소 처리 오류:", err);
         }
         throw new Error(paymentResponse.message || "결제 실패");
       }
@@ -169,7 +196,7 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
 
   return (
     <div className="space-y-6">
-      <Button 
+      <Button
         onClick={handlePayment}
         disabled={isProcessing}
         className="w-full bg-gradient-to-r from-[#ff00ff] to-[#cc00ff] hover:opacity-90 text-white py-6 rounded-lg font-medium flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,0,255,0.4)] transition-all hover:shadow-[0_0_25px_rgba(255,0,255,0.6)]"
@@ -181,7 +208,8 @@ function PaymentForm({ orderData, amount, customerInfo, createdOrder }: {
           </div>
         ) : (
           <>
-            <CreditCard className="w-5 h-5" /> {`${amount.toLocaleString()}원 결제하기`}
+            <CreditCard className="w-5 h-5" />{" "}
+            {`${amount.toLocaleString()}원 결제하기`}
           </>
         )}
       </Button>
@@ -199,24 +227,33 @@ export default function Checkout() {
     email: "",
     phone: "",
     address: "",
-    zipCode: ""
+    zipCode: "",
   });
-  
+
   // 상세 주소를 별도로 관리 (추가)
   const [addressDetail, setAddressDetail] = useState("");
-  
+
   // 생성된 주문 정보 저장 (추가)
   const [createdOrder, setCreatedOrder] = useState<any>(null);
-  
+  // 결제 수단 선택: card(비활성), bank(활성)
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "bank">("bank");
+  // 은행 계좌 설정
+  const [bankConfig, setBankConfig] = useState<{
+    bankName: string;
+    accountNo: string;
+    accountHolder: string;
+  } | null>(null);
+  const [isLoadingBank, setIsLoadingBank] = useState(false);
+
   // 배송 방식 선택 (기본값: 일반 배송)
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
-  
+
   // 수량 선택 (기본값: 1)
   const [quantity, setQuantity] = useState(1);
-  
+
   // 라벨 디자인 정보 저장
   const [labelDesign, setLabelDesign] = useState<any>(null);
-  
+
   // 캡처된 라벨 이미지 URL 저장
   const [labelImageUrl, setLabelImageUrl] = useState<string | null>(null);
   // 전체 와인병 미리보기 이미지 URL 저장 (추가)
@@ -288,14 +325,14 @@ export default function Checkout() {
         dimensions: "높이 29cm x 지름 8cm",
         capacity: "750ml",
         price: 6000,
-      }
+      },
     ];
-    
-    return bottles.find(bottle => bottle.id === bottleId) || bottles[0];
+
+    return bottles.find((bottle) => bottle.id === bottleId) || bottles[0];
   };
 
   const bottleInfo = getWineBottle(bottleId);
-  
+
   // 배송비 계산
   const getDeliveryFee = (method: string, basePrice: number) => {
     switch (method) {
@@ -308,30 +345,30 @@ export default function Checkout() {
         return basePrice >= 30000 ? 0 : 3000;
     }
   };
-  
+
   // 총 금액 계산
   const calculateTotal = () => {
     const basePrice = bottleInfo.price * quantity;
     const deliveryFee = getDeliveryFee(deliveryMethod, basePrice);
     return basePrice + deliveryFee;
   };
-  
+
   const totalAmount = calculateTotal();
 
   // sessionStorage에서 라벨 디자인 정보 불러오기
   useEffect(() => {
-    const designData = sessionStorage.getItem('labelDesign');
-    const imageData = sessionStorage.getItem('labelPreviewImage');
-    const bottleImageData = sessionStorage.getItem('bottlePreviewImage'); // 추가
-    
+    const designData = sessionStorage.getItem("labelDesign");
+    const imageData = sessionStorage.getItem("labelPreviewImage");
+    const bottleImageData = sessionStorage.getItem("bottlePreviewImage"); // 추가
+
     console.log("라벨 이미지 데이터 있음:", !!imageData);
     console.log("와인병 전체 이미지 데이터 있음:", !!bottleImageData);
-    
+
     if (designData) {
       try {
         setLabelDesign(JSON.parse(designData));
       } catch (error) {
-        console.error('라벨 디자인 데이터 파싱 오류:', error);
+        console.error("라벨 디자인 데이터 파싱 오류:", error);
         toast({
           title: "오류",
           description: "라벨 디자인 정보를 불러오는데 실패했습니다.",
@@ -346,13 +383,13 @@ export default function Checkout() {
       });
       navigate("/label-designer");
     }
-    
+
     // 캡처된 라벨 이미지가 있으면 상태에 저장
     if (imageData) {
       setLabelImageUrl(imageData);
       console.log("라벨 이미지 URL 설정 완료");
     }
-    
+
     // 캡처된 전체 와인병 미리보기 이미지가 있으면 상태에 저장
     if (bottleImageData) {
       setBottlePreviewUrl(bottleImageData);
@@ -360,16 +397,40 @@ export default function Checkout() {
     } else {
       console.log("와인병 전체 이미지가 없습니다.");
     }
-    
+
     // 사용자 정보가 있다면 설정
     if (user) {
-      setUserInfo(prev => ({
+      setUserInfo((prev) => ({
         ...prev,
         name: user.displayName || "",
-        email: user.email || ""
+        email: user.email || "",
       }));
     }
   }, []);
+
+  // 은행 설정 로드 (은행 결제 선택 시)
+  useEffect(() => {
+    const fetchBankConfig = async () => {
+      if (paymentMethod !== "bank") return;
+      try {
+        setIsLoadingBank(true);
+        const res = await fetch("/api/payment/bank-config");
+        const data = await res.json();
+        if (data.success)
+          setBankConfig({
+            bankName: data.bankName,
+            accountNo: data.accountNo,
+            accountHolder: data.accountHolder,
+          });
+        else setBankConfig(null);
+      } catch (e) {
+        setBankConfig(null);
+      } finally {
+        setIsLoadingBank(false);
+      }
+    };
+    fetchBankConfig();
+  }, [paymentMethod]);
 
   // Load PortOne SDK
   useEffect(() => {
@@ -385,9 +446,16 @@ export default function Checkout() {
 
   const handleUserInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const fullAddress = addressDetail ? `${userInfo.address} ${addressDetail}` : userInfo.address;
-    
-    if (!userInfo.name || !userInfo.email || !userInfo.address || !userInfo.zipCode) {
+    const fullAddress = addressDetail
+      ? `${userInfo.address} ${addressDetail}`
+      : userInfo.address;
+
+    if (
+      !userInfo.name ||
+      !userInfo.email ||
+      !userInfo.address ||
+      !userInfo.zipCode
+    ) {
       toast({
         title: "입력 오류",
         description: "이름, 이메일, 배송지 주소를 입력해주세요.",
@@ -397,10 +465,10 @@ export default function Checkout() {
     }
 
     try {
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
+      const orderResponse = await fetch("/api/orders", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           customerName: userInfo.name,
@@ -415,10 +483,13 @@ export default function Checkout() {
           amount: totalAmount,
           quantity: quantity,
           deliveryMethod: deliveryMethod,
-          deliveryFee: getDeliveryFee(deliveryMethod, bottleInfo.price * quantity),
-          status: '결제대기',
-          paymentStatus: '결제대기'
-        })
+          deliveryFee: getDeliveryFee(
+            deliveryMethod,
+            bottleInfo.price * quantity,
+          ),
+          status: "결제대기",
+          paymentStatus: "결제대기",
+        }),
       });
 
       const orderResult = await orderResponse.json();
@@ -459,16 +530,16 @@ export default function Checkout() {
     setUserInfo({
       ...userInfo,
       address: selectedAddress.roadAddr,
-      zipCode: selectedAddress.zipNo
+      zipCode: selectedAddress.zipNo,
     });
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <section className="px-4 py-6 container mx-auto max-w-3xl">
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant="outline"
+          size="sm"
           className="mb-4 flex items-center gap-1 border-[#ff00ff]/50 text-[#ff00ff] hover:bg-[#ff00ff]/10 hover:border-[#ff00ff]/80 shadow-[0_0_10px_rgba(255,0,255,0.3)]"
           onClick={() => navigate("/label-designer/" + bottleId)}
         >
@@ -483,33 +554,47 @@ export default function Checkout() {
         {/* 주문 요약 */}
         <Card className="bg-gray-800/60 border-[#ff00ff]/30 border mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,255,0.2)]">
           <CardHeader className="border-b border-gray-700">
-            <CardTitle className="text-lg text-[#00ffff] text-shadow-neon">주문 정보</CardTitle>
+            <CardTitle className="text-lg text-[#00ffff] text-shadow-neon">
+              주문 정보
+            </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex items-center mb-6">
               <div className="w-24 h-32 mr-4 relative glow-effect-blue">
-                <img src={bottleInfo.image} alt={bottleInfo.name} className="w-full h-full object-contain" />
+                <img
+                  src={bottleInfo.image}
+                  alt={bottleInfo.name}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
-                <h3 className="font-medium text-white text-lg">{bottleInfo.name}</h3>
+                <h3 className="font-medium text-white text-lg">
+                  {bottleInfo.name}
+                </h3>
                 <p className="text-gray-300">와인 라벨 {quantity}매</p>
-                <p className="font-medium text-[#ff00ff] text-xl mt-1">{bottleInfo.price.toLocaleString()}원/매</p>
+                <p className="font-medium text-[#ff00ff] text-xl mt-1">
+                  {bottleInfo.price.toLocaleString()}원/매
+                </p>
               </div>
             </div>
-            
+
             {/* 라벨 디자인 미리보기 */}
             <div className="mb-6">
-              <h3 className="font-medium mb-3 text-[#00ffff]">라벨 디자인 미리보기</h3>
+              <h3 className="font-medium mb-3 text-[#00ffff]">
+                라벨 디자인 미리보기
+              </h3>
               <div className="bg-gray-800/80 p-4 rounded-lg border border-[#00ffff]/30 shadow-[0_0_15px_rgba(0,255,255,0.2)] relative">
                 {bottlePreviewUrl ? (
                   // 와인병 전체 미리보기
                   <div className="flex justify-center">
-                    <img 
+                    <img
                       src={bottlePreviewUrl}
-                      alt="와인병 미리보기" 
+                      alt="와인병 미리보기"
                       className="max-w-full h-auto rounded"
                       onLoad={() => console.log("와인병 전체 이미지 로드 완료")}
-                      onError={(e) => console.error("와인병 이미지 로드 실패:", e)}
+                      onError={(e) =>
+                        console.error("와인병 이미지 로드 실패:", e)
+                      }
                     />
                   </div>
                 ) : labelImageUrl ? (
@@ -517,34 +602,43 @@ export default function Checkout() {
                   <div className="flex flex-col items-center">
                     {/* 실제 크기 표시 */}
                     <div className="text-white text-xs mb-2 bg-black/50 px-2 py-1 rounded-full">
-                      실제 라벨 크기: {bottleInfo.type === 'burgundy' ? '7.94cm × 7.44cm' : '6.94cm × 7.94cm'}
+                      실제 라벨 크기:{" "}
+                      {bottleInfo.type === "burgundy"
+                        ? "7.94cm × 7.44cm"
+                        : "6.94cm × 7.94cm"}
                     </div>
-                    
+
                     {/* 와인병 위에 라벨 표시 */}
                     <div className="relative">
                       {/* 와인병 이미지 */}
-                      <img 
-                        src={bottleInfo.image} 
+                      <img
+                        src={bottleInfo.image}
                         alt={bottleInfo.name}
                         className="h-[450px] object-contain"
                       />
-                      
+
                       {/* 라벨 오버레이 */}
-                      <div className="absolute" style={{
-                        top: '60%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: bottleInfo.type === 'burgundy' ? '140px' : '120px',
-                      }}>
-                        <img 
+                      <div
+                        className="absolute"
+                        style={{
+                          top: "60%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          width:
+                            bottleInfo.type === "burgundy" ? "140px" : "120px",
+                        }}
+                      >
+                        <img
                           src={labelImageUrl}
-                          alt="와인 라벨 디자인" 
+                          alt="와인 라벨 디자인"
                           className="w-full h-auto object-contain rounded"
                           style={{
-                            border: '1px dashed rgba(0, 255, 255, 0.3)'
+                            border: "1px dashed rgba(0, 255, 255, 0.3)",
                           }}
                           onLoad={() => console.log("라벨 이미지 로드 완료")}
-                          onError={(e) => console.error("라벨 이미지 로드 실패:", e)}
+                          onError={(e) =>
+                            console.error("라벨 이미지 로드 실패:", e)
+                          }
                         />
                       </div>
                     </div>
@@ -556,64 +650,100 @@ export default function Checkout() {
                 )}
               </div>
             </div>
-            
+
             <div className="space-y-4 text-gray-100">
               <div className="flex justify-between">
                 <span>상품 가격</span>
-                <span className="font-medium text-white">{(bottleInfo.price * quantity).toLocaleString()}원</span>
+                <span className="font-medium text-white">
+                  {(bottleInfo.price * quantity).toLocaleString()}원
+                </span>
               </div>
-              
+
               <div className="mb-4">
                 <Label className="mb-2 block text-[#00ffff]">수량</Label>
-                <Select value={quantity.toString()} onValueChange={(value) => setQuantity(parseInt(value))}>
+                <Select
+                  value={quantity.toString()}
+                  onValueChange={(value) => setQuantity(parseInt(value))}
+                >
                   <SelectTrigger className="w-full bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50">
                     <SelectValue placeholder="수량 선택" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                    {[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map(num => (
-                      <SelectItem key={num} value={num.toString()} className="hover:bg-gray-700 focus:bg-gray-700">{num}매</SelectItem>
+                    {[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((num) => (
+                      <SelectItem
+                        key={num}
+                        value={num.toString()}
+                        className="hover:bg-gray-700 focus:bg-gray-700"
+                      >
+                        {num}매
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="mb-4">
                 <Label className="mb-2 block text-[#00ffff]">배송 방법</Label>
-                <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod} className="flex flex-col space-y-2">
+                <RadioGroup
+                  value={deliveryMethod}
+                  onValueChange={setDeliveryMethod}
+                  className="flex flex-col space-y-2"
+                >
                   <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700 hover:border-[#ff00ff]/50 transition-colors">
-                    <RadioGroupItem value="standard" id="standard-delivery" className="text-[#ff00ff] focus:ring-[#ff00ff]" />
-                    <Label htmlFor="standard-delivery" className="flex items-center cursor-pointer w-full">
+                    <RadioGroupItem
+                      value="standard"
+                      id="standard-delivery"
+                      className="text-[#ff00ff] focus:ring-[#ff00ff]"
+                    />
+                    <Label
+                      htmlFor="standard-delivery"
+                      className="flex items-center cursor-pointer w-full"
+                    >
                       <Truck className="w-5 h-5 mr-2 text-gray-300" />
                       <div className="flex-1">
                         <div className="flex items-center">
-                          <span className="font-medium text-white">일반 배송</span>
-                          {(bottleInfo.price * quantity) >= 30000 ? (
-                            <span className="text-sm text-green-400 ml-2 font-semibold">(무료배송)</span>
+                          <span className="font-medium text-white">
+                            일반 배송
+                          </span>
+                          {bottleInfo.price * quantity >= 30000 ? (
+                            <span className="text-sm text-green-400 ml-2 font-semibold">
+                              (무료배송)
+                            </span>
                           ) : (
-                            <span className="text-sm text-gray-400 ml-2">(3,000원)</span>
+                            <span className="text-sm text-gray-400 ml-2">
+                              (3,000원)
+                            </span>
                           )}
                         </div>
-                        <span className="text-xs text-gray-500">3만원 이상 주문시 무료배송</span>
+                        <span className="text-xs text-gray-500">
+                          3e��원 이상 주문시 무료배송
+                        </span>
                       </div>
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
-              
+
               <div className="flex justify-between">
                 <span>배송비</span>
                 <span className="font-medium text-white">
-                  {getDeliveryFee(deliveryMethod, bottleInfo.price * quantity) === 0 ? 
-                    <span className="text-green-400">무료</span> : 
+                  {getDeliveryFee(
+                    deliveryMethod,
+                    bottleInfo.price * quantity,
+                  ) === 0 ? (
+                    <span className="text-green-400">무료</span>
+                  ) : (
                     `${getDeliveryFee(deliveryMethod, bottleInfo.price * quantity).toLocaleString()}원`
-                  }
+                  )}
                 </span>
               </div>
-              
+
               <Separator className="border-gray-700" />
               <div className="flex justify-between text-xl font-bold">
                 <span className="text-white">총 금액</span>
-                <span className="text-[#ff00ff] glow-text-pink">{totalAmount.toLocaleString()}원</span>
+                <span className="text-[#ff00ff] glow-text-pink">
+                  {totalAmount.toLocaleString()}원
+                </span>
               </div>
             </div>
           </CardContent>
@@ -623,75 +753,99 @@ export default function Checkout() {
         {!showPaymentForm && (
           <Card className="bg-gray-800/60 border-[#00ffff]/30 border mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(0,255,255,0.2)]">
             <CardHeader className="border-b border-gray-700">
-              <CardTitle className="text-lg text-[#00ffff] text-shadow-neon">배송지 정보</CardTitle>
+              <CardTitle className="text-lg text-[#00ffff] text-shadow-neon">
+                배송지 정보
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleUserInfoSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name" className="text-white">이름 *</Label>
+                  <Label htmlFor="name" className="text-white">
+                    이름 *
+                  </Label>
                   <Input
                     id="name"
                     type="text"
                     value={userInfo.name}
-                    onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
+                    onChange={(e) =>
+                      setUserInfo({ ...userInfo, name: e.target.value })
+                    }
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-white">이메일 *</Label>
+                  <Label htmlFor="email" className="text-white">
+                    이메일 *
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={userInfo.email}
-                    onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
+                    onChange={(e) =>
+                      setUserInfo({ ...userInfo, email: e.target.value })
+                    }
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-white">전화번호</Label>
+                  <Label htmlFor="phone" className="text-white">
+                    전화번호
+                  </Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={userInfo.phone}
-                    onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
+                    onChange={(e) =>
+                      setUserInfo({ ...userInfo, phone: e.target.value })
+                    }
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                   />
                 </div>
-                
+
                 {/* 주소 검색 기능 추가 */}
                 <div className="pt-2">
                   <Label className="text-white mb-2 block">주소 검색 *</Label>
                   <AddressSearch onSelect={handleAddressSelect} />
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="zipCode" className="text-white">우편번호 *</Label>
+                  <Label htmlFor="zipCode" className="text-white">
+                    우편번호 *
+                  </Label>
                   <Input
                     id="zipCode"
                     type="text"
                     value={userInfo.zipCode}
-                    onChange={(e) => setUserInfo({ ...userInfo, zipCode: e.target.value })}
+                    onChange={(e) =>
+                      setUserInfo({ ...userInfo, zipCode: e.target.value })
+                    }
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                     required
                     readOnly
                   />
                 </div>
                 <div>
-                  <Label htmlFor="address" className="text-white">배송지 주소 *</Label>
+                  <Label htmlFor="address" className="text-white">
+                    배송지 주소 *
+                  </Label>
                   <Input
                     id="address"
                     type="text"
                     value={userInfo.address}
-                    onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
+                    onChange={(e) =>
+                      setUserInfo({ ...userInfo, address: e.target.value })
+                    }
                     className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
                     required
                   />
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="addressDetail" className="text-white">상세 주소</Label>
+                  <Label htmlFor="addressDetail" className="text-white">
+                    상세 주소
+                  </Label>
                   <Input
                     id="addressDetail"
                     type="text"
@@ -701,9 +855,9 @@ export default function Checkout() {
                     onChange={(e) => setAddressDetail(e.target.value)}
                   />
                 </div>
-                
-                <Button 
-                  type="submit" 
+
+                <Button
+                  type="submit"
                   className="w-full bg-gradient-to-r from-[#00ffff] to-[#0099ff] hover:opacity-90 text-black font-medium py-6 shadow-[0_0_15px_rgba(0,255,255,0.4)] transition-all hover:shadow-[0_0_20px_rgba(0,255,255,0.6)]"
                 >
                   <Home className="w-5 h-5 mr-2" /> 배송지 입력 완료
@@ -715,20 +869,156 @@ export default function Checkout() {
 
         {/* 결제 폼 */}
         {showPaymentForm && (
-          <PaymentForm 
-            orderData={{
-              bottleType: bottleInfo,
-              quantity,
-              labelDesign: labelDesign,
-              deliveryMethod
-            }}
-            amount={totalAmount} 
-            customerInfo={{
-              ...userInfo,
-              address: addressDetail ? `${userInfo.address} ${addressDetail}` : userInfo.address
-            }}
-            createdOrder={createdOrder}
-          />
+          <Card className="bg-gray-800/60 border-[#ff00ff]/30 border mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,255,0.2)]">
+            <CardHeader className="border-b border-gray-700">
+              <CardTitle className="text-lg text-[#ff00ff]">
+                결제 방법
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <RadioGroup
+                value={paymentMethod}
+                onValueChange={(val) =>
+                  setPaymentMethod(val as "card" | "bank")
+                }
+                className="flex flex-col space-y-2"
+              >
+                <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700 opacity-60 cursor-not-allowed">
+                  <RadioGroupItem value="card" id="pay-card" disabled />
+                  <Label
+                    htmlFor="pay-card"
+                    className="flex items-center cursor-not-allowed w-full"
+                  >
+                    <CreditCard className="w-5 h-5 mr-2 text-gray-300" />
+                    <div className="flex-1 text-white">카드 결제 (준비중)</div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700">
+                  <RadioGroupItem value="bank" id="pay-bank" />
+                  <Label
+                    htmlFor="pay-bank"
+                    className="flex items-center w-full"
+                  >
+                    <div className="flex-1 text-white">
+                      계좌 결제 (무통장입금)
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+
+              {paymentMethod === "card" && (
+                <PaymentForm
+                  orderData={{
+                    bottleType: bottleInfo,
+                    quantity,
+                    labelDesign: labelDesign,
+                    deliveryMethod,
+                  }}
+                  amount={totalAmount}
+                  customerInfo={{
+                    ...userInfo,
+                    address: addressDetail
+                      ? `${userInfo.address} ${addressDetail}`
+                      : userInfo.address,
+                  }}
+                  createdOrder={createdOrder}
+                />
+              )}
+
+              {paymentMethod === "bank" && (
+                <div className="space-y-4">
+                  <div className="bg-gray-900/60 border border-gray-700 rounded p-4">
+                    <div className="text-sm text-gray-300 mb-2">
+                      입금 계좌 정보
+                    </div>
+                    {isLoadingBank ? (
+                      <div className="text-gray-400 text-sm">
+                        계좌 정보를 불러오는 중...
+                      </div>
+                    ) : bankConfig ? (
+                      <div className="text-white">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">은행명</span>
+                          <span>{bankConfig.bankName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">계좌번호</span>
+                          <span className="font-semibold">
+                            {bankConfig.accountNo}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">예금주</span>
+                          <span>{bankConfig.accountHolder}</span>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <span className="text-gray-400">입금 금액</span>
+                          <span className="text-[#ff00ff] font-bold">
+                            {totalAmount.toLocaleString()}원
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-red-400 text-sm">
+                        계좌 정보가 설정되지 않았습니다. 관리자에게 문의하세요.
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    onClick={async () => {
+                      try {
+                        if (!createdOrder) return;
+                        if (!bankConfig) {
+                          toast({
+                            title: "계좌 정보 없음",
+                            description: "관리자에게 문의하세요.",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        const res = await fetch(
+                          `/api/orders/${createdOrder.id}/bank-payment`,
+                          {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              bankAccount: bankConfig.accountNo,
+                              amount: totalAmount,
+                            }),
+                          },
+                        );
+                        const data = await res.json();
+                        if (data.success) {
+                          toast({
+                            title: "은행 결제 등록",
+                            description: "입금 확인 후 제작이 시작됩니다.",
+                          });
+                          navigate("/profile");
+                        } else {
+                          toast({
+                            title: "오류",
+                            description:
+                              data.message || "은행 결제 처리 중 오류",
+                            variant: "destructive",
+                          });
+                        }
+                      } catch (e: any) {
+                        toast({
+                          title: "오류",
+                          description: e.message || "은행 결제 처리 중 오류",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="w-full bg-gradient-to-r from-[#00ffff] to-[#0099ff] hover:opacity-90 text-black font-medium py-6 shadow-[0_0_15px_rgba(0,255,255,0.4)]"
+                  >
+                    계좌로 결제하기 (입금 대기)
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
       </section>
     </div>

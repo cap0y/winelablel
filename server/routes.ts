@@ -288,7 +288,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // 이메일로 사용자 조회
   app.get("/api/users/by-email/:email", async (req, res) => {
-    console.log(`[DEBUG] 이메일 조회 요청: ${req.params.email}`);
     try {
       const email = req.params.email;
       const user = await storage.getUserByEmail(email);
@@ -1579,8 +1578,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 갤러리에 표시될 라벨 목록 API
   app.get("/api/gallery/labels", async (req, res) => {
     try {
-      console.log("[DEBUG] 갤러리 라벨 목록 조회 요청");
-
       // 완료된(completed) 주문 중 갤러리 표시가 허용된(publishToGallery) 것만 가져옴
       const labels = await db
         .select({
@@ -1602,8 +1599,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ),
         )
         .orderBy(desc(orders.createdAt));
-
-      console.log(`[DEBUG] 조회된 라벨 수: ${labels.length}`);
 
       // publishToGallery 값 로깅
       labels.forEach((label, index) => {
@@ -1715,8 +1710,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ),
         )
         .limit(limit);
-
-      console.log(`[DEBUG] 인기 라벨 조회: ${labels.length}개 결과`);
 
       // 인기순으로 정렬하기 위해 좋아요 수 계산
       const result = await Promise.all(
@@ -2472,7 +2465,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (!foundFilePath) {
           console.error(`[ERROR] 배경 이미지를 찾을 수 없음: ${backgroundId}`);
-          console.error(`[DEBUG] 검색한 경로들:`);
           supportedExtensions.forEach((ext) => {
             const testPath = path.join(labelDir, `${backgroundId}${ext}`);
             console.error(`  - ${testPath} (존재: ${fs.existsSync(testPath)})`);
@@ -3098,6 +3090,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         message: "관리자 전체 알림 읽음 처리 중 오류가 발생했습니다.",
       });
+    }
+  });
+
+  // 은행 결제 설정 조회
+  app.get("/api/payment/bank-config", async (_req, res) => {
+    try {
+      const bankName = process.env.BANK_NAME || process.env.PAYMENT_BANK_NAME;
+      const accountNo =
+        process.env.BANK_ACCOUNT || process.env.PAYMENT_BANK_ACCOUNT;
+      const accountHolder =
+        process.env.BANK_HOLDER || process.env.PAYMENT_BANK_HOLDER;
+
+      if (!bankName || !accountNo || !accountHolder) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "은행 계좌 정보가 설정되지 않았습니다. 환경변수를 설정하세요.",
+        });
+      }
+
+      return res.json({ success: true, bankName, accountNo, accountHolder });
+    } catch (e: any) {
+      console.error("[ERROR] 은행 설정 조회 오류:", e);
+      return res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
+  // 주문에 은행 결제 정보 저장 (paymentId를 BANK:계좌번호 형태로 저장)
+  app.patch("/api/orders/:orderId/bank-payment", async (req, res) => {
+    try {
+      const { orderId } = req.params as { orderId: string };
+      const { bankAccount, amount } = req.body as {
+        bankAccount?: string;
+        amount?: number;
+      };
+
+      if (!orderId || !bankAccount || !amount) {
+        return res.status(400).json({
+          success: false,
+          message: "orderId, bankAccount, amount는 필수입니다.",
+        });
+      }
+
+      // paymentId에 BANK: 접두어로 저장하여 프로필에서 식별
+      await db
+        .update(orders)
+        .set({
+          paymentId: `BANK:${bankAccount}`,
+          amount: Number(amount),
+          status: "결제대기",
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, orderId));
+
+      return res.json({ success: true });
+    } catch (e: any) {
+      console.error("[ERROR] 은행 결제 정보 저장 오류:", e);
+      return res.status(500).json({ success: false, message: e.message });
     }
   });
 

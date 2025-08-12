@@ -164,6 +164,12 @@ export default function ProfilePage() {
   >("icon");
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  // 은행 설정 (은행 결제 표시용)
+  const [bankConfig, setBankConfig] = useState<{
+    bankName: string;
+    accountNo: string;
+    accountHolder: string;
+  } | null>(null);
 
   // 와인 주문 관리 상태
   const [orders, setOrders] = useState<WineOrder[]>([]);
@@ -936,6 +942,25 @@ export default function ProfilePage() {
     }
   }, [userActiveTab, isAdmin, userOrders.length]);
 
+  // 은행 설정 불러오기 (실패해도 무시)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/payment/bank-config");
+        const data = await res.json();
+        if (data?.success) {
+          setBankConfig({
+            bankName: data.bankName,
+            accountNo: data.accountNo,
+            accountHolder: data.accountHolder,
+          });
+        }
+      } catch {
+        setBankConfig(null);
+      }
+    })();
+  }, []);
+
   // 주문 상세 보기 다이얼로그
   function OrderDetailDialog({
     order,
@@ -1389,7 +1414,7 @@ export default function ProfilePage() {
                   ) : (
                     <div className="space-y-3">
                       <div className="space-y-2">
-                        <Label htmlFor="gallery-title">갤러리 표시 제목</Label>
+                        <Label htmlFor="gallery-title">at�러리 표시 제목</Label>
                         <Input
                           id="gallery-title"
                           value={galleryTitle}
@@ -1588,6 +1613,35 @@ export default function ProfilePage() {
                                         ? "결제취소"
                                         : "결제대기")}
                                 </span>
+                                {/* 은행 결제 정보 추가 표시 */}
+                                {order.paymentId &&
+                                  order.paymentId.startsWith("BANK:") && (
+                                    <div className="mt-1 text-xs text-gray-300">
+                                      {bankConfig?.bankName && (
+                                        <div>
+                                          은행명:{" "}
+                                          <span className="text-white">
+                                            {bankConfig.bankName}
+                                          </span>
+                                        </div>
+                                      )}
+                                      <div>
+                                        계좌번호:{" "}
+                                        <span className="font-mono text-white">
+                                          {order.paymentId.replace("BANK:", "")}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        결제 금액:{" "}
+                                        <span className="text-white">
+                                          {Number(
+                                            order.amount || 0,
+                                          ).toLocaleString()}
+                                          원
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
                               </td>
                               {/* 주문상태 */}
                               <td className="px-4 py-3">
