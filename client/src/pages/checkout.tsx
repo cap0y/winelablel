@@ -716,7 +716,7 @@ export default function Checkout() {
                           )}
                         </div>
                         <span className="text-xs text-gray-500">
-                          3e��원 이상 주문시 무료배송
+                          3만원 이상 주문시 무료배송
                         </span>
                       </div>
                     </Label>

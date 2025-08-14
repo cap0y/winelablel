@@ -52,6 +52,10 @@ export const userApi = {
   // 이메일로 사용자 조회
   getUserByEmail: (email: string) => api.get(`/api/users/by-email/${email}`),
   
+  // 비밀번호 변경
+  changePassword: (email: string, currentPassword: string, newPassword: string) => 
+    api.post('/api/users/change-password', { email, currentPassword, newPassword }),
+  
   // 사용자 주문 목록 조회
   getUserOrders: (email: string) => api.get(`/api/user-orders?email=${email}`),
   
