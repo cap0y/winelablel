@@ -85,16 +85,16 @@ const wineBottles: WineBottle[] = [
 function WineBottleCard({ bottle, isSelected, onClick }: { bottle: WineBottle; isSelected: boolean; onClick: () => void }) {
   return (
     <Card 
-      className={`cursor-pointer transition-all bg-gray-900 border-gray-700 hover:shadow-lg ${
+      className={`cursor-pointer transition-all glass-card hover:shadow-lg ${
         isSelected 
-          ? 'ring-2 ring-cyan-500 ring-opacity-100 shadow-lg shadow-cyan-500/25' 
-          : 'hover:shadow-cyan-500/20 hover:border-cyan-500/50'
+          ? 'ring-2 ring-primary shadow-lg' 
+          : 'hover:border-gray-300'
       }`}
       onClick={onClick}
     >
       <CardContent className="p-4 relative">
         {isSelected && (
-          <div className="absolute top-2 right-2 bg-cyan-500 text-white rounded-full p-1 shadow-lg shadow-cyan-500/50">
+          <div className="absolute top-2 right-2 bg-primary text-white rounded-full p-1 shadow-lg">
             <Check className="w-4 h-4" />
           </div>
         )}
@@ -106,9 +106,9 @@ function WineBottleCard({ bottle, isSelected, onClick }: { bottle: WineBottle; i
               className="max-h-full max-w-full object-contain drop-shadow-sm" 
             />
           </div>
-          <h3 className="font-medium text-center mb-1 text-cyan-300">{bottle.name}</h3>
-          <p className="text-sm text-gray-400 text-center mb-2">{bottle.capacity}</p>
-          <p className="text-yellow-400 font-bold text-center">{bottle.price.toLocaleString()}원</p>
+          <h3 className="font-medium text-center mb-1 text-gray-900">{bottle.name}</h3>
+          <p className="text-sm text-gray-600 text-center mb-2">{bottle.capacity}</p>
+          <p className="text-[#B05C00] font-bold text-center">{bottle.price.toLocaleString()}원</p>
         </div>
       </CardContent>
     </Card>
@@ -139,18 +139,18 @@ export default function WineBottleSelector() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 min-h-screen bg-gray-950">
-      <h1 className="text-2xl font-bold mb-6 text-center text-cyan-400">와인병 선택</h1>
+    <div className="container mx-auto px-4 py-6 min-h-screen bg-background text-foreground">
+      <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">와인병 선택</h1>
       
       <div className="mb-8">
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 mb-6 bg-gray-800 border-gray-700">
-            <TabsTrigger value="all" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300">전체</TabsTrigger>
-            <TabsTrigger value="bordeaux" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300">쇼비뇽블랑</TabsTrigger>
-            <TabsTrigger value="burgundy" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300">샤도네이</TabsTrigger>
-            <TabsTrigger value="red" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300">레드</TabsTrigger>
-            <TabsTrigger value="white" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300">화이트</TabsTrigger>
-            <TabsTrigger value="rose" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300">로제</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6 mb-6 bg-white/70 border border-gray-200 backdrop-blur-sm">
+            <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white text-gray-700">전체</TabsTrigger>
+            <TabsTrigger value="bordeaux" className="data-[state=active]:bg-primary data-[state=active]:text-white text-gray-700">쇼비뇽블랑</TabsTrigger>
+            <TabsTrigger value="burgundy" className="data-[state=active]:bg-primary data-[state=active]:text-white text-gray-700">샤도네이</TabsTrigger>
+            <TabsTrigger value="red" className="data-[state=active]:bg-primary data-[state=active]:text-white text-gray-700">레드</TabsTrigger>
+            <TabsTrigger value="white" className="data-[state=active]:bg-primary data-[state=active]:text-white text-gray-700">화이트</TabsTrigger>
+            <TabsTrigger value="rose" className="data-[state=active]:bg-primary data-[state=active]:text-white text-gray-700">로제</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab} className="mt-0">
@@ -169,9 +169,9 @@ export default function WineBottleSelector() {
       </div>
       
       {selectedBottleId && (
-        <div className="bg-gray-900 text-white p-4 rounded-lg mb-6 border border-cyan-500/30 shadow-lg shadow-cyan-500/10">
-          <h3 className="font-medium mb-2 flex items-center text-cyan-400">
-            <Info className="w-4 h-4 mr-2 text-cyan-500" />
+        <div className="bg-white/70 text-gray-900 p-4 rounded-lg mb-6 border border-gray-200 backdrop-blur-sm">
+          <h3 className="font-medium mb-2 flex items-center text-gray-900">
+            <Info className="w-4 h-4 mr-2 text-[#2F3437]" />
             선택한 와인병 정보
           </h3>
           
@@ -187,11 +187,11 @@ export default function WineBottleSelector() {
                   className="w-20 h-20 object-contain mr-4 drop-shadow-sm"
                 />
                 <div>
-                  <p className="font-medium text-cyan-300">{selectedBottle.name}</p>
-                  <p className="text-sm text-gray-400">병 타입: <span className="text-cyan-400">{selectedBottle.bottleType === "bordeaux" ? "쇼비뇽블랑" : "샤도네이"}</span></p>
-                  <p className="text-sm text-gray-400">{selectedBottle.dimensions}</p>
-                  <p className="text-sm text-gray-400">{selectedBottle.capacity}</p>
-                  <p className="text-yellow-400 font-bold">{selectedBottle.price.toLocaleString()}원</p>
+                  <p className="font-medium text-gray-900">{selectedBottle.name}</p>
+                  <p className="text-sm text-gray-600">병 타입: <span className="text-[#0F7B6C]">{selectedBottle.bottleType === "bordeaux" ? "쇼비뇽블랑" : "샤도네이"}</span></p>
+                  <p className="text-sm text-gray-600">{selectedBottle.dimensions}</p>
+                  <p className="text-sm text-gray-600">{selectedBottle.capacity}</p>
+                  <p className="text-[#B05C00] font-bold">{selectedBottle.price.toLocaleString()}원</p>
                 </div>
               </div>
             );
@@ -201,7 +201,7 @@ export default function WineBottleSelector() {
       
       <div className="flex justify-center">
         <Button
-          className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 border-none shadow-lg hover:shadow-cyan-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-primary hover:bg-primary/90 text-white px-8 py-3 border-none shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!selectedBottleId}
           onClick={handleContinue}
         >

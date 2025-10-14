@@ -3,33 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(174, 100%, 37%);
-  --primary-foreground: hsl(0, 0%, 98%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
+  /* Light theme (Notion-like) */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 20%, 15%);
+  --muted: hsl(220, 14%, 96%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 20%, 15%);
+  --card: hsla(0, 0%, 100%, 0.7);
+  --card-foreground: hsl(222, 20%, 15%);
+  --border: hsla(220, 15%, 90%, 0.8);
+  --input: hsla(220, 15%, 90%, 0.8);
+  --primary: hsl(222, 47%, 11%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 12%, 97%);
+  --secondary-foreground: hsl(222, 20%, 15%);
+  --accent: hsl(210, 16%, 96%);
+  --accent-foreground: hsl(222, 20%, 15%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(214, 95%, 53%);
   --radius: 0.5rem;
   
-  /* BOXFUL specific colors */
+  /* Brand */
   --primary-teal: hsl(174, 100%, 37%);
-  --primary-dark: hsl(174, 100%, 25%);
-  --bg-dark: hsl(0, 0%, 10%);
-  --surface-dark: hsl(0, 0%, 18%);
-  --surface-light: hsl(0, 0%, 24%);
+  --primary-dark: hsl(222, 47%, 11%);
+  
+  /* Background layers for subtle paper look */
+  --bg-dark: hsl(0, 0%, 100%);
+  --surface-dark: hsla(0, 0%, 100%, 0.6);
+  --surface-light: hsla(0, 0%, 100%, 0.85);
 }
 
 .dark {
@@ -62,8 +65,11 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    background-color: var(--bg-dark);
-    color: hsl(0, 0%, 98%);
+    background:
+      radial-gradient(1000px 400px at 10% -20%, rgba(0,0,0,0.04), transparent 40%),
+      radial-gradient(800px 400px at 90% -10%, rgba(0,0,0,0.04), transparent 35%),
+      var(--background);
+    color: var(--foreground);
   }
 }
 
@@ -78,10 +84,16 @@
   
   .bg-surface-dark {
     background-color: var(--surface-dark);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border: 1px solid var(--border);
   }
   
   .bg-surface-light {
     background-color: var(--surface-light);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    border: 1px solid var(--border);
   }
   
   .text-primary-teal {
@@ -126,7 +138,7 @@ body {
 }
 
 .glow-effect-blue {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.08);
   position: relative;
 }
 
@@ -137,7 +149,190 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.5);
-  opacity: 0.6;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  opacity: 0.8;
   pointer-events: none;
+}
+
+/* Glass utilities */
+.glass {
+  background: hsla(0, 0%, 100%, 0.6);
+  border: 1px solid var(--border);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+}
+.glass-dark {
+  background: hsla(0, 0%, 100%, 0.5);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 홈페이지 전용 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* 호버 효과 강화 */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* 버튼 맥동 효과 */
+.pulse-glow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(147, 51, 234, 0);
+  }
+}
+
+/* 그라데이션 텍스트 애니메이션 */
+.gradient-text {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* 와인 회사 로고 무한 슬라이드 애니메이션 */
+@keyframes slide-infinite {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-slide-infinite {
+  animation: slide-infinite 30s linear infinite;
+}
+
+.animate-slide-infinite:hover {
+  animation-play-state: paused;
+}
+
+/* 반대 방향 무한 슬라이드 애니메이션 */
+@keyframes slide-infinite-reverse {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-infinite-reverse {
+  animation: slide-infinite-reverse 30s linear infinite;
+}
+
+.animate-slide-infinite-reverse:hover {
+  animation-play-state: paused;
 }

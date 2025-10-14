@@ -128,14 +128,17 @@ app.use(
   "/images",
   express.static("public/images", {
     setHeaders: (res, path) => {
-      if (path.endsWith(".png")) {
+      const lower = path.toLowerCase();
+      if (lower.endsWith(".png")) {
         res.setHeader("Content-Type", "image/png");
-      } else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+      } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
         res.setHeader("Content-Type", "image/jpeg");
-      } else if (path.endsWith(".gif")) {
+      } else if (lower.endsWith(".gif")) {
         res.setHeader("Content-Type", "image/gif");
-      } else if (path.endsWith(".webp")) {
+      } else if (lower.endsWith(".webp")) {
         res.setHeader("Content-Type", "image/webp");
+      } else if (lower.endsWith(".svg")) {
+        res.setHeader("Content-Type", "image/svg+xml");
       }
       // 캐시 설정 (1일)
       res.setHeader("Cache-Control", "public, max-age=86400");

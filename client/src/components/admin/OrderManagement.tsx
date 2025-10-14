@@ -1207,11 +1207,11 @@ const OrderManagement = () => {
   };
 
   return (
-    <Card className="w-full border-gray-800 bg-gray-900/50 shadow-lg backdrop-blur-sm">
-      <CardHeader className="border-b border-gray-800">
-        <CardTitle className="flex justify-between items-center text-gray-100">
+    <Card className="w-full glass-card">
+      <CardHeader className="border-b border-gray-200">
+        <CardTitle className="flex justify-between items-center text-gray-900">
           <div className="flex items-center space-x-3">
-            <span>와인 주문 관리</span>
+            <span>주문관리</span>
             {isRefreshing && (
               <div className="flex items-center space-x-2 text-cyan-400">
                 <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
@@ -1223,19 +1223,19 @@ const OrderManagement = () => {
               variant="outline"
               onClick={() => fetchOrders(true)}
               disabled={isRefreshing}
-              className="bg-gray-800 hover:bg-gray-700 text-gray-300"
+              className="bg-white/70 hover:bg-white/90 text-blue-700 border-gray-300 backdrop-blur-sm"
               title="주문 목록과 결제 상태를 최신으로 업데이트합니다"
             >
-              새로고침 & 결제상태 동기화
+              새로고침
             </Button>
           </div>
           <div className="flex items-center space-x-2">
             <Search className="w-4 h-4 text-gray-400" />
             <Input
-              placeholder="주문 검색..."
+              placeholder="검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64 bg-gray-800 border-gray-700 text-gray-200 focus:border-cyan-500"
+              className="w-24 bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
             />
 
             {/* 관리자 알림 버튼 */}
@@ -1243,7 +1243,7 @@ const OrderManagement = () => {
               variant="outline"
               size="sm"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative bg-gray-800 hover:bg-gray-700 text-gray-300"
+              className="relative bg-white/70 hover:bg-white/90 border-gray-300 text-gray-900 backdrop-blur-sm"
             >
               <Bell className="w-4 h-4" />
               {adminUnreadCount > 0 && (
@@ -1258,15 +1258,15 @@ const OrderManagement = () => {
       <CardContent className="p-0">
         {/* 관리자 알림 패널 */}
         {showNotifications && (
-          <div className="bg-gray-800/50 border-b border-gray-700 p-4">
+          <div className="bg-white/70 border-b border-gray-200 p-4 backdrop-blur-sm">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-medium text-gray-200">관리자 알림</h3>
+              <h3 className="font-medium text-gray-900">관리자 알림</h3>
               {adminUnreadCount > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={markAllAdminNotificationsAsRead}
-                  className="text-blue-400 hover:text-blue-300"
+                  className="bg-white/70 hover:bg-white/90 border-gray-300 text-blue-700 backdrop-blur-sm"
                 >
                   모든 알림 읽음 처리
                 </Button>
@@ -1287,8 +1287,8 @@ const OrderManagement = () => {
                       key={notification.id}
                       className={`p-3 rounded-lg border transition-all ${
                         notification.isRead
-                          ? "bg-gray-700/30 border-gray-600"
-                          : "bg-blue-900/20 border-blue-600/50"
+                          ? "bg-white/70 border-gray-200"
+                          : "bg-blue-50 border-blue-200"
                       }`}
                     >
                       <div className="flex items-start justify-between">
@@ -1297,10 +1297,10 @@ const OrderManagement = () => {
                           <div
                             className={`p-1 rounded-full ${
                               notification.type === "shipping"
-                                ? "bg-green-500/20 text-green-400"
+                                ? "bg-green-100 text-green-600"
                                 : notification.type === "order"
-                                  ? "bg-blue-500/20 text-blue-400"
-                                  : "bg-yellow-500/20 text-yellow-400"
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "bg-yellow-100 text-yellow-700"
                             }`}
                           >
                             {notification.type === "shipping" && (
@@ -1316,14 +1316,14 @@ const OrderManagement = () => {
 
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="font-medium text-gray-200 text-sm">
+                              <h4 className="font-medium text-gray-900 text-sm">
                                 {notification.title}
                               </h4>
                               {!notification.isRead && (
                                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
                               )}
                             </div>
-                            <p className="text-gray-300 text-xs mb-1">
+                            <p className="text-gray-700 text-xs mb-1">
                               {notification.message}
                             </p>
                             <p className="text-gray-500 text-xs">
@@ -1340,7 +1340,7 @@ const OrderManagement = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-xs px-2 py-1 h-auto text-blue-400 hover:text-blue-300"
+                              className="text-xs px-2 py-1 h-auto bg-white/70 hover:bg-white/90 border-gray-300 text-blue-700 backdrop-blur-sm"
                               onClick={() => {
                                 // 해당 주문으로 스크롤하거나 검색
                                 setSearchTerm(notification.orderId!);
@@ -1353,7 +1353,7 @@ const OrderManagement = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-xs px-2 py-1 h-auto text-green-400 hover:text-green-300"
+                              className="text-xs px-2 py-1 h-auto bg-white/70 hover:bg-white/90 border-gray-300 text-green-700 backdrop-blur-sm"
                               onClick={() =>
                                 markAdminNotificationAsRead(notification.id)
                               }
@@ -1386,8 +1386,8 @@ const OrderManagement = () => {
         ) : (
           <div className="overflow-x-auto">
             {/* 통계 정보 추가 */}
-            <div className="p-4 bg-gray-800/30 border-b border-gray-700">
-              <div className="flex justify-between items-center text-sm text-gray-400">
+            <div className="p-4 bg-white/70 border-b border-gray-200 backdrop-blur-sm">
+              <div className="flex justify-between items-center text-sm text-gray-600">
                 <span>총 주문: {orders.length}건</span>
                 <span>검색 결과: {filteredOrders.length}건</span>
                 <span>
@@ -1398,49 +1398,49 @@ const OrderManagement = () => {
             </div>
 
             <Table className="border-collapse">
-              <TableHeader className="bg-gray-800/50">
-                <TableRow className="border-b border-gray-700">
+              <TableHeader className="bg-white/70">
+                <TableRow className="border-b border-gray-200">
                   <TableHead
-                    className="w-[100px] cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="w-[20px] cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("id")}
                   >
                     고객이름 <ArrowUpDown className="inline w-4 h-4" />
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("bottleName")}
                   >
-                    주문상품 <ArrowUpDown className="inline w-4 h-4" />
+                    주문상품 <ArrowUpDown className="inline w-28 h-4" />
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("amount")}
                   >
                     결제금액 <ArrowUpDown className="inline w-4 h-4" />
                   </TableHead>
-                  <TableHead className="text-gray-300">배송정보</TableHead>
+                  <TableHead className="text-gray-700">배송정보</TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("status")}
                   >
-                    결제상태 <ArrowUpDown className="inline w-4 h-4" />
+                    결제상태<ArrowUpDown className="inline w-14 h-4" />
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("status")}
                   >
                     주문상태 <ArrowUpDown className="inline w-4 h-4" />
                   </TableHead>
-                  <TableHead className="text-gray-300">운송장번호</TableHead>
-                  <TableHead className="text-gray-300">관리</TableHead>
+                  <TableHead className="text-gray-700">운송장번호</TableHead>
+                  <TableHead className="text-gray-700">관리</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredOrders.length === 0 ? (
-                  <TableRow className="border-b border-gray-800 hover:bg-gray-800/50">
+                  <TableRow className="border-b border-gray-200">
                     <TableCell
                       colSpan={8}
-                      className="text-center py-10 text-gray-400"
+                      className="text-center py-10 text-gray-500"
                     >
                       {searchTerm
                         ? "검색 조건에 맞는 주문이 없습니다."
@@ -1451,15 +1451,15 @@ const OrderManagement = () => {
                   filteredOrders.map((order) => (
                     <TableRow
                       key={order.id}
-                      className="border-b border-gray-800 hover:bg-gray-800/50"
+                      className="border-b border-gray-200"
                     >
-                      <TableCell className="font-medium text-gray-200">
+                      <TableCell className="font-medium text-gray-900 whitespace-nowrap">
                         {order.customerName}
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-gray-700">
                         {order.bottleName} 와인 라벨 {order.quantity || 1}매
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-gray-900 whitespace-nowrap">
                         {new Intl.NumberFormat("ko-KR").format(
                           order.amount || 0,
                         )}
@@ -1467,13 +1467,13 @@ const OrderManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col text-sm">
-                          <span className="font-semibold text-gray-200">
+                          <span className="font-semibold text-gray-900">
                             {order.customerName}
                           </span>
-                          <span className="text-gray-400">
+                          <span className="text-gray-600">
                             {order.customerPhone || order.phoneNumber}
                           </span>
-                          <span className="text-gray-400 truncate max-w-[200px]">
+                          <span className="text-gray-500 truncate max-w-[200px]">
                             {order.customerAddress ||
                               order.address ||
                               "배송 주소 없음"}
@@ -1502,49 +1502,49 @@ const OrderManagement = () => {
                             handleStatusChange(order.id, value as OrderStatus)
                           }
                         >
-                          <SelectTrigger className="w-32 bg-gray-800 border-gray-700 text-gray-200 focus:border-cyan-500">
+                          <SelectTrigger className="w-32 bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-800 border-gray-700 text-gray-200">
+                          <SelectContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-sm">
                             <SelectItem
                               value="결제대기"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               결제대기
                             </SelectItem>
                             <SelectItem
                               value="결제완료"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               결제완료
                             </SelectItem>
                             <SelectItem
                               value="제작중"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               제작중
                             </SelectItem>
                             <SelectItem
                               value="배송준비"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               배송준비
                             </SelectItem>
                             <SelectItem
                               value="배송중"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               배송중
                             </SelectItem>
                             <SelectItem
                               value="배송완료"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               배송완료
                             </SelectItem>
                             <SelectItem
                               value="주문취소"
-                              className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                              className="focus:bg-blue-50 focus:text-blue-700"
                             >
                               주문취소
                             </SelectItem>
@@ -1561,15 +1561,15 @@ const OrderManagement = () => {
                                   handleShippingCompanyChange(order.id, value)
                                 }
                               >
-                                <SelectTrigger className="w-28 bg-gray-800 border-gray-700 text-gray-200 focus:border-cyan-500">
+                                <SelectTrigger className="w-28 bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm">
                                   <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-gray-200">
+                                <SelectContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-sm">
                                   {shippingCompanies.map((company) => (
                                     <SelectItem
                                       key={company.id}
                                       value={company.id}
-                                      className="focus:bg-cyan-900/30 focus:text-cyan-400"
+                                      className="focus:bg-blue-50 focus:text-blue-700"
                                     >
                                       {company.name}
                                     </SelectItem>
@@ -1585,14 +1585,14 @@ const OrderManagement = () => {
                                     e.target.value,
                                   )
                                 }
-                                className="w-28 bg-gray-800 border-gray-700 text-gray-200 focus:border-cyan-500"
+                                className="w-28 bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                               />
                             </div>
                             <div className="flex space-x-2">
                               <Button
                                 size="sm"
                                 onClick={() => setEditingOrder(null)}
-                                className="bg-gray-800 hover:bg-gray-700 text-gray-300"
+                                className="bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 backdrop-blur-sm"
                               >
                                 취소
                               </Button>
@@ -1601,7 +1601,7 @@ const OrderManagement = () => {
                                 variant="default"
                                 onClick={() => handleSaveShippingInfo(order.id)}
                                 disabled={!trackingNumbers[order.id]}
-                                className="bg-cyan-900/30 hover:bg-cyan-800/50 text-cyan-400 border border-cyan-700"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
                               >
                                 <Check className="w-4 h-4 mr-1" /> 저장
                               </Button>
@@ -1612,7 +1612,7 @@ const OrderManagement = () => {
                             {order.trackingNumber ? (
                               <>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-gray-300">
+                                  <span className="text-sm text-gray-700">
                                     {shippingCompanies.find(
                                       (c) => c.id === order.shippingCompany,
                                     )?.name || "택배사"}
@@ -1625,7 +1625,7 @@ const OrderManagement = () => {
                                     )}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-cyan-500 hover:text-cyan-400"
+                                    className="text-blue-600 hover:text-blue-700"
                                   >
                                     <ExternalLink className="w-4 h-4" />
                                   </a>
@@ -1634,7 +1634,7 @@ const OrderManagement = () => {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setEditingOrder(order.id)}
-                                  className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
+                                  className="bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 backdrop-blur-sm"
                                 >
                                   수정
                                 </Button>
@@ -1644,9 +1644,9 @@ const OrderManagement = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setEditingOrder(order.id)}
-                                className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
+                                className="bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 backdrop-blur-sm"
                               >
-                                <Truck className="w-4 h-4 mr-1 text-cyan-500" />{" "}
+                                <Truck className="w-4 h-4 mr-1 text-blue-600" />{" "}
                                 운송장 입력
                               </Button>
                             )}
@@ -1660,7 +1660,7 @@ const OrderManagement = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => handleViewDetails(order.id)}
-                              className="flex-1 bg-indigo-900/20 hover:bg-indigo-800/30 text-indigo-400 border-indigo-700"
+                              className="flex-1 bg-white/70 hover:bg-white/90 text-indigo-700 border-gray-300 backdrop-blur-sm"
                             >
                               <Eye className="w-4 h-4 mr-1" /> 상세
                             </Button>
@@ -1670,7 +1670,7 @@ const OrderManagement = () => {
                               variant="outline"
                               onClick={() => handlePrintLabel(order)}
                               disabled={isPrinting || !order.labelImage}
-                              className="flex-1 bg-purple-900/20 hover:bg-purple-800/30 text-purple-400 border-purple-700 disabled:opacity-50"
+                              className="flex-1 bg-white/70 hover:bg-white/90 text-purple-700 border-gray-300 disabled:opacity-50 backdrop-blur-sm"
                             >
                               <Printer className="w-4 h-4 mr-1" /> 인쇄
                             </Button>
@@ -1683,7 +1683,7 @@ const OrderManagement = () => {
                               handleSendShippingNotification(order.id)
                             }
                             disabled={!order.trackingNumber}
-                            className="bg-cyan-900/20 hover:bg-cyan-800/30 text-cyan-400 border-cyan-700 disabled:opacity-50"
+                            className="bg-white/70 hover:bg-white/90 text-blue-700 border-gray-300 disabled:opacity-50 backdrop-blur-sm"
                           >
                             <Bell className="w-4 h-4 mr-1" /> 알림전송
                           </Button>
@@ -1700,10 +1700,10 @@ const OrderManagement = () => {
 
       {/* 주문 상세 정보 다이얼로그 */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-gray-900 border border-gray-800 text-gray-100 shadow-[0_0_15px_rgba(0,200,255,0.15)]">
-          <DialogHeader className="border-b border-gray-800 pb-4">
-            <DialogTitle className="text-cyan-400">주문 상세 정보</DialogTitle>
-            <DialogDescription className="text-gray-400">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <DialogTitle className="text-gray-900">주문 상세 정보</DialogTitle>
+            <DialogDescription className="text-gray-600">
               선택한 주문의 상세 정보와 라벨 디자인을 확인할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
@@ -2037,7 +2037,7 @@ const OrderManagement = () => {
                 <h3 className="text-lg font-medium mb-2 text-cyan-400">
                   라벨 디자인 미리보기
                 </h3>
-                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 relative">
+                <div className="bg-white/70 rounded-lg p-4 border border-gray-200 relative backdrop-blur-sm">
                   {/* 와인병과 라벨 미리보기 (라벨 디자이너에서 영감을 받은 디자인) */}
                   <div className="flex flex-col items-center w-full relative">
                     {selectedOrder.labelImage ? (

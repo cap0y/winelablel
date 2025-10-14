@@ -13,7 +13,7 @@
   "categories": ["lifestyle", "business", "utilities"],
   "icons": [
     {
-      "src": "/vite.svg",
+      "src": "/images/wine.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

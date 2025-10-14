@@ -40,11 +40,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md bg-gray-800 border-gray-700">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">
+      <Card className="w-full max-w-md glass-card">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">로그인</CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardTitle className="text-2xl font-bold text-gray-900">로그인</CardTitle>
+          <CardDescription className="text-gray-600">
             계정에 로그인하여 서비스를 이용하세요
           </CardDescription>
         </CardHeader>
@@ -52,7 +52,7 @@ export default function LoginPage() {
           {/* 이메일 로그인 폼 */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="email" className="text-gray-800">이메일</Label>
               <Input
                 id="email"
                 type="email"
@@ -60,12 +60,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="bg-gray-700 border-gray-600"
+                className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">비밀번호</Label>
+                <Label htmlFor="password" className="text-gray-800">비밀번호</Label>
               </div>
               <div className="relative">
                 <Input
@@ -75,12 +75,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="bg-gray-700 border-gray-600 pr-10"
+                  className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -92,19 +92,12 @@ export default function LoginPage() {
             </div>
 
             {(error || localError) && (
-              <Alert
-                variant="destructive"
-                className="bg-red-900/50 border-red-900 text-red-300"
-              >
+              <Alert className="bg-red-50 border-red-200 text-red-700">
                 <AlertDescription>{localError || error}</AlertDescription>
               </Alert>
             )}
 
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -120,7 +113,7 @@ export default function LoginPage() {
           </form>
 
           <div className="text-center">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-600">
               계정이 없으신가요?{" "}
               <Link href="/register">
                 <Button

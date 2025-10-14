@@ -66,7 +66,7 @@ export default function AddressSearch({ onSelect }: AddressSearchProps) {
           placeholder="도로명 또는 지번 주소를 입력하세요"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="flex-1"
+          className="flex-1 bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -76,7 +76,7 @@ export default function AddressSearch({ onSelect }: AddressSearchProps) {
         />
         <Button 
           onClick={handleSearch} 
-          className="bg-[#00ffff] hover:bg-[#00cccc] text-black"
+          className="bg-primary hover:bg-primary/90 text-white"
           disabled={loading}
         >
           <Search className="w-4 h-4" />
@@ -84,11 +84,11 @@ export default function AddressSearch({ onSelect }: AddressSearchProps) {
       </div>
       {loading && <p className="text-xs text-gray-400 mt-1">검색 중...</p>}
       {results.length > 0 && (
-        <ul className="absolute z-50 bg-gray-800 border border-gray-600 max-h-60 overflow-y-auto w-full mt-1 rounded">
+        <ul className="absolute z-50 bg-white/90 border border-gray-200 backdrop-blur-md max-h-60 overflow-y-auto w-full mt-1 rounded shadow">
           {results.map((item) => (
             <li
               key={item.bdMgtSn}
-              className="px-3 py-2 text-sm hover:bg-gray-700 cursor-pointer"
+              className="px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 cursor-pointer"
               onClick={() => {
                 (async () => {
                   let lat: number | undefined; 
@@ -120,11 +120,11 @@ export default function AddressSearch({ onSelect }: AddressSearchProps) {
               }}
             >
               <div>
-                <span className="bg-blue-900 text-white text-xs px-1 py-0.5 rounded mr-1">도로명</span> 
+                <span className="bg-gray-200 text-gray-800 text-xs px-1 py-0.5 rounded mr-1">도로명</span> 
                 {item.roadAddr}
               </div>
-              <div className="text-xs text-gray-400 mt-1">
-                <span className="bg-gray-700 text-gray-300 px-1 py-0.5 rounded mr-1">우편번호</span> 
+              <div className="text-xs text-gray-600 mt-1">
+                <span className="bg-gray-100 text-gray-700 px-1 py-0.5 rounded mr-1">우편번호</span> 
                 {item.zipNo}
               </div>
             </li>

@@ -172,6 +172,34 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// 예약 링크 테이블
+export const reservationLinks = pgTable("reservation_links", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// 소품(액세서리) 테이블
+export const accessories = pgTable("accessories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  price: integer("price").notNull().default(0),
+  image: text("image"),
+  isActive: boolean("is_active").default(true),
+  stock: integer("stock").default(0),
+  maxQty: integer("max_qty").default(99),
+  displayOrder: integer("display_order").default(0),
+  bundleEligible: boolean("bundle_eligible").default(false),
+  bundleSize: integer("bundle_size").default(0),
+  bundlePrice: integer("bundle_price").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // 주문 테이블 스키마 추가
 export const insertOrderSchema = createInsertSchema(orders).pick({
   id: true,
@@ -287,6 +315,18 @@ export const insertLabelBackgroundCategorySchema = createInsertSchema(labelBackg
 });
 
 export const insertWineBottleSchema = createInsertSchema(wineBottles);
+export const insertAccessorySchema = createInsertSchema(accessories).pick({
+  name: true,
+  price: true,
+  image: true,
+  isActive: true,
+  stock: true,
+  maxQty: true,
+  displayOrder: true,
+  bundleEligible: true,
+  bundleSize: true,
+  bundlePrice: true,
+});
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
@@ -317,3 +357,5 @@ export type LabelCategory = typeof labelCategories.$inferSelect;
 
 export type InsertLabelBackgroundCategory = z.infer<typeof insertLabelBackgroundCategorySchema>;
 export type LabelBackgroundCategory = typeof labelBackgroundCategories.$inferSelect;
+export type Accessory = typeof accessories.$inferSelect;
+export type InsertAccessory = z.infer<typeof insertAccessorySchema>;

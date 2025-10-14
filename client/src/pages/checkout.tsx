@@ -199,7 +199,7 @@ function PaymentForm({
       <Button
         onClick={handlePayment}
         disabled={isProcessing}
-        className="w-full bg-gradient-to-r from-[#ff00ff] to-[#cc00ff] hover:opacity-90 text-white py-6 rounded-lg font-medium flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,0,255,0.4)] transition-all hover:shadow-[0_0_25px_rgba(255,0,255,0.6)]"
+        className="w-full bg-primary hover:bg-primary/90 text-white py-6 rounded-lg font-medium flex items-center justify-center gap-2"
       >
         {isProcessing ? (
           <div className="flex items-center">
@@ -251,8 +251,9 @@ export default function Checkout() {
   // 수량 선택 (기본값: 1)
   const [quantity, setQuantity] = useState(1);
 
-  // 라벨 디자인 정보 저장
+  // 라벨 디자인 정보 및 소품 저장
   const [labelDesign, setLabelDesign] = useState<any>(null);
+  const [accessories, setAccessories] = useState<Array<{id: string; name: string; price: number; qty: number}>>([]);
 
   // 캡처된 라벨 이미지 URL 저장
   const [labelImageUrl, setLabelImageUrl] = useState<string | null>(null);
@@ -346,11 +347,13 @@ export default function Checkout() {
     }
   };
 
-  // 총 금액 계산
+  // 소품 합계 및 총 금액 계산
+  const getAccessoriesTotal = () => accessories.reduce((sum, a) => sum + (a.price * a.qty), 0);
   const calculateTotal = () => {
     const basePrice = bottleInfo.price * quantity;
+    const accessoriesTotal = getAccessoriesTotal();
     const deliveryFee = getDeliveryFee(deliveryMethod, basePrice);
-    return basePrice + deliveryFee;
+    return basePrice + accessoriesTotal + deliveryFee;
   };
 
   const totalAmount = calculateTotal();
@@ -366,7 +369,9 @@ export default function Checkout() {
 
     if (designData) {
       try {
-        setLabelDesign(JSON.parse(designData));
+        const parsed = JSON.parse(designData);
+        setLabelDesign(parsed);
+        if (parsed.accessories) setAccessories(parsed.accessories);
       } catch (error) {
         console.error("라벨 디자인 데이터 파싱 오류:", error);
         toast({
@@ -487,6 +492,7 @@ export default function Checkout() {
             deliveryMethod,
             bottleInfo.price * quantity,
           ),
+          accessories,
           status: "결제대기",
           paymentStatus: "결제대기",
         }),
@@ -535,7 +541,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
+    <div className="min-h-screen bg-background text-foreground">
       <section className="px-4 py-6 container mx-auto max-w-3xl">
         <Button
           variant="outline"
@@ -545,18 +551,12 @@ export default function Checkout() {
         >
           <ArrowLeft className="w-4 h-4" /> 라벨 디자인으로 돌아가기
         </Button>
-        <h1 className="text-3xl font-bold mb-6 text-white text-center">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ff00ff] to-[#00ffff] shadow-lg">
-            주문하기
-          </span>
-        </h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-900 text-center">주문하기</h1>
 
         {/* 주문 요약 */}
-        <Card className="bg-gray-800/60 border-[#ff00ff]/30 border mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,255,0.2)]">
-          <CardHeader className="border-b border-gray-700">
-            <CardTitle className="text-lg text-[#00ffff] text-shadow-neon">
-              주문 정보
-            </CardTitle>
+        <Card className="glass-card mb-6">
+          <CardHeader className="border-b border-gray-200">
+            <CardTitle className="text-lg text-gray-900">주문 정보</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex items-center mb-6">
@@ -568,11 +568,11 @@ export default function Checkout() {
                 />
               </div>
               <div>
-                <h3 className="font-medium text-white text-lg">
+                <h3 className="font-medium text-gray-900 text-lg">
                   {bottleInfo.name}
                 </h3>
-                <p className="text-gray-300">와인 라벨 {quantity}매</p>
-                <p className="font-medium text-[#ff00ff] text-xl mt-1">
+                <p className="text-gray-600">와인 라벨 {quantity}매</p>
+                <p className="font-medium text-gray-900 text-xl mt-1">
                   {bottleInfo.price.toLocaleString()}원/매
                 </p>
               </div>
@@ -580,10 +580,10 @@ export default function Checkout() {
 
             {/* 라벨 디자인 미리보기 */}
             <div className="mb-6">
-              <h3 className="font-medium mb-3 text-[#00ffff]">
+              <h3 className="font-medium mb-3 text-gray-900">
                 라벨 디자인 미리보기
               </h3>
-              <div className="bg-gray-800/80 p-4 rounded-lg border border-[#00ffff]/30 shadow-[0_0_15px_rgba(0,255,255,0.2)] relative">
+              <div className="bg-white/70 p-4 rounded-lg border border-gray-200 backdrop-blur-sm relative">
                 {bottlePreviewUrl ? (
                   // 와인병 전체 미리보기
                   <div className="flex justify-center">
@@ -601,7 +601,7 @@ export default function Checkout() {
                   // 라벨 이미지만 있는 경우 대체 표시
                   <div className="flex flex-col items-center">
                     {/* 실제 크기 표시 */}
-                    <div className="text-white text-xs mb-2 bg-black/50 px-2 py-1 rounded-full">
+                    <div className="text-gray-700 text-xs mb-2 bg-white/80 px-2 py-1 rounded-full border border-gray-200">
                       실제 라벨 크기:{" "}
                       {bottleInfo.type === "burgundy"
                         ? "7.94cm × 7.44cm"
@@ -631,10 +631,7 @@ export default function Checkout() {
                         <img
                           src={labelImageUrl}
                           alt="와인 라벨 디자인"
-                          className="w-full h-auto object-contain rounded"
-                          style={{
-                            border: "1px dashed rgba(0, 255, 255, 0.3)",
-                          }}
+                          className="w-full h-auto object-contain rounded border border-gray-300"
                           onLoad={() => console.log("라벨 이미지 로드 완료")}
                           onError={(e) =>
                             console.error("라벨 이미지 로드 실패:", e)
@@ -651,7 +648,22 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="space-y-4 text-gray-100">
+            {/* 선택한 소품 요약 */}
+            {accessories.length > 0 && (
+              <div className="mb-6">
+                <h3 className="font-medium mb-3 text-gray-900">소품 선택</h3>
+                <div className="space-y-2">
+                  {accessories.map((a) => (
+                    <div key={a.id} className="flex justify-between text-gray-800 text-sm">
+                      <span>{a.name} × {a.qty}</span>
+                      <span>{(a.price * a.qty).toLocaleString()}원</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-4 text-gray-800">
               <div className="flex justify-between">
                 <span>상품 가격</span>
                 <span className="font-medium text-white">
@@ -659,21 +671,28 @@ export default function Checkout() {
                 </span>
               </div>
 
+              {accessories.length > 0 && (
+                <div className="flex justify-between">
+                  <span>소품 합계</span>
+                  <span className="font-medium text-white">{getAccessoriesTotal().toLocaleString()}원</span>
+                </div>
+              )}
+
               <div className="mb-4">
-                <Label className="mb-2 block text-[#00ffff]">수량</Label>
+                <Label className="mb-2 block text-gray-900">수량</Label>
                 <Select
                   value={quantity.toString()}
                   onValueChange={(value) => setQuantity(parseInt(value))}
                 >
-                  <SelectTrigger className="w-full bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50">
+                  <SelectTrigger className="w-full bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm">
                     <SelectValue placeholder="수량 선택" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                  <SelectContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-md">
                     {[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((num) => (
                       <SelectItem
                         key={num}
                         value={num.toString()}
-                        className="hover:bg-gray-700 focus:bg-gray-700"
+                        className="hover:bg-gray-100 focus:bg-gray-100"
                       >
                         {num}매
                       </SelectItem>
@@ -683,13 +702,13 @@ export default function Checkout() {
               </div>
 
               <div className="mb-4">
-                <Label className="mb-2 block text-[#00ffff]">배송 방법</Label>
+                <Label className="mb-2 block text-gray-900">배송 방법</Label>
                 <RadioGroup
                   value={deliveryMethod}
                   onValueChange={setDeliveryMethod}
                   className="flex flex-col space-y-2"
                 >
-                  <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700 hover:border-[#ff00ff]/50 transition-colors">
+                  <div className="flex items-center space-x-2 bg-white/70 p-3 rounded-lg border border-gray-200 backdrop-blur-sm transition-colors">
                     <RadioGroupItem
                       value="standard"
                       id="standard-delivery"
@@ -738,10 +757,10 @@ export default function Checkout() {
                 </span>
               </div>
 
-              <Separator className="border-gray-700" />
+              <Separator className="border-gray-200" />
               <div className="flex justify-between text-xl font-bold">
-                <span className="text-white">총 금액</span>
-                <span className="text-[#ff00ff] glow-text-pink">
+                <span className="text-gray-900">총 금액</span>
+                <span className="text-gray-900">
                   {totalAmount.toLocaleString()}원
                 </span>
               </div>
@@ -751,16 +770,14 @@ export default function Checkout() {
 
         {/* 배송지 정보 폼 */}
         {!showPaymentForm && (
-          <Card className="bg-gray-800/60 border-[#00ffff]/30 border mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(0,255,255,0.2)]">
-            <CardHeader className="border-b border-gray-700">
-              <CardTitle className="text-lg text-[#00ffff] text-shadow-neon">
-                배송지 정보
-              </CardTitle>
+          <Card className="glass-card mb-6">
+            <CardHeader className="border-b border-gray-200">
+              <CardTitle className="text-lg text-gray-900">배송지 정보</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleUserInfoSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name" className="text-white">
+                  <Label htmlFor="name" className="text-gray-900">
                     이름 *
                   </Label>
                   <Input
@@ -770,12 +787,12 @@ export default function Checkout() {
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, name: e.target.value })
                     }
-                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-white">
+                  <Label htmlFor="email" className="text-gray-900">
                     이메일 *
                   </Label>
                   <Input
@@ -785,12 +802,12 @@ export default function Checkout() {
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, email: e.target.value })
                     }
-                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-white">
+                  <Label htmlFor="phone" className="text-gray-900">
                     전화번호
                   </Label>
                   <Input
@@ -800,18 +817,18 @@ export default function Checkout() {
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, phone: e.target.value })
                     }
-                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                   />
                 </div>
 
                 {/* 주소 검색 기능 추가 */}
                 <div className="pt-2">
-                  <Label className="text-white mb-2 block">주소 검색 *</Label>
+                  <Label className="text-gray-900 mb-2 block">주소 검색 *</Label>
                   <AddressSearch onSelect={handleAddressSelect} />
                 </div>
 
                 <div>
-                  <Label htmlFor="zipCode" className="text-white">
+                  <Label htmlFor="zipCode" className="text-gray-900">
                     우편번호 *
                   </Label>
                   <Input
@@ -821,13 +838,13 @@ export default function Checkout() {
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, zipCode: e.target.value })
                     }
-                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                     required
                     readOnly
                   />
                 </div>
                 <div>
-                  <Label htmlFor="address" className="text-white">
+                  <Label htmlFor="address" className="text-gray-900">
                     배송지 주소 *
                   </Label>
                   <Input
@@ -837,13 +854,13 @@ export default function Checkout() {
                     onChange={(e) =>
                       setUserInfo({ ...userInfo, address: e.target.value })
                     }
-                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="addressDetail" className="text-white">
+                  <Label htmlFor="addressDetail" className="text-gray-900">
                     상세 주소
                   </Label>
                   <Input
@@ -851,15 +868,12 @@ export default function Checkout() {
                     type="text"
                     value={addressDetail}
                     placeholder="아파트, 동/호수, 상세주소 입력"
-                    className="bg-gray-800 border-gray-600 text-white focus:ring-[#00ffff]/50 focus:border-[#00ffff]/50"
+                    className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                     onChange={(e) => setAddressDetail(e.target.value)}
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-[#00ffff] to-[#0099ff] hover:opacity-90 text-black font-medium py-6 shadow-[0_0_15px_rgba(0,255,255,0.4)] transition-all hover:shadow-[0_0_20px_rgba(0,255,255,0.6)]"
-                >
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-6">
                   <Home className="w-5 h-5 mr-2" /> 배송지 입력 완료
                 </Button>
               </form>
@@ -869,11 +883,9 @@ export default function Checkout() {
 
         {/* 결제 폼 */}
         {showPaymentForm && (
-          <Card className="bg-gray-800/60 border-[#ff00ff]/30 border mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(255,0,255,0.2)]">
-            <CardHeader className="border-b border-gray-700">
-              <CardTitle className="text-lg text-[#ff00ff]">
-                결제 방법
-              </CardTitle>
+          <Card className="glass-card mb-6">
+            <CardHeader className="border-b border-gray-200">
+              <CardTitle className="text-lg text-gray-900">결제 방법</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <RadioGroup
@@ -883,25 +895,23 @@ export default function Checkout() {
                 }
                 className="flex flex-col space-y-2"
               >
-                <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700 opacity-60 cursor-not-allowed">
+                <div className="flex items-center space-x-2 bg-white/60 p-3 rounded-lg border border-gray-200 opacity-60 cursor-not-allowed backdrop-blur-sm">
                   <RadioGroupItem value="card" id="pay-card" disabled />
                   <Label
                     htmlFor="pay-card"
                     className="flex items-center cursor-not-allowed w-full"
                   >
-                    <CreditCard className="w-5 h-5 mr-2 text-gray-300" />
-                    <div className="flex-1 text-white">카드 결제 (준비중)</div>
+                    <CreditCard className="w-5 h-5 mr-2 text-gray-500" />
+                    <div className="flex-1 text-gray-600">카드 결제 (준비중)</div>
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2 bg-gray-800/60 p-3 rounded-lg border border-gray-700">
+                <div className="flex items-center space-x-2 bg-white/70 p-3 rounded-lg border border-gray-200 backdrop-blur-sm">
                   <RadioGroupItem value="bank" id="pay-bank" />
                   <Label
                     htmlFor="pay-bank"
                     className="flex items-center w-full"
                   >
-                    <div className="flex-1 text-white">
-                      계좌 결제 (무통장입금)
-                    </div>
+                    <div className="flex-1 text-gray-900">계좌 결제 (무통장입금)</div>
                   </Label>
                 </div>
               </RadioGroup>
@@ -927,94 +937,94 @@ export default function Checkout() {
 
               {paymentMethod === "bank" && (
                 <div className="space-y-4">
-                  <div className="bg-gray-900/60 border border-gray-700 rounded p-4">
-                    <div className="text-sm text-gray-300 mb-2">
+                  <div className="bg-white/70 border border-gray-200 rounded p-4 backdrop-blur-sm">
+                    <div className="text-sm text-gray-700 mb-2">
                       입금 계좌 정보
                     </div>
                     {isLoadingBank ? (
-                      <div className="text-gray-400 text-sm">
+                      <div className="text-gray-500 text-sm">
                         계좌 정보를 불러오는 중...
                       </div>
                     ) : bankConfig ? (
-                      <div className="text-white">
+                      <div className="text-gray-900">
                         <div className="flex justify-between">
-                          <span className="text-gray-400">은행명</span>
+                          <span className="text-gray-600">은행명</span>
                           <span>{bankConfig.bankName}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">계좌번호</span>
+                          <span className="text-gray-600">계좌번호</span>
                           <span className="font-semibold">
                             {bankConfig.accountNo}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">예금주</span>
+                          <span className="text-gray-600">예금주</span>
                           <span>{bankConfig.accountHolder}</span>
                         </div>
                         <div className="flex justify-between mt-2">
-                          <span className="text-gray-400">입금 금액</span>
-                          <span className="text-[#ff00ff] font-bold">
+                          <span className="text-gray-600">입금 금액</span>
+                          <span className="text-gray-900 font-bold">
                             {totalAmount.toLocaleString()}원
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-red-400 text-sm">
-                        계좌 정보가 설정되지 않았습니다. 관리자에게 문의하세요.
-                      </div>
-                    )}
-                  </div>
+                    <div className="text-red-600 text-sm">
+                      계좌 정보가 설정되지 않았습니다. 관리자에게 문의하세요.
+                    </div>
+                  )}
+                </div>
 
-                  <Button
-                    onClick={async () => {
-                      try {
-                        if (!createdOrder) return;
-                        if (!bankConfig) {
-                          toast({
-                            title: "계좌 정보 없음",
-                            description: "관리자에게 문의하세요.",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        const res = await fetch(
-                          `/api/orders/${createdOrder.id}/bank-payment`,
-                          {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              bankAccount: bankConfig.accountNo,
-                              amount: totalAmount,
-                            }),
-                          },
-                        );
-                        const data = await res.json();
-                        if (data.success) {
-                          toast({
-                            title: "은행 결제 등록",
-                            description: "입금 확인 후 제작이 시작됩니다.",
-                          });
-                          navigate("/profile");
-                        } else {
-                          toast({
-                            title: "오류",
-                            description:
-                              data.message || "은행 결제 처리 중 오류",
-                            variant: "destructive",
-                          });
-                        }
-                      } catch (e: any) {
+                <Button
+                  onClick={async () => {
+                    try {
+                      if (!createdOrder) return;
+                      if (!bankConfig) {
+                        toast({
+                          title: "계좌 정보 없음",
+                          description: "관리자에게 문의하세요.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      const res = await fetch(
+                        `/api/orders/${createdOrder.id}/bank-payment`,
+                        {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            bankAccount: bankConfig.accountNo,
+                            amount: totalAmount,
+                          }),
+                        },
+                      );
+                      const data = await res.json();
+                      if (data.success) {
+                        toast({
+                          title: "은행 결제 등록",
+                          description: "입금 확인 후 제작이 시작됩니다.",
+                        });
+                        navigate("/profile");
+                      } else {
                         toast({
                           title: "오류",
-                          description: e.message || "은행 결제 처리 중 오류",
+                          description:
+                            data.message || "은행 결제 처리 중 오류",
                           variant: "destructive",
                         });
                       }
-                    }}
-                    className="w-full bg-gradient-to-r from-[#00ffff] to-[#0099ff] hover:opacity-90 text-black font-medium py-6 shadow-[0_0_15px_rgba(0,255,255,0.4)]"
-                  >
-                    계좌로 결제하기 (입금 대기)
-                  </Button>
+                    } catch (e: any) {
+                      toast({
+                        title: "오류",
+                        description: e.message || "은행 결제 처리 중 오류",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-6"
+                >
+                  계좌로 결제하기 (입금 대기)
+                </Button>
                 </div>
               )}
             </CardContent>

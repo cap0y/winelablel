@@ -27,6 +27,13 @@ import {
   Clock,
   MessageSquare,
   ThumbsUp,
+  TrendingUp,
+  Award,
+  Zap,
+  Gift,
+  Users,
+  Crown,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { galleryApi } from "@/services/api";
@@ -73,7 +80,7 @@ function GalleryCard({
 
   return (
     <Card
-      className="overflow-hidden transition-all hover:shadow-lg hover:shadow-cyan-500/20 cursor-pointer bg-gray-900 border-gray-700 hover:border-cyan-500/50"
+      className="overflow-hidden transition-all hover:shadow-lg cursor-pointer glass-card"
       onClick={onClick}
     >
       <div className="relative">
@@ -92,10 +99,10 @@ function GalleryCard({
           <Heart className={`w-4 h-4 ${isUserLiked ? "fill-white" : ""}`} />
         </button>
       </div>
-      <CardContent className="p-4 bg-gray-900">
-        <h3 className="font-medium mb-1 text-cyan-300">{item.title}</h3>
-        <p className="text-sm text-gray-400 mb-2">
-          by <span className="text-cyan-400">{item.designer}</span>
+      <CardContent className="p-4">
+        <h3 className="font-medium mb-1 text-gray-900">{item.title}</h3>
+        <p className="text-sm text-gray-600 mb-2">
+          by <span className="text-[#0F7B6C]">{item.designer}</span>
         </p>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-500 flex items-center">
@@ -104,12 +111,12 @@ function GalleryCard({
           </span>
           <div className="flex items-center">
             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
-            <span className="text-sm text-yellow-300">{item.rating}</span>
+            <span className="text-sm text-yellow-700">{item.rating}</span>
             <span className="text-xs text-gray-500 ml-1">
               ({item.ratingCount})
             </span>
-            <span className="text-xs text-rose-400 ml-2 flex items-center">
-              <Heart className="w-3 h-3 mr-1 fill-rose-400" />
+            <span className="text-xs text-rose-600 ml-2 flex items-center">
+              <Heart className="w-3 h-3 mr-1 fill-rose-600" />
               {item.likes}
             </span>
           </div>
@@ -243,31 +250,31 @@ function LabelDetailDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto p-0 bg-gray-900 border-gray-800 text-white">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto p-0 bg-white/90 border-gray-200 text-gray-900 backdrop-blur-md">
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-            <p className="text-gray-300">라벨 정보를 불러오는 중...</p>
+            <p className="text-gray-600">라벨 정보를 불러오는 중...</p>
           </div>
         ) : error ? (
-          <div className="p-8 text-center text-red-400">
+          <div className="p-8 text-center text-red-600">
             <p>라벨 정보를 불러오는 중 오류가 발생했습니다.</p>
           </div>
         ) : label ? (
           <div className="grid md:grid-cols-2">
-            <div className="bg-gray-800 flex items-center justify-center p-4">
+            <div className="bg-white/70 backdrop-blur-sm flex items-center justify-center p-4 border-b md:border-b-0 md:border-r border-gray-200">
               <img
                 src={label.labelImage}
                 alt={label.title}
                 className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-lg"
               />
             </div>
-            <div className="p-6 flex flex-col h-full max-h-[80vh] overflow-hidden bg-gray-900">
+            <div className="p-6 flex flex-col h-full max-h-[80vh] overflow-hidden bg-white">
               <DialogHeader className="mb-4">
-                <DialogTitle className="text-2xl text-cyan-400 font-bold">
+                <DialogTitle className="text-2xl text-gray-900 font-bold">
                   {label.title}
                 </DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-gray-600">
                   와인 라벨 상세 정보 및 평점과 댓글을 확인하고 추가할 수
                   있습니다.
                 </DialogDescription>
@@ -275,8 +282,8 @@ function LabelDetailDialog({
 
               <div className="mb-6 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-300 font-medium">
-                    by <span className="text-cyan-300">{label.designer}</span>
+                  <span className="text-gray-700 font-medium">
+                    by <span className="text-[#0F7B6C]">{label.designer}</span>
                   </span>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center">
@@ -299,15 +306,15 @@ function LabelDetailDialog({
                     </button>
                   </div>
                 </div>
-                <p className="text-sm text-gray-400 bg-gray-800/50 px-3 py-1 rounded-full inline-block w-fit">
+                <p className="text-sm text-gray-700 bg-gray-100 px-3 py-1 rounded-full inline-block w-fit">
                   {label.bottleName}
                 </p>
 
                 {user && (
-                  <div className="mt-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div className="mt-3 p-3 bg-white/70 rounded-lg border border-gray-200 backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <span className="text-sm mr-3 text-gray-300 font-medium">
+                        <span className="text-sm mr-3 text-gray-700 font-medium">
                           별점 주기:
                         </span>
                         <StarRating
@@ -321,8 +328,8 @@ function LabelDetailDialog({
               </div>
 
               <div className="flex-1 overflow-auto mb-4">
-                <h3 className="font-medium mb-3 flex items-center text-cyan-400 border-b border-gray-700 pb-2">
-                  <MessageSquare className="w-4 h-4 mr-2 text-cyan-500" />
+                <h3 className="font-medium mb-3 flex items-center text-gray-900 border-b border-gray-200 pb-2">
+                  <MessageSquare className="w-4 h-4 mr-2 text-[#2F3437]" />
                   댓글 ({label.comments?.length || 0})
                 </h3>
                 <div className="overflow-auto pr-2 max-h-60">
@@ -330,17 +337,17 @@ function LabelDetailDialog({
                     label.comments.map((comment: Comment) => (
                       <div
                         key={comment.id}
-                        className="py-3 border-b border-gray-700 last:border-0"
+                        className="py-3 border-b border-gray-200 last:border-0"
                       >
                         <div className="flex items-start">
-                          <Avatar className="w-8 h-8 mr-3 border border-gray-600">
+                          <Avatar className="w-8 h-8 mr-3 border border-gray-300">
                             {comment.photoURL ? (
                               <AvatarImage
                                 src={comment.photoURL}
                                 alt={comment.displayName || comment.username}
                               />
                             ) : (
-                              <AvatarFallback className="bg-gray-700 text-gray-300">
+                              <AvatarFallback className="bg-gray-200 text-gray-700">
                                 {(
                                   comment.displayName ||
                                   comment.username ||
@@ -351,7 +358,7 @@ function LabelDetailDialog({
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex justify-between items-center mb-1">
-                              <span className="font-medium text-sm text-cyan-300">
+                              <span className="font-medium text-sm text-blue-700">
                                 {comment.displayName || comment.username}
                               </span>
                               <span className="text-xs text-gray-500">
@@ -360,7 +367,7 @@ function LabelDetailDialog({
                                 )}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-300 bg-gray-800/30 p-2 rounded-lg">
+                            <p className="text-sm text-gray-800 bg-gray-50 p-2 rounded-lg">
                               {comment.content}
                             </p>
                           </div>
@@ -368,7 +375,7 @@ function LabelDetailDialog({
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500 text-center py-4 bg-gray-800/30 rounded-lg">
+                    <p className="text-sm text-gray-500 text-center py-4 bg-gray-50 rounded-lg">
                       아직 댓글이 없습니다. 첫 댓글을 작성해보세요!
                     </p>
                   )}
@@ -378,7 +385,7 @@ function LabelDetailDialog({
               {user && (
                 <form
                   onSubmit={handleCommentSubmit}
-                  className="pt-3 border-t border-gray-700"
+                  className="pt-3 border-t border-gray-200"
                 >
                   <div className="flex gap-2 items-start">
                     <Avatar className="w-8 h-8 border border-gray-600">
@@ -398,14 +405,14 @@ function LabelDetailDialog({
                     </Avatar>
                     <Textarea
                       placeholder="댓글을 남겨보세요..."
-                      className="flex-1 min-h-[60px] resize-none bg-gray-800 border-gray-600 text-gray-200 placeholder-gray-500 focus:border-cyan-500"
+                      className="flex-1 min-h-[60px] resize-none bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                     />
                     <Button
                       type="submit"
                       size="sm"
-                      className="mt-1 bg-cyan-600 hover:bg-cyan-700 text-white border-none"
+                      className="mt-1 bg-primary hover:bg-primary/90 text-white border-none"
                       disabled={!comment.trim()}
                     >
                       <Send className="w-4 h-4" />
@@ -434,6 +441,10 @@ export default function Gallery() {
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [userLikes, setUserLikes] = useState<Record<string, boolean>>({});
+  
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // 라벨 목록 가져오기
   const { data, isLoading, error, refetch } = useQuery({
@@ -459,6 +470,21 @@ export default function Gallery() {
       );
     });
   }, [data?.labels, searchTerm]);
+
+  // 페이지네이션된 아이템 목록
+  const paginatedItems = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredItems.slice(startIndex, endIndex);
+  }, [filteredItems, currentPage, itemsPerPage]);
+
+  // 총 페이지 수 계산
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  // 검색어 변경 시 첫 페이지로 이동
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // 디버깅 정보
   useEffect(() => {
@@ -506,8 +532,8 @@ export default function Gallery() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 min-h-screen bg-gray-950">
-      <h1 className="text-2xl font-bold mb-6 text-center text-cyan-400">
+    <div className="container mx-auto px-4 py-6 min-h-screen bg-background text-foreground">
+      <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
         인기 라벨 디자인 갤러리
       </h1>
 
@@ -517,7 +543,7 @@ export default function Gallery() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="디자인, 디자이너, 와인 이름으로 검색"
-            className="pl-10 bg-gray-900 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-cyan-500"
+            className="pl-10 bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
             value={searchTerm}
             onChange={(e) => {
               const newSearchTerm = e.target.value;
@@ -536,44 +562,277 @@ export default function Gallery() {
       </div>
 
       {/* 갤러리 그리드 */}
-      {isLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">라벨 디자인을 불러오는 중...</p>
+      <div className="flex justify-center">
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">라벨 디자인을 불러오는 중...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 text-red-600">
+            <p>라벨 디자인을 불러오는 중 오류가 발생했습니다.</p>
+          </div>
+        ) : paginatedItems.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-7xl">
+            {paginatedItems.map((item: GalleryItem) => (
+              <GalleryCard
+                key={item.id}
+                item={item}
+                onLikeToggle={() => handleLikeToggle(item.id)}
+                isUserLiked={!!userLikes[item.id]}
+                onClick={() => handleLabelClick(item.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Wine className="mx-auto mb-4 text-gray-500 w-12 h-12" />
+            <h3 className="text-xl font-medium mb-2 text-gray-900">
+              검색 결과가 없습니다
+            </h3>
+            <p className="text-gray-600">다른 검색어를 입력해보세요</p>
+          </div>
+        )}
+      </div>
+
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 text-sm"
+          >
+            이전
+          </Button>
+          
+          <div className="flex space-x-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page => {
+                // 현재 페이지 주변 5개 페이지만 표시
+                return Math.abs(page - currentPage) <= 2 || page === 1 || page === totalPages;
+              })
+              .map((page, index, array) => {
+                // 생략 표시 (...) 추가
+                if (index > 0 && page - array[index - 1] > 1) {
+                  return (
+                    <React.Fragment key={`ellipsis-${page}`}>
+                      <span className="px-2 py-1 text-sm text-gray-500">...</span>
+                      <Button
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 text-sm ${
+                          currentPage === page 
+                            ? "bg-primary text-white" 
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
+                        {page}
+                      </Button>
+                    </React.Fragment>
+                  );
+                }
+                
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1 text-sm ${
+                      currentPage === page 
+                        ? "bg-primary text-white" 
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </Button>
+                );
+              })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 text-sm"
+          >
+            다음
+          </Button>
         </div>
-      ) : error ? (
-        <div className="text-center py-12 text-red-400">
-          <p>라벨 디자인을 불러오는 중 오류가 발생했습니다.</p>
-        </div>
-      ) : filteredItems.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredItems.map((item: GalleryItem) => (
-            <GalleryCard
-              key={item.id}
-              item={item}
-              onLikeToggle={() => handleLikeToggle(item.id)}
-              isUserLiked={!!userLikes[item.id]}
-              onClick={() => handleLabelClick(item.id)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <Wine className="mx-auto mb-4 text-gray-500 w-12 h-12" />
-          <h3 className="text-xl font-medium mb-2 text-gray-300">
-            검색 결과가 없습니다
-          </h3>
-          <p className="text-gray-500">다른 검색어를 입력해보세요</p>
+      )}
+
+      {/* 페이지 정보 */}
+      {filteredItems.length > 0 && (
+        <div className="mt-4 text-center text-sm text-gray-600">
+          총 {filteredItems.length}개 중 {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredItems.length)}개 표시
         </div>
       )}
 
       <div className="mt-8 text-center">
         <Link href="/wine-bottles">
-          <Button className="bg-cyan-600 hover:bg-cyan-700 text-white border-none shadow-lg hover:shadow-cyan-500/25 transition-all">
+          <Button className="bg-primary hover:bg-primary/90 text-white border-none shadow-lg transition-all">
             <Wine className="mr-2 w-4 h-4" />
             나만의 라벨 디자인하기
           </Button>
         </Link>
+      </div>
+
+      {/* 🔥 갤러리 특별 광고 섹션 🔥 */}
+      <div className="mt-12 space-y-6">
+        {/* 인기 디자이너 특가 이벤트 */}
+        <section className="px-4 py-6">
+          <div className="container mx-auto max-w-4xl">
+            <div className="relative overflow-hidden bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-red-500/20 rounded-2xl p-6 border border-purple-200">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-pink-400/10 animate-gradient"></div>
+              <div className="relative z-10 text-center">
+                <div className="flex items-center justify-center mb-3">
+                  <Crown className="w-6 h-6 text-yellow-500 animate-bounce mr-2" />
+                  <h3 className="text-xl font-bold text-purple-800 animate-pulse">
+                    🎨 인기 디자이너 특가 이벤트 🎨
+                  </h3>
+                  <Crown className="w-6 h-6 text-yellow-500 animate-bounce ml-2" />
+                </div>
+                <p className="text-sm text-purple-700 mb-4">
+                  갤러리 TOP 10 디자이너의 <span className="font-bold text-red-600 animate-pulse">프리미엄 템플릿</span> 무료 제공!
+                </p>
+                <div className="grid grid-cols-3 gap-3 mb-4 text-xs">
+                  <div className="bg-white/70 rounded p-3 animate-float">
+                    <Award className="w-5 h-5 text-yellow-500 mx-auto mb-1 animate-spin" />
+                    <div className="font-bold text-purple-600">TOP 10</div>
+                    <div className="text-gray-600">인기 디자이너</div>
+                  </div>
+                  <div className="bg-white/70 rounded p-3 animate-float" style={{ animationDelay: '0.5s' }}>
+                    <Gift className="w-5 h-5 text-green-500 mx-auto mb-1 animate-pulse" />
+                    <div className="font-bold text-green-600">무료</div>
+                    <div className="text-gray-600">프리미엄 템플릿</div>
+                  </div>
+                  <div className="bg-white/70 rounded p-3 animate-float" style={{ animationDelay: '1s' }}>
+                    <Users className="w-5 h-5 text-blue-500 mx-auto mb-1 animate-bounce" />
+                    <div className="font-bold text-blue-600">500+</div>
+                    <div className="text-gray-600">만족 고객</div>
+                  </div>
+                </div>
+                <Link href="/wine-bottles">
+                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-full font-bold transform hover:scale-110 transition-all duration-300 animate-pulse">
+                    <Sparkles className="mr-2 w-4 h-4 animate-spin" />
+                    지금 바로 시작하기
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 고객 성공 스토리 */}
+        <section className="px-4 py-6">
+          <div className="container mx-auto max-w-4xl">
+            <div className="bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-teal-500/20 rounded-2xl p-6 border border-blue-200">
+              <div className="text-center mb-6">
+                <h3 className="text-lg font-bold text-blue-800 mb-2">
+                  🌟 고객 성공 스토리 🌟
+                </h3>
+                <p className="text-sm text-blue-700">
+                  우리 갤러리에서 영감을 받은 고객들의 실제 후기
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="bg-white/70 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="flex items-center mb-2">
+                    <div className="flex text-yellow-500">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-current animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+                      ))}
+                    </div>
+                    <span className="ml-2 text-sm font-bold text-gray-700">김○○님</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    "갤러리에서 본 디자인을 참고해서 우리 와이너리만의 독특한 라벨을 만들었어요. 매출이 30% 증가했습니다!"
+                  </p>
+                </div>
+                
+                <div className="bg-white/70 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="flex items-center mb-2">
+                    <div className="flex text-yellow-500">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-current animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+                      ))}
+                    </div>
+                    <span className="ml-2 text-sm font-bold text-gray-700">박○○님</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    "프리미엄 디자인 템플릿 덕분에 전문가 수준의 라벨을 쉽게 만들 수 있었습니다. 강력 추천!"
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <Link href="/contact">
+                  <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2 rounded-full text-sm font-bold transform hover:scale-105 transition-all duration-300">
+                    <MessageSquare className="mr-2 w-4 h-4" />
+                    더 많은 후기 보기
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 실시간 갤러리 통계 */}
+        <section className="px-4 py-6">
+          <div className="container mx-auto max-w-4xl">
+            <div className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl p-6 border border-green-200">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-bold text-green-800 mb-2">
+                  📊 실시간 갤러리 통계 📊
+                </h3>
+                <p className="text-sm text-green-700">
+                  지금 이 순간에도 계속 성장하는 우리 갤러리
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center bg-white/70 rounded-lg p-4 animate-float">
+                  <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2 animate-bounce" />
+                  <div className="text-xl font-bold text-green-600">2,847</div>
+                  <div className="text-xs text-gray-600">총 라벨 디자인</div>
+                </div>
+                
+                <div className="text-center bg-white/70 rounded-lg p-4 animate-float" style={{ animationDelay: '0.3s' }}>
+                  <Heart className="w-6 h-6 text-red-500 mx-auto mb-2 animate-pulse" />
+                  <div className="text-xl font-bold text-red-600">15,932</div>
+                  <div className="text-xs text-gray-600">좋아요 수</div>
+                </div>
+                
+                <div className="text-center bg-white/70 rounded-lg p-4 animate-float" style={{ animationDelay: '0.6s' }}>
+                  <Users className="w-6 h-6 text-blue-500 mx-auto mb-2 animate-bounce" />
+                  <div className="text-xl font-bold text-blue-600">1,234</div>
+                  <div className="text-xs text-gray-600">활성 디자이너</div>
+                </div>
+                
+                <div className="text-center bg-white/70 rounded-lg p-4 animate-float" style={{ animationDelay: '0.9s' }}>
+                  <Zap className="w-6 h-6 text-yellow-500 mx-auto mb-2 animate-spin" />
+                  <div className="text-xl font-bold text-yellow-600">98.7%</div>
+                  <div className="text-xs text-gray-600">고객 만족도</div>
+                </div>
+              </div>
+              
+              <div className="text-center mt-4">
+                <Link href="/wine-bottles">
+                  <Button className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-2 rounded-full font-bold transform hover:scale-105 transition-all duration-300">
+                    <Award className="mr-2 w-4 h-4 animate-bounce" />
+                    나도 갤러리 스타 되기
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* 라벨 상세 대화상자 */}

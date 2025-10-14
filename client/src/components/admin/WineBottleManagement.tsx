@@ -399,25 +399,25 @@ const WineBottleManagement = () => {
   };
 
   return (
-    <Card className="w-full border-gray-800 bg-gray-900/50 shadow-lg backdrop-blur-sm">
-      <CardHeader className="flex flex-row items-center justify-between border-b border-gray-800">
+    <Card className="w-full glass-card">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-gray-200">
         <div>
-          <CardTitle className="text-gray-100">와인병 관리</CardTitle>
-          <CardDescription>와인병 목록 관리 및 가격 설정</CardDescription>
+          <CardTitle className="text-gray-900">와인병 관리</CardTitle>
+          <CardDescription className="text-gray-600">와인병 목록 관리 및 가격 설정</CardDescription>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="와인병 검색..."
+              placeholder="검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 w-[250px] bg-gray-800 border-gray-700 text-gray-200 focus:border-cyan-500"
+              className="pl-8 w-[80px]"
             />
           </div>
           <Button
             onClick={handleAddBottle}
-            className="bg-cyan-900/30 hover:bg-cyan-800/50 text-cyan-400 border border-cyan-700"
+            className="bg-primary text-white hover:bg-primary/90"
           >
             <PlusCircle className="h-4 w-4 mr-1" /> 와인병 추가
           </Button>
@@ -432,38 +432,38 @@ const WineBottleManagement = () => {
         ) : (
           <div className="overflow-x-auto">
             <Table className="border-collapse">
-              <TableHeader className="bg-gray-800/50">
-                <TableRow className="border-b border-gray-700">
-                  <TableHead className="w-10">ID</TableHead>
-                  <TableHead className="w-16">이미지</TableHead>
+              <TableHeader className="bg-white/70">
+                <TableRow className="border-b border-gray-200">
+                  <TableHead className="w-10 whitespace-pre-line">ID</TableHead>
+                  <TableHead className="w-16 whitespace-pre-line">이미지</TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("name")}
                   >
                     이름 <ArrowUpDown className="inline w-4 h-4" />
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("type")}
                   >
-                    타입 <ArrowUpDown className="inline w-4 h-4" />
+                    타입<ArrowUpDown className="inline w-4 h-4" />
                   </TableHead>
-                  <TableHead>규격</TableHead>
+                  <TableHead className="whitespace-pre-line">규격</TableHead>
                   <TableHead
-                    className="cursor-pointer text-gray-300 hover:text-cyan-400 transition-colors"
+                    className="cursor-pointer text-gray-700 hover:text-gray-900 transition-colors whitespace-pre-line"
                     onClick={() => handleSort("price")}
                   >
                     가격 <ArrowUpDown className="inline w-4 h-4" />
                   </TableHead>
-                  <TableHead className="text-right">관리</TableHead>
+                  <TableHead className="text-right whitespace-pre-line">관리</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedBottles.length === 0 ? (
-                  <TableRow className="border-b border-gray-800 hover:bg-gray-800/50">
+                  <TableRow className="border-b border-gray-200">
                     <TableCell
                       colSpan={7}
-                      className="text-center py-10 text-gray-400"
+                      className="text-center py-10 text-gray-500"
                     >
                       와인병 데이터가 없거나 검색 결과가 없습니다.
                     </TableCell>
@@ -472,9 +472,9 @@ const WineBottleManagement = () => {
                   filteredAndSortedBottles.map((bottle) => (
                     <TableRow
                       key={bottle.id}
-                      className="border-b border-gray-800 hover:bg-gray-800/50"
+                      className="border-b border-gray-200"
                     >
-                      <TableCell className="font-medium text-gray-300">
+                      <TableCell className="font-medium text-gray-900 whitespace-nowrap">
                         {bottle.id}
                       </TableCell>
                       <TableCell>
@@ -486,17 +486,17 @@ const WineBottleManagement = () => {
                           />
                         </div>
                       </TableCell>
-                      <TableCell className="text-gray-200">
+                      <TableCell className="text-gray-900 whitespace-nowrap">
                         {bottle.name}
                       </TableCell>
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs ${
                             bottle.type === "red"
-                              ? "bg-red-500/20 text-red-400 border border-red-500"
+                              ? "bg-red-500/20 text-red-600 border border-red-200"
                               : bottle.type === "white"
-                                ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500"
-                                : "bg-pink-500/20 text-pink-400 border border-pink-500"
+                                ? "bg-yellow-500/20 text-yellow-700 border border-yellow-200"
+                                : "bg-pink-500/20 text-pink-600 border border-pink-200"
                           }`}
                         >
                           {bottle.type === "red"
@@ -506,10 +506,10 @@ const WineBottleManagement = () => {
                               : "로제"}
                         </span>
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-gray-700 whitespace-nowrap">
                         {bottle.dimensions}
                       </TableCell>
-                      <TableCell className="text-gray-200">
+                      <TableCell className="text-gray-900 whitespace-nowrap">
                         {bottle.price.toLocaleString()}원
                       </TableCell>
                       <TableCell className="text-right">
@@ -517,7 +517,7 @@ const WineBottleManagement = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 px-2 border-gray-700"
+                            className="h-8 px-2 border-gray-300"
                             onClick={() => handleEditBottle(bottle)}
                           >
                             <Edit className="h-4 w-4 text-cyan-400" />
@@ -525,7 +525,7 @@ const WineBottleManagement = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 px-2 border-gray-700"
+                            className="h-8 px-2 border-gray-300"
                             onClick={() => handleDeleteBottle(bottle.id)}
                           >
                             <Trash2 className="h-4 w-4 text-red-400" />
@@ -543,12 +543,12 @@ const WineBottleManagement = () => {
 
       {/* 와인병 추가/수정 다이얼로그 */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl bg-gray-900 border border-gray-800">
+        <DialogContent className="max-w-2xl bg-white/90 backdrop-blur-md border-gray-200">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-gray-900">
               {isEditing ? "와인병 수정" : "새 와인병 추가"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600">
               와인병의 고유 ID, 이름, 이미지를 입력하여 관리합니다.
             </DialogDescription>
           </DialogHeader>
@@ -557,7 +557,7 @@ const WineBottleManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="id" className="text-sm font-medium">
+                  <Label htmlFor="id" className="text-sm font-medium text-gray-700">
                     ID (고유 식별자)*
                   </Label>
                   <Input
@@ -566,12 +566,12 @@ const WineBottleManagement = () => {
                     onChange={(e) => handleInputChange("id", e.target.value)}
                     placeholder="예: bordeaux-red"
                     disabled={isEditing} // 수정 시에는 ID 변경 불가
-                    className="bg-gray-800 border-gray-700 text-gray-200"
+                    className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="name" className="text-sm font-medium">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">
                     와인병 이름*
                   </Label>
                   <Input
@@ -579,22 +579,22 @@ const WineBottleManagement = () => {
                     value={bottleData.name || ""}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     placeholder="예: 까베르네쇼비뇽 레드"
-                    className="bg-gray-800 border-gray-700 text-gray-200"
+                    className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="type" className="text-sm font-medium">
+                  <Label htmlFor="type" className="text-sm font-medium text-gray-700">
                     와인 타입*
                   </Label>
                   <Select
                     value={bottleData.type || "red"}
                     onValueChange={(value) => handleInputChange("type", value)}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-200">
+                    <SelectTrigger className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700 text-gray-200">
+                    <SelectContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-md">
                       <SelectItem value="red">레드</SelectItem>
                       <SelectItem value="white">화이트</SelectItem>
                       <SelectItem value="rose">로제</SelectItem>
@@ -603,7 +603,7 @@ const WineBottleManagement = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="bottleType" className="text-sm font-medium">
+                  <Label htmlFor="bottleType" className="text-sm font-medium text-gray-700">
                     병 타입*
                   </Label>
                   <Select
@@ -612,10 +612,10 @@ const WineBottleManagement = () => {
                       handleInputChange("bottleType", value)
                     }
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-200">
+                    <SelectTrigger className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700 text-gray-200">
+                    <SelectContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-md">
                       <SelectItem value="bordeaux">보르도</SelectItem>
                       <SelectItem value="burgundy">버건디</SelectItem>
                       <SelectItem value="custom">커스텀</SelectItem>
@@ -624,7 +624,7 @@ const WineBottleManagement = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="dimensions" className="text-sm font-medium">
+                  <Label htmlFor="dimensions" className="text-sm font-medium text-gray-700">
                     규격 (높이 x 지름)
                   </Label>
                   <Input
@@ -634,12 +634,12 @@ const WineBottleManagement = () => {
                       handleInputChange("dimensions", e.target.value)
                     }
                     placeholder="예: 높이 30cm x 지름 7.5cm"
-                    className="bg-gray-800 border-gray-700 text-gray-200"
+                    className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="capacity" className="text-sm font-medium">
+                  <Label htmlFor="capacity" className="text-sm font-medium text-gray-700">
                     용량
                   </Label>
                   <Input
@@ -649,12 +649,12 @@ const WineBottleManagement = () => {
                       handleInputChange("capacity", e.target.value)
                     }
                     placeholder="예: 750ml"
-                    className="bg-gray-800 border-gray-700 text-gray-200"
+                    className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="price" className="text-sm font-medium">
+                  <Label htmlFor="price" className="text-sm font-medium text-gray-700">
                     가격 (원)
                   </Label>
                   <Input
@@ -663,15 +663,15 @@ const WineBottleManagement = () => {
                     value={bottleData.price || 0}
                     onChange={(e) => handleInputChange("price", e.target.value)}
                     placeholder="예: 5000"
-                    className="bg-gray-800 border-gray-700 text-gray-200"
+                    className="bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium">와인병 이미지*</Label>
-                  <div className="flex flex-col items-center p-4 border border-dashed border-gray-700 rounded-md bg-gray-800 h-48 mt-1">
+                  <Label className="text-sm font-medium text-gray-700">와인병 이미지*</Label>
+                  <div className="flex flex-col items-center p-4 border border-dashed border-gray-300 rounded-md bg-white/50 backdrop-blur-sm h-48 mt-1">
                     {bottleData.image ? (
                       <div className="w-full h-full flex flex-col items-center">
                         <div className="relative w-24 h-40">
@@ -685,7 +685,7 @@ const WineBottleManagement = () => {
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="mt-2 text-gray-400 hover:text-gray-300"
+                          className="mt-2 text-gray-600 hover:text-gray-800"
                           onClick={() => {
                             if (fileInputRef.current)
                               fileInputRef.current.click();
@@ -702,8 +702,8 @@ const WineBottleManagement = () => {
                             fileInputRef.current.click();
                         }}
                       >
-                        <Wine className="h-10 w-10 text-gray-400 mb-2" />
-                        <span className="text-gray-400 text-sm">
+                        <Wine className="h-10 w-10 text-gray-500 mb-2" />
+                        <span className="text-gray-600 text-sm">
                           이미지를 업로드하세요
                         </span>
                         <span className="text-gray-500 text-xs mt-1">
@@ -721,8 +721,8 @@ const WineBottleManagement = () => {
                   </div>
                 </div>
 
-                <div className="border border-gray-700 rounded-md p-4 bg-gray-800/50">
-                  <Label className="text-sm font-medium block mb-2">
+                <div className="border border-gray-300 rounded-md p-4 bg-white/50 backdrop-blur-sm">
+                  <Label className="text-sm font-medium text-gray-700 block mb-2">
                     라벨 크기 및 위치 설정
                   </Label>
 
@@ -730,7 +730,7 @@ const WineBottleManagement = () => {
                     <div>
                       <Label
                         htmlFor="labelWidth"
-                        className="text-xs text-gray-400"
+                        className="text-xs text-gray-600"
                       >
                         라벨 너비 (rem)
                       </Label>
@@ -742,13 +742,13 @@ const WineBottleManagement = () => {
                         onChange={(e) =>
                           handleInputChange("labelSize.width", e.target.value)
                         }
-                        className="bg-gray-800 border-gray-700 text-gray-200"
+                        className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                       />
                     </div>
                     <div>
                       <Label
                         htmlFor="labelHeight"
-                        className="text-xs text-gray-400"
+                        className="text-xs text-gray-600"
                       >
                         라벨 높이 (rem)
                       </Label>
@@ -760,7 +760,7 @@ const WineBottleManagement = () => {
                         onChange={(e) =>
                           handleInputChange("labelSize.height", e.target.value)
                         }
-                        className="bg-gray-800 border-gray-700 text-gray-200"
+                        className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                       />
                     </div>
                   </div>
@@ -769,7 +769,7 @@ const WineBottleManagement = () => {
                     <div>
                       <Label
                         htmlFor="labelTop"
-                        className="text-xs text-gray-400"
+                        className="text-xs text-gray-600"
                       >
                         상단 위치 (%)
                       </Label>
@@ -780,13 +780,13 @@ const WineBottleManagement = () => {
                         onChange={(e) =>
                           handleLabelPositionChange("top", e.target.value)
                         }
-                        className="bg-gray-800 border-gray-700 text-gray-200"
+                        className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                       />
                     </div>
                     <div>
                       <Label
                         htmlFor="labelLeft"
-                        className="text-xs text-gray-400"
+                        className="text-xs text-gray-600"
                       >
                         좌측 위치 (%)
                       </Label>
@@ -797,7 +797,7 @@ const WineBottleManagement = () => {
                         onChange={(e) =>
                           handleLabelPositionChange("left", e.target.value)
                         }
-                        className="bg-gray-800 border-gray-700 text-gray-200"
+                        className="bg-white/70 border-gray-300 text-gray-900 focus:border-primary backdrop-blur-sm"
                       />
                     </div>
                   </div>
@@ -805,19 +805,19 @@ const WineBottleManagement = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-gray-800">
+            <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
-                className="border-gray-700"
+                className="bg-white/70 border-gray-300 text-gray-700 hover:bg-white/90 backdrop-blur-sm"
               >
                 취소
               </Button>
               <Button
                 type="submit"
                 disabled={isUploading}
-                className="bg-cyan-900/30 hover:bg-cyan-800/50 text-cyan-400 border border-cyan-700"
+                className="bg-primary hover:bg-primary/90 text-white"
               >
                 {isUploading ? (
                   <>

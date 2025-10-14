@@ -29,9 +29,21 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 5000,
+    host: "0.0.0.0",
+    hmr: {
+      port: 5001, // HMR을 위한 별도 포트 사용
+      clientPort: 5001,
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+    // 개발 중 캐시 비활성화
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
   },
 });

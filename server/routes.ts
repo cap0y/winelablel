@@ -10,7 +10,7 @@ import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { fileURLToPath } from 'url';
 import { eq, desc, and, sql, asc, or, like } from "drizzle-orm";
-import { orders, labelComments, labelRatings, labelLikes, labelCategories, labelBackgroundCategories, wineBottles, notifications } from "../shared/schema";
+import { orders, labelComments, labelRatings, labelLikes, labelCategories, labelBackgroundCategories, wineBottles, notifications, accessories, reservationLinks } from "../shared/schema";
 import { PortOneClient } from "@portone/server-sdk";
 import { users } from "../shared/schema";
 
@@ -34,8 +34,11 @@ const publicDir = path.join(process.cwd(), 'public');
 const imagesDir = path.join(publicDir, 'images');
 const labelDir = path.join(imagesDir, 'label');
 const iconDir = path.join(imagesDir, 'icon');
+const soDir = path.join(imagesDir, 'so'); // accessories folder
 const borderDir = path.join(imagesDir, 'border');
 const uploadDir = path.join(imagesDir, 'upload');
+const dataDir = path.join(process.cwd(), 'data');
+const accessoriesJsonPath = path.join(dataDir, 'accessories.json');
 
 const bottleUploadStorage = multer.diskStorage({
   destination: (_req: any, _file: any, cb: any) => {
@@ -90,15 +93,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
   
+  if (!fs.existsSync(soDir)) { // 소품 폴더 생성
+    fs.mkdirSync(soDir, { recursive: true });
+  }
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  const linksJsonPath = path.join(dataDir, 'reservation_links.json');
+  
   // 파일 저장 설정 (multer)
   const labelStorage = multer.diskStorage({
     destination: (_req: any, _file: any, cb: any) => {
       cb(null, labelDir);
     },
     filename: (_req: any, file: any, cb: any) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(file.originalname);
-      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+      const parsed = path.parse(file.originalname);
+      const baseName = parsed.name;
+      const ext = parsed.ext || '';
+      let candidate = `${baseName}${ext}`;
+      let counter = 1;
+      while (fs.existsSync(path.join(labelDir, candidate))) {
+        candidate = `${baseName}-${counter}${ext}`;
+        counter += 1;
+      }
+      cb(null, candidate);
     }
   });
   
@@ -107,9 +125,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       cb(null, iconDir);
     },
     filename: (_req: any, file: any, cb: any) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(file.originalname);
-      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+      const parsed = path.parse(file.originalname);
+      const baseName = parsed.name;
+      const ext = parsed.ext || '';
+      let candidate = `${baseName}${ext}`;
+      let counter = 1;
+      while (fs.existsSync(path.join(iconDir, candidate))) {
+        candidate = `${baseName}-${counter}${ext}`;
+        counter += 1;
+      }
+      cb(null, candidate);
+    }
+  });
+  
+  // 소품 이미지 저장 설정
+  const soStorage = multer.diskStorage({
+    destination: (_req: any, _file: any, cb: any) => {
+      cb(null, soDir);
+    },
+    filename: (_req: any, file: any, cb: any) => {
+      // 원본 파일명을 최대한 유지. 중복 시 -1, -2 ... 증가
+      const original = file.originalname;
+      const parsed = path.parse(original);
+      const baseName = parsed.name;
+      const ext = parsed.ext || '';
+      let candidate = `${baseName}${ext}`;
+      let counter = 1;
+      while (fs.existsSync(path.join(soDir, candidate))) {
+        candidate = `${baseName}-${counter}${ext}`;
+        counter += 1;
+      }
+      cb(null, candidate);
     }
   });
   
@@ -119,9 +165,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       cb(null, borderDir);
     },
     filename: (_req: any, file: any, cb: any) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(file.originalname);
-      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+      const parsed = path.parse(file.originalname);
+      const baseName = parsed.name;
+      const ext = parsed.ext || '';
+      let candidate = `${baseName}${ext}`;
+      let counter = 1;
+      while (fs.existsSync(path.join(borderDir, candidate))) {
+        candidate = `${baseName}-${counter}${ext}`;
+        counter += 1;
+      }
+      cb(null, candidate);
     }
   });
   
@@ -131,9 +184,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       cb(null, uploadDir);
     },
     filename: (_req: any, file: any, cb: any) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(file.originalname);
-      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+      const parsed = path.parse(file.originalname);
+      const baseName = parsed.name;
+      const ext = parsed.ext || '';
+      let candidate = `${baseName}${ext}`;
+      let counter = 1;
+      while (fs.existsSync(path.join(uploadDir, candidate))) {
+        candidate = `${baseName}-${counter}${ext}`;
+        counter += 1;
+      }
+      cb(null, candidate);
     }
   });
   
@@ -143,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       fileSize: 1024 * 1024 * 5 // 5MB
     },
     fileFilter: (_req: any, file: any, cb: any) => {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
       if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
       } else {
@@ -158,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       fileSize: 1024 * 1024 * 5 // 5MB
     },
     fileFilter: (_req: any, file: any, cb: any) => {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
       if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
       } else {
@@ -173,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       fileSize: 1024 * 1024 * 5 // 5MB
     },
     fileFilter: (_req: any, file: any, cb: any) => {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
       if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
       } else {
@@ -188,7 +248,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       fileSize: 1024 * 1024 * 5 // 5MB
     },
     fileFilter: (_req: any, file: any, cb: any) => {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+      if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('지원하지 않는 파일 형식입니다. JPEG, PNG, GIF, WEBP 형식만 업로드 가능합니다.'));
+      }
+    }
+  });
+  
+  const uploadAccessory = multer({
+    storage: soStorage,
+    limits: { fileSize: 1024 * 1024 * 5 },
+    fileFilter: (_req: any, file: any, cb: any) => {
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
       if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
       } else {
@@ -717,6 +790,298 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         message: "주문 생성 중 오류가 발생했습니다: " + error.message 
       });
+    }
+  });
+
+  // =====================
+  // 액세서리(소품) 관리 API
+  // =====================
+  // 소품 이미지 업로드
+  app.post('/api/admin/accessories/upload', uploadAccessory.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: '업로드할 파일이 없습니다.' });
+      }
+      const file = req.file;
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(200).json({
+        success: true,
+        url: `/images/so/${file.filename}`,
+        filename: file.filename,
+        file: {
+          id: path.parse(file.filename).name,
+          name: file.originalname,
+          filename: file.filename,
+          url: `/images/so/${file.filename}`,
+          size: file.size,
+          mimetype: file.mimetype
+        }
+      });
+    } catch (e: any) {
+      console.error('[ERROR] 소품 이미지 업로드 오류:', e);
+      return res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
+  // =====================
+  // 예약 링크 CRUD
+  // 공개 목록
+  app.get('/api/reservation-links', async (_req, res) => {
+    try {
+      try {
+        const rows = await db.select().from(reservationLinks).where(eq(reservationLinks.isActive, true)).orderBy(asc(reservationLinks.displayOrder), desc(reservationLinks.createdAt));
+        return res.json(rows);
+      } catch (e) {
+        if (fs.existsSync(linksJsonPath)) {
+          const raw = fs.readFileSync(linksJsonPath, 'utf-8');
+          const items = JSON.parse(raw);
+          return res.json(items.filter((x: any) => x.isActive !== false));
+        }
+        return res.json([]);
+      }
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || '예약 링크 조회 오류' });
+    }
+  });
+
+  // 관리자 목록
+  app.get('/api/admin/reservation-links', async (_req, res) => {
+    try {
+      try {
+        const rows = await db.select().from(reservationLinks).orderBy(asc(reservationLinks.displayOrder), desc(reservationLinks.createdAt));
+        return res.json(rows);
+      } catch (e) {
+        if (fs.existsSync(linksJsonPath)) {
+          const raw = fs.readFileSync(linksJsonPath, 'utf-8');
+          const items = JSON.parse(raw);
+          return res.json(items);
+        }
+        return res.json([]);
+      }
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || '예약 링크 관리자 조회 오류' });
+    }
+  });
+
+  // 생성
+  app.post('/api/admin/reservation-links', async (req, res) => {
+    try {
+      const payload = req.body || {};
+      try {
+        const created = await db.insert(reservationLinks).values({
+          title: payload.title,
+          url: payload.url,
+          isActive: payload.isActive ?? true,
+          displayOrder: payload.displayOrder ?? 0,
+        }).returning();
+        return res.status(201).json(created[0]);
+      } catch (e) {
+        const item = {
+          id: Date.now(),
+          title: payload.title,
+          url: payload.url,
+          isActive: payload.isActive ?? true,
+          displayOrder: payload.displayOrder ?? 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        const items = fs.existsSync(linksJsonPath) ? JSON.parse(fs.readFileSync(linksJsonPath, 'utf-8')) : [];
+        items.push(item);
+        fs.writeFileSync(linksJsonPath, JSON.stringify(items, null, 2));
+        return res.status(201).json(item);
+      }
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || '예약 링크 생성 오류' });
+    }
+  });
+
+  // 수정
+  app.patch('/api/admin/reservation-links/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const payload = req.body || {};
+      try {
+        const updated = await db.update(reservationLinks)
+          .set({
+            title: payload.title,
+            url: payload.url,
+            isActive: payload.isActive,
+            displayOrder: payload.displayOrder,
+            updatedAt: new Date(),
+          })
+          .where(eq(reservationLinks.id, id))
+          .returning();
+        return res.json(updated[0]);
+      } catch (e) {
+        if (!fs.existsSync(linksJsonPath)) return res.status(404).json({ message: 'not found' });
+        const items = JSON.parse(fs.readFileSync(linksJsonPath, 'utf-8'));
+        const idx = items.findIndex((x: any) => x.id === id);
+        if (idx === -1) return res.status(404).json({ message: 'not found' });
+        items[idx] = { ...items[idx], ...payload, updatedAt: new Date().toISOString() };
+        fs.writeFileSync(linksJsonPath, JSON.stringify(items, null, 2));
+        return res.json(items[idx]);
+      }
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || '예약 링크 수정 오류' });
+    }
+  });
+
+  // 삭제
+  app.delete('/api/admin/reservation-links/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      try {
+        await db.delete(reservationLinks).where(eq(reservationLinks.id, id));
+        return res.json({ success: true });
+      } catch (e) {
+        if (!fs.existsSync(linksJsonPath)) return res.json({ success: true });
+        const items = JSON.parse(fs.readFileSync(linksJsonPath, 'utf-8'));
+        const next = items.filter((x: any) => x.id !== id);
+        fs.writeFileSync(linksJsonPath, JSON.stringify(next, null, 2));
+        return res.json({ success: true });
+      }
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || '예약 링크 삭제 오류' });
+    }
+  });
+  // 공개 목록
+  app.get('/api/accessories', async (_req, res) => {
+    try {
+      try {
+        const list = await db.select().from(accessories).where(eq(accessories.isActive, true)).orderBy(asc(accessories.displayOrder));
+        return res.json({ success: true, accessories: list });
+      } catch (dbErr) {
+        // DB가 없을 경우 파일 시스템/폴더 기반으로 대체
+        let items: any[] = [];
+        try {
+          if (fs.existsSync(accessoriesJsonPath)) {
+            const raw = fs.readFileSync(accessoriesJsonPath, 'utf-8');
+            items = JSON.parse(raw);
+          } else {
+            const files = fs.readdirSync(soDir);
+            items = files.map((filename, idx) => ({
+              id: idx + 1,
+              name: path.parse(filename).name,
+              price: 0,
+              image: `/images/so/${filename}`,
+              isActive: true,
+              displayOrder: idx
+            }));
+          }
+        } catch {}
+        return res.json({ success: true, accessories: items });
+      }
+    } catch (e: any) {
+      console.error('[ERROR] 액세서리 목록 조회 오류:', e);
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+  // 관리자 목록
+  app.get('/api/admin/accessories', async (_req, res) => {
+    try {
+      try {
+        const list = await db.select().from(accessories).orderBy(asc(accessories.displayOrder));
+        return res.json({ success: true, accessories: list });
+      } catch (dbErr) {
+        // Fallback: JSON 파일 또는 폴더
+        let items: any[] = [];
+        try {
+          if (fs.existsSync(accessoriesJsonPath)) {
+            const raw = fs.readFileSync(accessoriesJsonPath, 'utf-8');
+            items = JSON.parse(raw);
+          } else {
+            const files = fs.readdirSync(soDir);
+            items = files.map((filename, idx) => ({
+              id: idx + 1,
+              name: path.parse(filename).name,
+              price: 0,
+              image: `/images/so/${filename}`,
+              isActive: true,
+              displayOrder: idx
+            }));
+          }
+        } catch {}
+        return res.json({ success: true, accessories: items });
+      }
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+  // 생성
+  app.post('/api/admin/accessories', async (req, res) => {
+    try {
+      const payload = req.body || {};
+      try {
+        const created = await db.insert(accessories).values({
+          name: payload.name, price: Number(payload.price) || 0, image: payload.image || '',
+          isActive: payload.isActive ?? true, stock: payload.stock ?? 0, maxQty: payload.maxQty ?? 99,
+          displayOrder: payload.displayOrder ?? 0, bundleEligible: payload.bundleEligible ?? false,
+          bundleSize: payload.bundleSize ?? 0, bundlePrice: payload.bundlePrice ?? 0,
+          createdAt: new Date(), updatedAt: new Date()
+        }).returning();
+        return res.status(201).json({ success: true, accessory: created[0] });
+      } catch (dbErr) {
+        // 파일 기반 저장
+        const raw = fs.existsSync(accessoriesJsonPath) ? fs.readFileSync(accessoriesJsonPath, 'utf-8') : '[]';
+        const arr = JSON.parse(raw);
+        const newItem = {
+          id: Date.now(),
+          name: payload.name || '',
+          price: Number(payload.price) || 0,
+          image: payload.image || '',
+          isActive: payload.isActive ?? true,
+          displayOrder: payload.displayOrder ?? 0
+        };
+        arr.unshift(newItem);
+        fs.writeFileSync(accessoriesJsonPath, JSON.stringify(arr, null, 2));
+        return res.status(201).json({ success: true, accessory: newItem });
+      }
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+  // 수정
+  app.patch('/api/admin/accessories/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const payload = req.body || {};
+      try {
+        const updated = await db.update(accessories).set({
+          ...payload,
+          price: payload.price !== undefined ? Number(payload.price) : undefined,
+          updatedAt: new Date()
+        }).where(eq(accessories.id, id)).returning();
+        if (!updated.length) return res.status(404).json({ success: false, message: 'not found' });
+        return res.json({ success: true, accessory: updated[0] });
+      } catch (dbErr) {
+        const raw = fs.existsSync(accessoriesJsonPath) ? fs.readFileSync(accessoriesJsonPath, 'utf-8') : '[]';
+        const arr = JSON.parse(raw);
+        const idx = arr.findIndex((x: any) => String(x.id) === String(id));
+        if (idx === -1) return res.status(404).json({ success: false, message: 'not found' });
+        arr[idx] = { ...arr[idx], ...payload };
+        fs.writeFileSync(accessoriesJsonPath, JSON.stringify(arr, null, 2));
+        return res.json({ success: true, accessory: arr[idx] });
+      }
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+  // 삭제
+  app.delete('/api/admin/accessories/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      try {
+        await db.delete(accessories).where(eq(accessories.id, id));
+        return res.json({ success: true });
+      } catch (dbErr) {
+        const raw = fs.existsSync(accessoriesJsonPath) ? fs.readFileSync(accessoriesJsonPath, 'utf-8') : '[]';
+        const arr = JSON.parse(raw);
+        const next = arr.filter((x: any) => String(x.id) !== String(id));
+        fs.writeFileSync(accessoriesJsonPath, JSON.stringify(next, null, 2));
+        return res.json({ success: true });
+      }
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
     }
   });
   
@@ -1632,7 +1997,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         photoURL: users.photoURL
       })
       .from(labelComments)
-      .innerJoin(users, eq(labelComments.userId, sql`${users.id}::text`))
+      .innerJoin(users, eq(labelComments.userId, users.id))
       .where(eq(labelComments.orderId, labelId))
       .orderBy(desc(labelComments.createdAt));
 

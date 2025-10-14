@@ -2,7 +2,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+// TooltipProvider는 개별 컴포넌트에서 필요시 사용하도록 변경
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import WineBottleSelector from "@/pages/wine-bottle-selector";
@@ -21,7 +21,7 @@ import KakaoCallback from "@/pages/oauth/kakao/callback";
 import ProfilePage from "@/pages/profile";
 import PaymentSuccess from "@/pages/payment/success";
 import PaymentFailure from "@/pages/payment/failure";
-import PWAInstaller from "@/components/PWAInstaller";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import OrderManagement from "@/components/admin/OrderManagement";
 
 // OrderHistory 임포트 경로 수정
@@ -32,7 +32,7 @@ import CookiePolicy from "@/pages/cookie-policy";
 
 function Router() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <Navigation />
       <main>
@@ -61,7 +61,7 @@ function Router() {
         </Switch>
       </main>
       <Footer />
-      <PWAInstaller />
+      <PWAInstallPrompt />
     </div>
   );
 }
@@ -69,16 +69,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <div className="dark">
-              <Toaster />
-              <Router />
-            </div>
-          </AuthProvider>
-        </LanguageProvider>
-      </TooltipProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <div>
+            <Toaster />
+            <Router />
+          </div>
+        </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

@@ -463,18 +463,18 @@ export default function LabelBackgroundManagement() {
   // 배경 이미지 컴포넌트
   const BackgroundImageCard = ({ background }: { background: any }) => (
     <div className="relative group flex-shrink-0 w-48">
-      <div className="aspect-[4/3] bg-gray-800 rounded-md overflow-hidden border border-gray-700">
+      <div className="aspect-[4/3] bg-white/70 rounded-md overflow-hidden border border-gray-200 backdrop-blur-sm">
         <img
           src={background.url}
           alt={background.name}
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center space-x-2">
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center space-x-2">
         <Button
           size="sm"
           variant="outline"
-          className="bg-green-900/20 hover:bg-green-800/30 text-green-400 border-green-700"
+          className="bg-white/90 hover:bg-white text-green-700 border-gray-300 backdrop-blur-sm"
           onClick={() => handleDownloadBackground(background)}
         >
           <Download className="w-4 h-4" />
@@ -482,7 +482,7 @@ export default function LabelBackgroundManagement() {
         <Button
           size="sm"
           variant="outline"
-          className="bg-blue-900/20 hover:bg-blue-800/30 text-blue-400 border-blue-700"
+          className="bg-white/90 hover:bg-white text-blue-700 border-gray-300 backdrop-blur-sm"
           onClick={() => openAssignCategoriesDialog(background)}
         >
           <Edit className="w-4 h-4" />
@@ -490,21 +490,21 @@ export default function LabelBackgroundManagement() {
         <Button
           size="sm"
           variant="outline"
-          className="bg-red-900/20 hover:bg-red-800/30 text-red-400 border-red-700"
+          className="bg-white/90 hover:bg-white text-red-700 border-gray-300 backdrop-blur-sm"
           onClick={() => handleDeleteBackground(background.filename)}
         >
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
       <div className="mt-2">
-        <p className="text-sm text-gray-300 truncate">{background.name}</p>
+        <p className="text-sm text-gray-900 truncate">{background.name}</p>
         {/* 카테고리 태그 표시 */}
         {background.categories && background.categories.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {background.categories.map((cat: any) => (
               <span
                 key={cat.id}
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-cyan-900/30 text-cyan-400 border border-cyan-700"
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200"
               >
                 {cat.name}
               </span>
@@ -518,7 +518,7 @@ export default function LabelBackgroundManagement() {
   // 사용자 업로드 이미지 컴포넌트 (관리자가 볼 수만 있음)
   const UserUploadImageCard = ({ upload }: { upload: any }) => (
     <div className="relative group flex-shrink-0 w-48">
-      <div className="aspect-[4/3] bg-gray-800 rounded-md overflow-hidden border border-purple-500/50">
+      <div className="aspect-[4/3] bg-white/70 rounded-md overflow-hidden border border-purple-300 backdrop-blur-sm">
         <img
           src={upload.url}
           alt={upload.name}
@@ -526,23 +526,23 @@ export default function LabelBackgroundManagement() {
         />
       </div>
       <div className="absolute top-2 right-2">
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-900/80 text-purple-300 border border-purple-600">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-50 text-purple-700 border border-purple-200">
           사용자 업로드
         </span>
       </div>
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
         <Button
           size="sm"
           variant="outline"
-          className="bg-green-900/20 hover:bg-green-800/30 text-green-400 border-green-700"
+          className="bg-white/90 hover:bg-white text-green-700 border-gray-300 backdrop-blur-sm"
           onClick={() => handleDownloadUserUpload(upload)}
         >
           <Download className="w-4 h-4" />
         </Button>
       </div>
       <div className="mt-2">
-        <p className="text-sm text-purple-300 truncate">{upload.name}</p>
-        <p className="text-xs text-gray-400 truncate">
+        <p className="text-sm text-purple-700 truncate">{upload.name}</p>
+        <p className="text-xs text-gray-600 truncate">
           업로드: {new Date(upload.createdAt).toLocaleDateString()}
         </p>
       </div>
@@ -629,13 +629,13 @@ export default function LabelBackgroundManagement() {
   };
 
   return (
-    <Card className="w-full border-gray-800 bg-gray-900/50 shadow-lg backdrop-blur-sm">
-      <CardHeader className="border-b border-gray-800">
-        <CardTitle className="text-gray-100">라벨 배경 관리</CardTitle>
+    <Card className="w-full glass-card">
+      <CardHeader className="border-b border-gray-200">
+        <CardTitle className="text-gray-900">라벨 배경 관리</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 bg-white/70 border border-gray-200 backdrop-blur-sm">
             <TabsTrigger value="backgrounds">배경 이미지</TabsTrigger>
             <TabsTrigger value="categories">카테고리</TabsTrigger>
           </TabsList>
@@ -652,8 +652,8 @@ export default function LabelBackgroundManagement() {
                     onClick={() => setViewMode("category")}
                     className={
                       viewMode === "category"
-                        ? "bg-cyan-900/30 text-cyan-400 border-cyan-700"
-                        : "bg-gray-800/50 text-gray-300 border-gray-700"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white/70 text-gray-900 border-gray-300 backdrop-blur-sm"
                     }
                   >
                     <Grid className="w-4 h-4 mr-2" />
@@ -665,8 +665,8 @@ export default function LabelBackgroundManagement() {
                     onClick={() => setViewMode("grid")}
                     className={
                       viewMode === "grid"
-                        ? "bg-cyan-900/30 text-cyan-400 border-cyan-700"
-                        : "bg-gray-800/50 text-gray-300 border-gray-700"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white/70 text-gray-900 border-gray-300 backdrop-blur-sm"
                     }
                   >
                     <List className="w-4 h-4 mr-2" />
@@ -676,7 +676,7 @@ export default function LabelBackgroundManagement() {
 
                 <Label
                   htmlFor="background-upload"
-                  className="flex items-center px-4 py-2 rounded-md bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700 cursor-pointer"
+                  className="flex items-center px-4 py-2 rounded-md bg-white/70 hover:bg-white/90 text-blue-700 border border-gray-300 cursor-pointer backdrop-blur-sm"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   배경 이미지 업로드
@@ -703,16 +703,16 @@ export default function LabelBackgroundManagement() {
                     ([categoryName, categoryBackgrounds]) => (
                       <div key={categoryName} className="space-y-3">
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-lg font-semibold text-cyan-400">
+                          <h3 className="text-lg font-semibold text-gray-900">
                             {categoryName}
                           </h3>
-                          <span className="text-sm text-gray-400">
+                          <span className="text-sm text-gray-600">
                             ({categoryBackgrounds.length}개)
                           </span>
                         </div>
 
                         {categoryBackgrounds.length === 0 ? (
-                          <div className="bg-gray-800/30 rounded-lg p-6 text-center text-gray-400 border border-gray-700">
+                          <div className="glass-card rounded-lg p-6 text-center text-gray-600">
                             이 카테고리에 할당된 배경 이미지가 없습니다.
                           </div>
                         ) : (
@@ -739,7 +739,7 @@ export default function LabelBackgroundManagement() {
                 // 전체보기 - 4줄 수평 스크롤
                 <div>
                   {backgrounds.length === 0 ? (
-                    <div className="text-center py-8 text-gray-400">
+                    <div className="text-center py-8 text-gray-600">
                       업로드된 배경 이미지가 없습니다.
                     </div>
                   ) : (
@@ -921,37 +921,37 @@ export default function LabelBackgroundManagement() {
 
       {/* 새 카테고리 추가 다이얼로그 */}
       <Dialog open={isAddingCategory} onOpenChange={setIsAddingCategory}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 shadow-[0_0_15px_rgba(0,200,255,0.15)]">
+        <DialogContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-md">
           <DialogHeader>
-            <DialogTitle className="text-cyan-400">
+            <DialogTitle className="text-gray-900">
               새 카테고리 추가
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600">
               새로운 라벨 배경 카테고리를 추가합니다. 카테고리 이름은 필수 입력
               사항입니다.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="category-name" className="text-gray-300">
+              <Label htmlFor="category-name" className="text-gray-700">
                 카테고리 이름
               </Label>
               <Input
                 id="category-name"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-gray-200 mt-1"
+                className="bg-white/70 border-gray-300 text-gray-900 mt-1 backdrop-blur-sm"
               />
             </div>
             <div>
-              <Label htmlFor="category-description" className="text-gray-300">
+              <Label htmlFor="category-description" className="text-gray-700">
                 설명 (선택사항)
               </Label>
               <Input
                 id="category-description"
                 value={newCategoryDescription}
                 onChange={(e) => setNewCategoryDescription(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-gray-200 mt-1"
+                className="bg-white/70 border-gray-300 text-gray-900 mt-1 backdrop-blur-sm"
               />
             </div>
           </div>
@@ -959,14 +959,14 @@ export default function LabelBackgroundManagement() {
             <Button
               variant="outline"
               onClick={() => setIsAddingCategory(false)}
-              className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
+              className="bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 backdrop-blur-sm"
             >
               취소
             </Button>
             <Button
               variant="default"
               onClick={handleAddCategory}
-              className="bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               추가
             </Button>
@@ -979,10 +979,10 @@ export default function LabelBackgroundManagement() {
         open={isAssigningCategories}
         onOpenChange={setIsAssigningCategories}
       >
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 shadow-[0_0_15px_rgba(0,200,255,0.15)]">
+        <DialogContent className="bg-white/90 border-gray-200 text-gray-900 backdrop-blur-md">
           <DialogHeader>
-            <DialogTitle className="text-cyan-400">카테고리 할당</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900">카테고리 할당</DialogTitle>
+            <DialogDescription className="text-gray-600">
               선택된 배경 이미지에 카테고리를 할당합니다. 할당할 카테고리를
               선택하고 "저장" 버튼을 클릭하세요.
             </DialogDescription>
@@ -990,7 +990,7 @@ export default function LabelBackgroundManagement() {
           {selectedBackground && (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-gray-800 rounded-md overflow-hidden border border-gray-700">
+                <div className="w-20 h-20 bg-white/70 rounded-md overflow-hidden border border-gray-200 backdrop-blur-sm">
                   <img
                     src={`/images/label/${selectedBackground.filename}`}
                     alt="배경 이미지"
@@ -998,20 +998,20 @@ export default function LabelBackgroundManagement() {
                   />
                 </div>
                 <div>
-                  <p className="text-gray-200">{selectedBackground.id}</p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-gray-900">{selectedBackground.id}</p>
+                  <p className="text-sm text-gray-600">
                     {selectedBackground.filename}
                   </p>
                 </div>
               </div>
 
               <div>
-                <Label className="text-gray-300 mb-2 block">
+                <Label className="text-gray-700 mb-2 block">
                   카테고리 선택
                 </Label>
-                <ScrollArea className="h-60 border border-gray-800 rounded-md p-2">
+                <ScrollArea className="h-60 border border-gray-200 rounded-md p-2">
                   {categories.length === 0 ? (
-                    <div className="py-4 text-center text-gray-400">
+                    <div className="py-4 text-center text-gray-600">
                       등록된 카테고리가 없습니다.
                     </div>
                   ) : (
@@ -1027,15 +1027,15 @@ export default function LabelBackgroundManagement() {
                             onCheckedChange={() =>
                               handleCategoryCheckboxChange(category.id)
                             }
-                            className="data-[state=checked]:bg-cyan-600"
+                            className="data-[state=checked]:bg-blue-600"
                           />
                           <Label
                             htmlFor={`category-${category.id}`}
-                            className="text-gray-200 cursor-pointer flex-1"
+                            className="text-gray-900 cursor-pointer flex-1"
                           >
                             {category.name}
                             {category.description && (
-                              <span className="text-sm text-gray-400 ml-2">
+                              <span className="text-sm text-gray-600 ml-2">
                                 ({category.description})
                               </span>
                             )}
@@ -1052,14 +1052,14 @@ export default function LabelBackgroundManagement() {
             <Button
               variant="outline"
               onClick={() => setIsAssigningCategories(false)}
-              className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 border-gray-700"
+              className="bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 backdrop-blur-sm"
             >
               취소
             </Button>
             <Button
               variant="default"
               onClick={handleAssignCategories}
-              className="bg-cyan-900/30 hover:bg-cyan-800/30 text-cyan-400 border border-cyan-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               저장
             </Button>

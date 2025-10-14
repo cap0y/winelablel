@@ -143,7 +143,7 @@ const SalesStatistics = () => {
     
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="glass-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">오늘 매출</CardTitle>
           </CardHeader>
@@ -153,7 +153,7 @@ const SalesStatistics = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="glass-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">이번 달 매출</CardTitle>
           </CardHeader>
@@ -167,7 +167,7 @@ const SalesStatistics = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="glass-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">총 매출</CardTitle>
           </CardHeader>
@@ -177,7 +177,7 @@ const SalesStatistics = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="glass-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400">평균 주문 금액</CardTitle>
           </CardHeader>
@@ -191,7 +191,7 @@ const SalesStatistics = () => {
   
   const renderDailyChart = () => {
     if (chartData.recentDailySales.length === 0) return (
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>일별 매출 추이</CardTitle>
         </CardHeader>
@@ -207,7 +207,7 @@ const SalesStatistics = () => {
     );
     
     return (
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>일별 매출 추이</CardTitle>
         </CardHeader>
@@ -216,17 +216,20 @@ const SalesStatistics = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData.recentDailySales}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 8, right: 30, left: 20, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                <XAxis dataKey="date" tickFormatter={formatDate} stroke="#888" />
-                <YAxis stroke="#888" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="date" tickFormatter={formatDate} stroke="#6b7280" />
+                <YAxis stroke="#6b7280" />
                 <Tooltip 
                   formatter={(value: number) => [`${formatCurrency(value)}원`, '매출']}
                   labelFormatter={(label) => `${label} 매출`}
+                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', borderColor: '#e5e7eb', borderRadius: 8 }}
+                  labelStyle={{ color: '#374151' }}
+                  itemStyle={{ color: '#111827' }}
                 />
-                <Legend />
-                <Line type="monotone" dataKey="sales" stroke="#8884d8" activeDot={{ r: 8 }} name="매출" />
+                <Legend wrapperStyle={{ color: '#374151', fontSize: 12 }} />
+                <Line type="monotone" dataKey="sales" stroke="#2563eb" activeDot={{ r: 8 }} name="매출" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -239,7 +242,7 @@ const SalesStatistics = () => {
     if (monthlySales.length === 0) return <div>데이터 로드 중...</div>;
     
     return (
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>월별 매출 추이</CardTitle>
         </CardHeader>
@@ -248,18 +251,21 @@ const SalesStatistics = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={monthlySales}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 8, right: 30, left: 20, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                <XAxis dataKey="month" tickFormatter={formatMonth} stroke="#888" />
-                <YAxis stroke="#888" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="month" tickFormatter={formatMonth} stroke="#6b7280" />
+                <YAxis stroke="#6b7280" />
                 <Tooltip 
                   formatter={(value: number) => [`${formatCurrency(value)}원`, '매출']}
                   labelFormatter={(label) => `${formatMonth(label)}`}
+                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', borderColor: '#e5e7eb', borderRadius: 8 }}
+                  labelStyle={{ color: '#374151' }}
+                  itemStyle={{ color: '#111827' }}
                 />
-                <Legend />
-                <Bar dataKey="sales" name="매출" fill="#8884d8" />
-                <Bar dataKey="count" name="주문 수" fill="#82ca9d" />
+                <Legend wrapperStyle={{ color: '#374151', fontSize: 12 }} />
+                <Bar dataKey="sales" name="매출" fill="#3b82f6" />
+                <Bar dataKey="count" name="주문 수" fill="#10b981" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -275,7 +281,7 @@ const SalesStatistics = () => {
     const topBottles = bottleSales.slice(0, 5);
     
     return (
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>와인별 판매 통계</CardTitle>
         </CardHeader>
@@ -308,18 +314,18 @@ const SalesStatistics = () => {
           <div className="mt-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-2">와인명</th>
-                  <th className="text-right py-2">판매량</th>
-                  <th className="text-right py-2">매출</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-2 text-gray-700">와인명</th>
+                  <th className="text-right py-2 text-gray-700">판매량</th>
+                  <th className="text-right py-2 text-gray-700">매출</th>
                 </tr>
               </thead>
               <tbody>
                 {bottleSales.map((bottle, index) => (
-                  <tr key={bottle.id} className="border-b border-gray-700">
-                    <td className="py-2">{bottle.name}</td>
-                    <td className="text-right py-2">{bottle.count}개</td>
-                    <td className="text-right py-2">{formatCurrency(bottle.sales)}원</td>
+                  <tr key={bottle.id} className="border-b border-gray-200">
+                    <td className="py-2 text-gray-900">{bottle.name}</td>
+                    <td className="text-right py-2 text-gray-900">{bottle.count}개</td>
+                    <td className="text-right py-2 text-gray-900">{formatCurrency(bottle.sales)}원</td>
                   </tr>
                 ))}
               </tbody>
@@ -348,7 +354,7 @@ const SalesStatistics = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-100">매출 통계</h2>
+        <h2 className="text-2xl font-bold text-gray-900">매출 통계</h2>
         <div className="flex items-center space-x-3">
           {isRefreshing && (
             <div className="flex items-center space-x-2 text-cyan-400">
@@ -361,19 +367,19 @@ const SalesStatistics = () => {
             variant="outline"
             onClick={() => fetchAllData(true)}
             disabled={isRefreshing}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300"
+            className="bg-white/70 hover:bg-white/90 text-blue-700 border-gray-300 backdrop-blur-sm"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             새로고침
           </Button>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-600">
             마지막 업데이트: {lastFetchTime ? new Date(lastFetchTime).toLocaleTimeString() : '없음'}
           </div>
         </div>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-5 gap-2">
+        <TabsList className="grid grid-cols-5 gap-2 bg-white/70 border border-gray-200 backdrop-blur-sm">
           <TabsTrigger value="dashboard">대시보드</TabsTrigger>
           <TabsTrigger value="summary">요약</TabsTrigger>
           <TabsTrigger value="daily">일별 매출</TabsTrigger>

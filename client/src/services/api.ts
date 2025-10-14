@@ -205,7 +205,23 @@ export const adminApi = {
   getSalesSummary: () => api.get('/api/admin/stats/summary'),
   
   // 매출 통계 API - 와인별 판매량
-  getBottleSales: () => api.get('/api/admin/stats/bottles')
+  getBottleSales: () => api.get('/api/admin/stats/bottles'),
+
+  // 소품(액세서리) 관리 API
+  getAccessories: () => api.get('/api/admin/accessories'),
+  createAccessory: (data: any) => api.post('/api/admin/accessories', data),
+  updateAccessory: (id: number, data: any) => api.patch(`/api/admin/accessories/${id}`, data),
+  deleteAccessory: (id: number) => api.delete(`/api/admin/accessories/${id}`),
+  uploadAccessoryImage: (formData: FormData) => 
+    api.post('/api/admin/accessories/upload', formData, { headers: { 'Content-Type': 'multipart/form-data', 'Accept': 'application/json' } }),
+
+  // 예약 링크 관리 API
+  getReservationLinks: () => api.get('/api/admin/reservation-links'),
+  createReservationLink: (data: { title: string; url: string; isActive?: boolean; displayOrder?: number }) => 
+    api.post('/api/admin/reservation-links', data),
+  updateReservationLink: (id: number, data: Partial<{ title: string; url: string; isActive: boolean; displayOrder: number }>) => 
+    api.patch(`/api/admin/reservation-links/${id}`, data),
+  deleteReservationLink: (id: number) => api.delete(`/api/admin/reservation-links/${id}`)
 };
 
 // 라벨 디자인 관련 API
@@ -218,7 +234,11 @@ export const labelApi = {
   getCategories: () => api.get('/api/labels/categories'),
   
   // 와인병 목록 조회
-  getWineBottles: () => api.get('/api/admin/bottles')
+  getWineBottles: () => api.get('/api/admin/bottles'),
+  getAccessories: () => api.get('/api/accessories'),
+
+  // 공개 예약 링크
+  getReservationLinks: () => api.get('/api/reservation-links')
 };
 
 export default api;

@@ -3,8 +3,14 @@ import { Link } from "wouter";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 px-4 py-8 mt-8 mb-20">
-      <div className="max-w-6xl mx-auto">
+    <footer className="relative px-4 py-8 mt-8 mb-20 border-t border-gray-200 bg-white/60 backdrop-blur-md overflow-hidden">
+      {/* background image with translucency */}
+      <div className="pointer-events-none absolute inset-0 opacity-20">
+        <img src="/images/home/wine.png" alt="footer background" className="w-full h-full object-cover" />
+      </div>
+      {/* light scrim to ensure text readability */}
+      <div className="pointer-events-none absolute inset-0 bg-white/80" />
+      <div className="relative max-w-3xl mx-auto">
 
         
         {/* 4단락 구성 */}
@@ -13,9 +19,9 @@ export default function Footer() {
           <div className="min-w-[250px] md:min-w-0">
             <div className="flex items-center mb-2">
               <img src="/images/CCLEMANG_Logo_v.png" alt="끄레망 로고" className="h-8 w-auto" />
-              <span className="text-xl font-bold text-white ml-2">끄레망</span>
+              <span className="text-xl font-bold text-gray-900 ml-2">끄레망</span>
             </div>
-            <div className="space-y-2 text-gray-300">
+            <div className="space-y-2 text-gray-700">
               <p>상호 : (주)끄레망 대표자 : 김윤미</p>
               <p>사업자등록번호: 602-81-55426</p>
               <p>통신판매업 : 부산-52-04124</p>
@@ -25,8 +31,8 @@ export default function Footer() {
 
           {/* 2. 고객센터 */}
           <div className="min-w-[200px] md:min-w-0">
-            <h3 className="font-semibold text-white mb-3">고객센터</h3>
-            <div className="space-y-2 text-gray-300">
+            <h3 className="font-semibold text-gray-900 mb-3">고객센터</h3>
+            <div className="space-y-2 text-gray-700">
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4" />
                 <span>051.245.2983</span>
@@ -43,13 +49,13 @@ export default function Footer() {
 
           {/* 3. SNS */}
           <div className="min-w-[180px] md:min-w-0">
-            <h3 className="font-semibold text-white mb-3">소셜미디어</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">소셜미디어</h3>
             <div className="space-y-2">
               <a 
                 href="https://www.instagram.com/cclemang/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <Instagram className="w-4 h-4" />
                 <span>Instagram</span>
@@ -58,7 +64,7 @@ export default function Footer() {
                 href="https://pf.kakao.com/_cPwxfb" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>카카오톡 채널</span>
@@ -68,18 +74,18 @@ export default function Footer() {
 
           {/* 4. 정책 */}
           <div className="min-w-[180px] md:min-w-0">
-            <h3 className="font-semibold text-white mb-3">정책 및 약관</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">정책 및 약관</h3>
             <div className="space-y-2">
-              <Link href="/privacy-policy" className="block text-gray-300 hover:text-white transition-colors">
+              <Link href="/privacy-policy" className="block text-gray-700 hover:text-gray-900 transition-colors">
                 개인정보처리방침
               </Link>
-              <Link href="/terms-of-service" className="block text-gray-300 hover:text-white transition-colors">
+              <Link href="/terms-of-service" className="block text-gray-700 hover:text-gray-900 transition-colors">
                 이용약관
               </Link>
-              <Link href="/cookie-policy" className="block text-gray-300 hover:text-white transition-colors">
+              <Link href="/cookie-policy" className="block text-gray-700 hover:text-gray-900 transition-colors">
                 쿠키정책
               </Link>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-500">
             © 2021 (주)끄레망. All rights reserved.
           </p>
             </div>

@@ -40,14 +40,119 @@ import {
   Star,
   Download,
   Palette,
-  Key
+  Key, ShoppingCart
 } from "lucide-react";
-import { adminApi, userApi, orderApi } from "@/services/api";
+import { adminApi, userApi, orderApi, uploadApi } from "@/services/api";
 import SalesStatistics from "@/components/admin/SalesStatistics";
 import OrderManagement from "@/components/admin/OrderManagement";
 import LabelBackgroundManagement from "@/components/admin/LabelBackgroundManagement";
 import WineBottleManagement from "@/components/admin/WineBottleManagement";
 import UserSalesStatistics from "@/components/user/UserSalesStatistics";
+import { useMemo } from "react";
+
+function AccessoriesManager() {
+  const [list, setList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState<any>({ name: '', price: 0, image: '', isActive: true, stock: 0, maxQty: 99, displayOrder: 0, bundleEligible: false, bundleSize: 0, bundlePrice: 0 });
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const res = await adminApi.getAccessories();
+      setList(res.data?.accessories || []);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => { load(); }, []);
+
+  const canCreate = useMemo(() => String(form.name).trim().length > 0 && Number(form.price) >= 0, [form]);
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white/70 border border-gray-200 backdrop-blur-sm p-4 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <Input placeholder="이름" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <Input type="number" placeholder="가격" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} />
+          <Input placeholder="이미지 URL" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+          <div className="flex items-center gap-2">
+            <Label className="text-sm">노출</Label>
+            <input type="checkbox" checked={!!form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
+          </div>
+          <Input type="number" placeholder="재고" value={form.stock} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })} />
+          <Input type="number" placeholder="최대수량" value={form.maxQty} onChange={(e) => setForm({ ...form, maxQty: Number(e.target.value) })} />
+          <Input type="number" placeholder="정렬(작을수록 위)" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })} />
+          <div className="flex items-center gap-2">
+            <Label className="text-sm">묶음할인</Label>
+            <input type="checkbox" checked={!!form.bundleEligible} onChange={(e) => setForm({ ...form, bundleEligible: e.target.checked })} />
+          </div>
+          <Input type="number" placeholder="묶음수량" value={form.bundleSize} onChange={(e) => setForm({ ...form, bundleSize: Number(e.target.value) })} />
+          <Input type="number" placeholder="묶음가격" value={form.bundlePrice} onChange={(e) => setForm({ ...form, bundlePrice: Number(e.target.value) })} />
+        </div>
+        <div className="mt-3">
+          <Button disabled={!canCreate || creating} onClick={async () => { setCreating(true); try { await adminApi.createAccessory(form); await load(); setForm({ name: '', price: 0, image: '', isActive: true, stock: 0, maxQty: 99, displayOrder: 0, bundleEligible: false, bundleSize: 0, bundlePrice: 0 }); } finally { setCreating(false); } }}>
+            {creating ? '생성중...' : '소품 추가'}
+          </Button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        {loading ? (
+          <div className="text-gray-600">불러오는 중...</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-white/70">
+                <th className="px-3 py-2 text-left">이미지</th>
+                <th className="px-3 py-2 text-left">이름</th>
+                <th className="px-3 py-2 text-right">가격</th>
+                <th className="px-3 py-2 text-right">재고</th>
+                <th className="px-3 py-2 text-right">최대</th>
+                <th className="px-3 py-2 text-center">노출</th>
+                <th className="px-3 py-2 text-right">정렬</th>
+                <th className="px-3 py-2 text-right">작업</th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.map((a) => (
+                <tr key={a.id} className="border-t border-gray-200">
+                  <td className="px-3 py-2">
+                    {a.image ? <img src={a.image} className="h-10 w-10 object-contain" /> : <span className="text-gray-400">-</span>}
+                  </td>
+                  <td className="px-3 py-2 whitespace-pre-line">
+                    <Input value={a.name} onChange={(e) => setList(list.map(x => x.id === a.id ? { ...x, name: e.target.value } : x))} />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Input type="number" value={a.price} onChange={(e) => setList(list.map(x => x.id === a.id ? { ...x, price: Number(e.target.value) } : x))} />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Input type="number" value={a.stock ?? 0} onChange={(e) => setList(list.map(x => x.id === a.id ? { ...x, stock: Number(e.target.value) } : x))} />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Input type="number" value={a.maxQty ?? 99} onChange={(e) => setList(list.map(x => x.id === a.id ? { ...x, maxQty: Number(e.target.value) } : x))} />
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <input type="checkbox" checked={!!a.isActive} onChange={(e) => setList(list.map(x => x.id === a.id ? { ...x, isActive: e.target.checked } : x))} />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Input type="number" value={a.displayOrder ?? 0} onChange={(e) => setList(list.map(x => x.id === a.id ? { ...x, displayOrder: Number(e.target.value) } : x))} />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={async () => { await adminApi.updateAccessory(a.id, a); await load(); }}>저장</Button>
+                      <Button variant="destructive" size="sm" onClick={async () => { await adminApi.deleteAccessory(a.id); await load(); }}>삭제</Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // 추가된 타입 정의
 interface LabelResource {
@@ -141,6 +246,10 @@ export default function ProfilePage() {
   const [uploadType, setUploadType] = useState<'background' | 'icon' | 'border'>('icon');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  // 소품 관리 상태
+  const [adminAccessories, setAdminAccessories] = useState<any[]>([]);
+  const [isLoadingAccessories, setIsLoadingAccessories] = useState<boolean>(false);
+  const [newAccessory, setNewAccessory] = useState<any>({ name: '', price: 0, image: '', isActive: true });
   // 은행 설정 (은행 결제 표시용)
   const [bankConfig, setBankConfig] = useState<{ bankName: string; accountNo: string; accountHolder: string } | null>(null);
   
@@ -153,6 +262,8 @@ export default function ProfilePage() {
   
   // 파일 업로드 참조
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const accessoryFileRef = useRef<HTMLInputElement>(null);
+  const tempImageUrlRef = useRef<string | null>(null);
 
   // 비밀번호 변경 다이얼로그 상태
   const [isPwDialogOpen, setIsPwDialogOpen] = useState(false);
@@ -229,6 +340,9 @@ export default function ProfilePage() {
             setAdminDataLoaded(prev => ({ ...prev, backgrounds: true }));
           }
           break;
+        case "accessories":
+          fetchAccessories();
+          break;
         case "bottles":
           if (!adminDataLoaded.bottles) {
             // WineBottleManagement 컴포넌트 내부에서 처리
@@ -282,6 +396,20 @@ export default function ProfilePage() {
       setLabelBorders(data.borders || []);
     } catch (error) {
       console.error("라벨 테두리 조회 오류:", error);
+    }
+  };
+
+  // 소품 목록 조회
+  const fetchAccessories = async () => {
+    try {
+      setIsLoadingAccessories(true);
+      const { data } = await adminApi.getAccessories();
+      setAdminAccessories(data.accessories || []);
+    } catch (error) {
+      console.error("소품 목록 조회 오류:", error);
+      setAdminAccessories([]);
+    } finally {
+      setIsLoadingAccessories(false);
     }
   };
 
@@ -1293,11 +1421,11 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">내 계정</h1>
+    <div className="container mx-auto px-4 py-8 bg-background text-foreground">
+      <h1 className="text-3xl font-bold mb-6 text-gray-900">내 계정</h1>
       
       {/* 프로필 정보 카드 */}
-      <Card className="bg-gray-800 border-gray-700 mb-6">
+      <Card className="glass-card mb-6">
         <CardHeader className="pb-2">
           <CardTitle>프로필 정보</CardTitle>
         </CardHeader>
@@ -1315,12 +1443,12 @@ export default function ProfilePage() {
               </Avatar>
               
               <div>
-                <h2 className="text-xl font-semibold">{user?.displayName}</h2>
-                <p className="text-gray-400">{user?.email}</p>
+                <h2 className="text-xl font-semibold text-gray-900">{user?.displayName}</h2>
+                <p className="text-gray-600">{user?.email}</p>
                 <div className="flex items-center mt-1">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs 
-                    ${user?.userType === 'admin' ? 'bg-red-500/20 text-red-400' : 
-                      'bg-green-500/20 text-green-400'}`
+                    ${user?.userType === 'admin' ? 'bg-red-100 text-red-600' : 
+                      'bg-green-100 text-green-600'}`
                   }>
                     {user?.userType === 'admin' ? '관리자' : '일반 회원'}
                   </span>
@@ -1362,7 +1490,7 @@ export default function ProfilePage() {
             </Dialog>
           </div>
           
-          <Button variant="outline" onClick={handleLogout} className="w-full">
+          <Button variant="outline" onClick={handleLogout} className="w-full bg-white/70 hover:bg-white/90 border-gray-300 backdrop-blur-sm text-gray-900">
             <LogOut className="w-4 h-4 mr-2" />
             로그아웃
           </Button>
@@ -1375,7 +1503,7 @@ export default function ProfilePage() {
           <h2 className="text-2xl font-bold mb-4">내 와인 라벨</h2>
           
           <Tabs value={userActiveTab} onValueChange={setUserActiveTab as any}>
-            <TabsList className="grid grid-cols-3 gap-2">
+            <TabsList className="grid grid-cols-3 gap-2 bg-white/70 border border-gray-200 backdrop-blur-sm">
               <TabsTrigger value="orders">주문 내역</TabsTrigger>
               <TabsTrigger value="notifications" className="relative">
                 알림
@@ -1390,7 +1518,7 @@ export default function ProfilePage() {
             
             {/* 주문 내역 탭 */}
             <TabsContent value="orders">
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="glass-card">
                 <CardHeader>
                   <CardTitle>나의 주문 내역</CardTitle>
                   <CardDescription>내가 주문한 와인 라벨 내역</CardDescription>
@@ -1400,31 +1528,31 @@ export default function ProfilePage() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="bg-gray-700">
-                            <th className="px-4 py-2 text-left">주문번호</th>
-                            <th className="px-4 py-2 text-left">와인병</th>
-                            <th className="px-4 py-2 text-left">주문일</th>
-                            <th className="px-4 py-2 text-left">결제상태</th>
-                            <th className="px-4 py-2 text-left">주문상태</th>
-                            <th className="px-4 py-2 text-left">배송 정보</th>
-                            <th className="px-4 py-2 text-right">가격</th>
-                            <th className="px-4 py-2 text-center">디자인 보기</th>
+                          <tr className="bg-white/70">
+                            <th className="px-4 py-2 text-left whitespace-nowrap">주문번호</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap">와인병</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap">주문일</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap">결제상태</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap">주문상태</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap">배송 정보</th>
+                            <th className="px-4 py-2 text-right whitespace-nowrap">가격</th>
+                            <th className="px-4 py-2 text-center whitespace-nowrap">디자인 보기</th>
                           </tr>
                         </thead>
                         <tbody>
                           {userOrders.map(order => (
-                            <tr key={order.id} className="border-t border-gray-700">
-                              <td className="px-4 py-3">{order.id}</td>
-                              <td className="px-4 py-3">{order.bottleName}</td>
-                              <td className="px-4 py-3">{new Date(order.createdAt).toLocaleDateString()}</td>
+                            <tr key={order.id} className="border-t border-gray-200">
+                              <td className="px-4 py-3 whitespace-nowrap">{order.id}</td>
+                              <td className="px-4 py-3 whitespace-nowrap">{order.bottleName}</td>
+                              <td className="px-4 py-3 whitespace-nowrap">{new Date(order.createdAt).toLocaleDateString()}</td>
                               {/* 결제상태 */}
-                              <td className="px-4 py-3">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs 
                                   ${order.paymentStatus === '결제완료' || (!order.paymentStatus && (order.status === '결제완료' || order.status === '제작중' || order.status === '배송준비' || order.status === '배송중' || order.status === '배송완료'))
-                                    ? 'bg-green-500/20 text-green-400' 
+                                    ? 'bg-green-100 text-green-600' 
                                     : order.paymentStatus === '결제취소' || (!order.paymentStatus && (order.status === '주문취소' || order.status === 'cancelled'))
-                                    ? 'bg-red-500/20 text-red-400'
-                                    : 'bg-yellow-500/20 text-yellow-400'}`
+                                    ? 'bg-red-100 text-red-600'
+                                    : 'bg-yellow-100 text-yellow-700'}`
                                 }>
                                   {order.paymentStatus || (order.paymentId || order.status === '결제완료' || order.status === '제작중' || order.status === '배송준비' || order.status === '배송중' || order.status === '배송완료'
                                     ? '결제완료' 
@@ -1434,25 +1562,25 @@ export default function ProfilePage() {
                                 </span>
                                 {/* 은행 결제 정보 추가 표시 */}
                                 {order.paymentId && order.paymentId.startsWith('BANK:') && (
-                                  <div className="mt-1 text-xs text-gray-300">
+                                  <div className="mt-1 text-xs text-gray-700">
                                     {bankConfig?.bankName && (
-                                      <div>은행명: <span className="text-white">{bankConfig.bankName}</span></div>
+                                      <div>은행명: <span className="text-gray-900">{bankConfig.bankName}</span></div>
                                     )}
-                                    <div>계좌번호: <span className="font-mono text-white">{order.paymentId.replace('BANK:', '')}</span></div>
-                                    <div>결제 금액: <span className="text-white">{Number(order.amount || 0).toLocaleString()}원</span></div>
+                                    <div>계좌번호: <span className="font-mono text-gray-900">{order.paymentId.replace('BANK:', '')}</span></div>
+                                    <div>결제 금액: <span className="text-gray-900">{Number(order.amount || 0).toLocaleString()}원</span></div>
                                   </div>
                                 )}
                               </td>
                               {/* 주문상태 */}
-                              <td className="px-4 py-3">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs 
                                   ${order.status === 'completed' || order.status === '배송완료' 
-                                    ? 'bg-green-500/20 text-green-400' 
+                                    ? 'bg-green-100 text-green-600' 
                                     : order.status === 'processed' || order.status === '제작중' || order.status === '배송준비' || order.status === '배송중'
-                                    ? 'bg-blue-500/20 text-blue-400' 
+                                    ? 'bg-blue-100 text-blue-600' 
                                     : order.status === 'cancelled' || order.status === '주문취소'
-                                    ? 'bg-red-500/20 text-red-400'
-                                    : 'bg-yellow-500/20 text-yellow-400'}`
+                                    ? 'bg-red-100 text-red-600'
+                                    : 'bg-yellow-100 text-yellow-700'}`
                                 }>
                                   {order.status === 'completed' || order.status === '배송완료'
                                     ? '배송완료' 
@@ -1472,17 +1600,17 @@ export default function ProfilePage() {
                               <td className="px-4 py-3">
                                 {order.customerAddress ? (
                                   <div className="text-sm">
-                                    <div className="text-gray-300 font-medium truncate max-w-[150px]" title={order.customerAddress}>
+                                    <div className="text-gray-700 font-medium truncate max-w-[150px]" title={order.customerAddress}>
                                       {order.customerAddress}
                                     </div>
-                                    <div className="text-gray-400 text-xs">
+                                    <div className="text-gray-500 text-xs">
                                       {order.deliveryMethod === 'standard' ? '일반 배송' : 
                                        order.deliveryMethod === 'express' ? '빠른 배송' : 
                                        order.deliveryMethod === 'same-day' ? '당일 배송' : '일반 배송'}
                                       {order.deliveryFee === 0 ? ' (무료)' : ` (${(order.deliveryFee || 3000).toLocaleString()}원)`}
                                     </div>
                                     {order.trackingNumber && (
-                                      <div className="text-cyan-400 text-xs mt-1">
+                                      <div className="text-blue-600 text-xs mt-1 whitespace-nowrap overflow-x-auto max-w-[200px]">
                                         {order.shippingCompany === 'cj' ? 'CJ대한통운' : 
                                          order.shippingCompany === 'lotte' ? '롯데택배' :
                                          order.shippingCompany === 'hanjin' ? '한진택배' :
@@ -1495,17 +1623,17 @@ export default function ProfilePage() {
                                   <span className="text-gray-500 text-sm">배송 정보 없음</span>
                                 )}
                               </td>
-                              <td className="px-4 py-3 text-right">
+                              <td className="px-4 py-3 text-right whitespace-nowrap">
                                 {new Intl.NumberFormat('ko-KR').format(order.amount)}원
                               </td>
-                              <td className="px-4 py-3">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 <div className="flex items-center justify-center gap-2">
                                   <Dialog>
                                     <DialogTrigger asChild>
                                       <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-8"
+                                        className="h-8 bg-white/70 hover:bg-white/90 border-gray-300 backdrop-blur-sm"
                                         onClick={() => handleViewOrder(order.id)}
                                       >
                                         <Tag className="h-3.5 w-3.5 mr-1" />
@@ -1544,7 +1672,7 @@ export default function ProfilePage() {
             
             {/* 알림 탭 */}
             <TabsContent value="notifications">
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="glass-card">
                 <CardHeader>
                   <CardTitle>알림</CardTitle>
                   <CardDescription>주문 및 배송 상태 변경 등 시스템 알림을 확인합니다.</CardDescription>
@@ -1555,11 +1683,11 @@ export default function ProfilePage() {
                       {/* 모든 알림 읽음 처리 버튼을 상단으로 이동 */}
                       {unreadCount > 0 && (
                         <div className="flex justify-between items-center">
-                          <p className="text-sm text-gray-400">읽지 않은 알림 {unreadCount}개</p>
+                          <p className="text-sm text-gray-600">읽지 않은 알림 {unreadCount}개</p>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-blue-400 hover:text-blue-300"
+                            className="bg-white/70 hover:bg-white/90 border-gray-300 backdrop-blur-sm text-blue-700"
                             onClick={markAllNotificationsAsRead}
                           >
                             모든 알림 읽음 처리
@@ -1575,31 +1703,31 @@ export default function ProfilePage() {
                           key={notification.id} 
                           className={`p-4 rounded-lg border transition-all hover:shadow-md ${
                             notification.isRead 
-                              ? 'bg-gray-700/50 border-gray-600' 
-                              : 'bg-blue-900/20 border-blue-600/50 shadow-blue-900/20'
+                              ? 'bg-white/70 border-gray-200' 
+                              : 'bg-blue-50 border-blue-200 shadow-blue-100'
                           }`}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3 flex-1">
                               {/* 알림 타입별 아이콘 */}
                               <div className={`p-2 rounded-full ${
-                                notification.type === 'shipping' ? 'bg-green-500/20 text-green-400' :
-                                notification.type === 'order' ? 'bg-blue-500/20 text-blue-400' :
-                                'bg-yellow-500/20 text-yellow-400'
+                                notification.type === 'shipping' ? 'bg-green-100 text-green-600' :
+                                notification.type === 'order' ? 'bg-blue-100 text-blue-600' :
+                                'bg-yellow-100 text-yellow-700'
                               }`}>
-                                {notification.type === 'shipping' && <Truck className="w-4 h-4" />}
-                                {notification.type === 'order' && <Package className="w-4 h-4" />}
-                                {notification.type === 'system' && <Bell className="w-4 h-4" />}
+                              {notification.type === 'shipping' && <Truck className="w-4 h-4" />}
+                              {notification.type === 'order' && <Package className="w-4 h-4" />}
+                              {notification.type === 'system' && <Bell className="w-4 h-4" />}
                               </div>
                               
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-1">
-                                  <h4 className="font-medium text-gray-200">{notification.title}</h4>
+                                  <h4 className="font-medium text-gray-900">{notification.title}</h4>
                                   {!notification.isRead && (
                                     <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                                   )}
                                 </div>
-                                <p className="text-gray-300 text-sm mb-2">{notification.message}</p>
+                                <p className="text-gray-700 text-sm mb-2">{notification.message}</p>
                                 <p className="text-gray-500 text-xs">
                                   {new Date(notification.createdAt).toLocaleString('ko-KR')}
                                 </p>
@@ -1612,7 +1740,7 @@ export default function ProfilePage() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="text-blue-400 hover:text-blue-300"
+                                  className="bg-white/70 hover:bg-white/90 border-gray-300 backdrop-blur-sm text-blue-700"
                                   onClick={() => handleViewOrder(notification.orderId as string)}
                                 >
                                   주문 보기
@@ -1622,7 +1750,7 @@ export default function ProfilePage() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="text-green-400 hover:text-green-300"
+                                  className="bg-white/70 hover:bg-white/90 border-gray-300 backdrop-blur-sm text-green-700"
                                   onClick={() => markNotificationAsRead(notification.id)}
                                 >
                                   읽음
@@ -1635,8 +1763,8 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <Bell className="w-12 h-12 mx-auto text-gray-500 mb-4" />
-                      <p className="text-gray-400">새로운 알림이 없습니다.</p>
+                      <Bell className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <p className="text-gray-600">새로운 알림이 없습니다.</p>
                       <p className="text-gray-500 text-sm mt-1">주문 상태가 변경되면 여기에 알림이 표시됩니다.</p>
                     </div>
                   )}
@@ -1670,7 +1798,7 @@ export default function ProfilePage() {
             onValueChange={handleAdminTabChange}
             className="mt-6"
           >
-            <TabsList className="grid grid-cols-5 gap-2">
+            <TabsList className="grid grid-cols-5 gap-2 bg-white/70 border border-gray-200 backdrop-blur-sm">
               <TabsTrigger value="bottles">와인병/가격</TabsTrigger>
               <TabsTrigger value="backgrounds">배경 카테고리</TabsTrigger>
               <TabsTrigger value="labels">라벨 리소스</TabsTrigger>
@@ -1685,7 +1813,7 @@ export default function ProfilePage() {
             
             {/* 라벨 관리 탭 */}
             <TabsContent value="labels">
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="glass-card">
                 <CardHeader>
                   <CardTitle>와인 라벨 리소스 관리</CardTitle>
                   <CardDescription>라벨 배경, 아이콘 및 장식을 관리합니다.</CardDescription>
@@ -1693,11 +1821,15 @@ export default function ProfilePage() {
                 <CardContent>
                   <div className="space-y-6">
                     {/* 이미지 유형 탭 */}
-                    <Tabs defaultValue="icon" className="w-full" onValueChange={(value) => setUploadType(value as 'background' | 'icon' | 'border')}>
-                      <TabsList className="grid grid-cols-2 gap-2 mb-6">
+                    <Tabs defaultValue="icon" className="w-full" onValueChange={(value) => { if (value === 'shop') { fetchAccessories(); return; } setUploadType(value as 'background' | 'icon' | 'border'); }}>
+                      <TabsList className="grid grid-cols-3 gap-2 mb-6 bg-white/70 border border-gray-200 backdrop-blur-sm">
                         <TabsTrigger value="icon" className="justify-center">
                           <FileImage className="w-4 h-4 mr-2" />
                           아이콘/장식
+                        </TabsTrigger>
+                        <TabsTrigger value="shop" className="justify-center">
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          소품구입
                         </TabsTrigger>
                         <TabsTrigger value="border" className="justify-center">
                           <Package className="w-4 h-4 mr-2" />
@@ -1708,7 +1840,7 @@ export default function ProfilePage() {
                       {/* 아이콘/장식 탭 */}
                       <TabsContent value="icon" className="pt-2">
                         {/* 업로드 버튼 */}
-                        <div className="bg-gray-700 p-4 rounded-lg mb-6">
+                        <div className="bg-white/70 border border-gray-200 backdrop-blur-sm p-4 rounded-lg mb-6">
                           <div className="flex items-center gap-3">
                           <input
                             type="file"
@@ -1737,7 +1869,7 @@ export default function ProfilePage() {
                               )}
                         </Button>
                             
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-gray-600">
                               아이콘 및 장식은 /images/icon 폴더에 저장됩니다.
                             </p>
                       </div>
@@ -1749,7 +1881,7 @@ export default function ProfilePage() {
                           )}
                           
                           {uploadSuccess && uploadType === 'icon' && (
-                            <Alert className="mt-3 bg-green-900/30 border-green-900 text-green-300">
+                            <Alert className="mt-3 bg-green-50 border-green-200 text-green-700">
                               <AlertDescription>{uploadSuccess}</AlertDescription>
                             </Alert>
                           )}
@@ -1760,8 +1892,8 @@ export default function ProfilePage() {
                         {labelIcons.length > 0 ? (
                           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                             {labelIcons.map(icon => (
-                              <div key={icon.id} className="bg-gray-700 p-2 rounded-lg">
-                                <div className="aspect-square mb-2 overflow-hidden rounded-lg bg-gray-800 relative">
+                              <div key={icon.id} className="bg-white/70 p-2 rounded-lg border border-gray-200 backdrop-blur-sm">
+                                <div className="aspect-square mb-2 overflow-hidden rounded-lg bg-white/70 border border-gray-200 relative backdrop-blur-sm">
                                   <img 
                                     src={icon.url} 
                                     alt={icon.name} 
@@ -1769,27 +1901,136 @@ export default function ProfilePage() {
                                   />
                                 <Button 
                                     size="icon"
-                                    variant="destructive"
-                                    className="absolute top-2 right-2 h-7 w-7"
+                                    variant="outline"
+                                    className="absolute top-2 right-2 h-7 w-7 bg-white/90 text-red-700 border-gray-300 backdrop-blur-sm"
                                     onClick={() => handleDeleteImage('icon', icon.filename)}
                                   >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
-                                <p className="text-sm font-medium truncate">{icon.name}</p>
-                                <p className="text-xs text-gray-400 truncate">{icon.filename}</p>
+                                <p className="text-sm font-medium text-gray-900 truncate">{icon.name}</p>
+                                <p className="text-xs text-gray-600 truncate">{icon.filename}</p>
                                       </div>
                                     ))}
                                   </div>
                         ) : (
-                          <p className="text-center py-8 text-gray-400">등록된 아이콘/장식이 없습니다.</p>
+                          <p className="text-center py-8 text-gray-600">등록된 아이콘/장식이 없습니다.</p>
+                        )}
+                      </TabsContent>
+
+                      {/* 소품구입 탭 - 로컬 업로드 + 목록 관리 */}
+                      <TabsContent value="shop" className="pt-2">
+                        {/* 업로드 + 생성 */}
+                        <div className="bg-white/70 border border-gray-200 backdrop-blur-sm p-4 rounded-lg mb-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <input type="file" className="hidden" ref={accessoryFileRef} accept="image/*" onChange={async (e) => {
+                              if (!e.target.files || e.target.files.length === 0) return;
+                              const file = e.target.files[0];
+                              // 로컬 미리보기 즉시 표시
+                              const objectUrl = URL.createObjectURL(file);
+                              tempImageUrlRef.current = objectUrl;
+                              setNewAccessory((prev: any) => ({ ...prev, image: objectUrl }));
+                              try {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                const res = await adminApi.uploadAccessoryImage(formData);
+                                const data: any = res?.data || {};
+                                const uploadedUrl = data?.file?.url || data?.url || (data?.filename ? `/images/so/${data.filename}` : '');
+                                if (uploadedUrl) {
+                                  setNewAccessory((prev: any) => ({ ...prev, image: uploadedUrl }));
+                                  try { console.log('Accessory upload response:', data); } catch {}
+                                  // 서버 URL로 대체했으므로 임시 URL 해제
+                                  if (tempImageUrlRef.current) {
+                                    URL.revokeObjectURL(tempImageUrlRef.current);
+                                    tempImageUrlRef.current = null;
+                                  }
+                                } else {
+                                  toast({ title: '업로드 실패', description: data?.message || '응답이 올바르지 않습니다.', variant: 'destructive' });
+                                }
+                              } catch (err: any) {
+                                console.error('소품 업로드 오류:', err);
+                                toast({ title: '업로드 오류', description: err?.message || '업로드 중 오류가 발생했습니다.', variant: 'destructive' });
+                              } finally {
+                                // 서버 URL을 받지 못한 경우 미리보기는 유지
+                                if (accessoryFileRef.current) accessoryFileRef.current.value = '';
+                              }
+                            }} />
+                            <Button variant="outline" onClick={() => accessoryFileRef.current?.click()} className="flex items-center gap-2">
+                              <Upload className="w-4 h-4" /> 소품 이미지 업로드
+                            </Button>
+                            <span className="text-xs text-gray-600">업로드 경로: /images/so/</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <Input placeholder="이름" value={newAccessory.name} onChange={(e) => setNewAccessory({ ...newAccessory, name: e.target.value })} />
+                            <Input type="number" placeholder="가격" value={newAccessory.price} onChange={(e) => setNewAccessory({ ...newAccessory, price: Number(e.target.value) })} />
+                            <div>
+                              <Input placeholder="이미지 URL (/images/so/...)" value={newAccessory.image} onChange={(e) => setNewAccessory({ ...newAccessory, image: e.target.value })} />
+                              {newAccessory.image && (
+                                <div className="mt-2">
+                                  <img src={newAccessory.image} alt="미리보기" className="h-16 object-contain border border-gray-200 rounded" onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')} />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm">노출</Label>
+                              <input type="checkbox" checked={!!newAccessory.isActive} onChange={(e) => setNewAccessory({ ...newAccessory, isActive: e.target.checked })} />
+                            </div>
+                          </div>
+                          <div className="mt-3">
+                            <Button onClick={async () => { 
+                              try {
+                                const res = await adminApi.createAccessory(newAccessory);
+                                const created = res.data?.accessory;
+                                if (created) {
+                                  setAdminAccessories(prev => [created, ...(prev || [])]);
+                                } else {
+                                  await fetchAccessories();
+                                }
+                                setNewAccessory({ name: '', price: 0, image: '', isActive: true });
+                              } catch (e) {
+                                await fetchAccessories();
+                              }
+                            }}>소품 추가</Button>
+                          </div>
+                        </div>
+
+                        {/* 목록 - 카드 그리드 */}
+                        {isLoadingAccessories ? (
+                          <div className="text-gray-600">불러오는 중...</div>
+                        ) : (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {(adminAccessories || []).map((a) => (
+                              <div key={a.id} className="relative bg-white/80 p-3 rounded-lg border border-gray-200 backdrop-blur-sm">
+                                <button
+                                  className="absolute top-2 right-2 h-7 w-7 rounded-full bg-white/90 border border-gray-300 text-red-600 flex items-center justify-center shadow"
+                                  title="삭제"
+                                  onClick={async () => { await adminApi.deleteAccessory(a.id); setAdminAccessories(prev => (prev || []).filter(x => x.id !== a.id)); }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                                <div className="aspect-square overflow-hidden rounded-lg border border-gray-200 bg-white/80 flex items-center justify-center">
+                                  {a.image ? (
+                                    <img src={a.image} alt={a.name} className="max-w-full max-h-full object-contain p-2" />
+                                  ) : (
+                                    <span className="text-gray-400 text-xs">이미지 없음</span>
+                                  )}
+                                </div>
+                                <div className="mt-2 text-sm font-medium text-gray-900 truncate">{a.name}</div>
+                                <div className="text-xs text-gray-600">{Number(a.price || 0).toLocaleString()}원</div>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <Label className="text-xs">노출</Label>
+                                  <input type="checkbox" checked={!!a.isActive} onChange={async (e) => { const isActive = e.target.checked; setAdminAccessories(prev => (prev || []).map(x => x.id === a.id ? { ...x, isActive } : x)); await adminApi.updateAccessory(a.id, { isActive }); }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </TabsContent>
 
                       {/* 테두리 스타일 탭 */}
                       <TabsContent value="border" className="pt-2">
                         {/* 업로드 버튼 */}
-                        <div className="bg-gray-700 p-4 rounded-lg mb-6">
+                        <div className="bg-white/70 border border-gray-200 backdrop-blur-sm p-4 rounded-lg mb-6">
                           <div className="flex items-center gap-3">
                             <input
                               type="file"
@@ -1818,7 +2059,7 @@ export default function ProfilePage() {
                               )}
                             </Button>
                             
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-gray-600">
                               테두리 이미지는 /images/border 폴더에 저장됩니다.
                             </p>
                     </div>
@@ -1830,7 +2071,7 @@ export default function ProfilePage() {
                           )}
                           
                           {uploadSuccess && uploadType === 'border' && (
-                            <Alert className="mt-3 bg-green-900/30 border-green-900 text-green-300">
+                            <Alert className="mt-3 bg-green-50 border-green-200 text-green-700">
                               <AlertDescription>{uploadSuccess}</AlertDescription>
                             </Alert>
                           )}
@@ -1841,8 +2082,8 @@ export default function ProfilePage() {
                         {labelBorders.length > 0 ? (
                           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                             {labelBorders.map(border => (
-                              <div key={border.id} className="bg-gray-700 p-2 rounded-lg">
-                                <div className="aspect-square mb-2 overflow-hidden rounded-lg bg-gray-800 relative">
+                              <div key={border.id} className="bg-white/70 p-2 rounded-lg border border-gray-200 backdrop-blur-sm">
+                                <div className="aspect-square mb-2 overflow-hidden rounded-lg bg-white/70 border border-gray-200 relative backdrop-blur-sm">
                                   <img 
                                     src={border.url} 
                                     alt={border.name} 
@@ -1850,20 +2091,20 @@ export default function ProfilePage() {
                                   />
                             <Button
                                     size="icon"
-                                    variant="destructive"
-                                    className="absolute top-2 right-2 h-7 w-7"
+                                    variant="outline"
+                                    className="absolute top-2 right-2 h-7 w-7 bg-white/90 text-red-700 border-gray-300 backdrop-blur-sm"
                                     onClick={() => handleDeleteImage('border', border.filename)}
                                   >
                                     <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
-                                <p className="text-sm font-medium truncate">{border.name}</p>
-                                <p className="text-xs text-gray-400 truncate">{border.filename}</p>
+                                <p className="text-sm font-medium text-gray-900 truncate">{border.name}</p>
+                                <p className="text-xs text-gray-600 truncate">{border.filename}</p>
                               </div>
                       ))}
                     </div>
                   ) : (
-                          <p className="text-center py-8 text-gray-400">등록된 테두리 이미지가 없습니다.</p>
+                          <p className="text-center py-8 text-gray-600">등록된 테두리 이미지가 없습니다.</p>
                   )}
                       </TabsContent>
                     </Tabs>
@@ -1872,6 +2113,8 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
+            
+
             {/* 주문 관리 탭 */}
             <TabsContent value="orders">
               <OrderManagement />
@@ -1879,13 +2122,13 @@ export default function ProfilePage() {
             
             {/* 매출 통계 탭 */}
             <TabsContent value="stats">
-              <Card className="bg-gray-800 border-gray-700">
+              <Card className="glass-card">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>매출 통계</CardTitle>
-                    <CardDescription>와인 주문 매출 통계를 확인합니다.</CardDescription>
+                    <CardTitle className="text-gray-900">매출 통계</CardTitle>
+                    <CardDescription className="text-gray-600">와인 주문 매출 통계를 확인합니다.</CardDescription>
                   </div>
-                  <BarChart className="w-6 h-6 text-gray-400" />
+                  <BarChart className="w-6 h-6 text-gray-600" />
                 </CardHeader>
                 <CardContent>
                   <SalesStatistics />

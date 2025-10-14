@@ -78,7 +78,8 @@ export default function LocationFinder() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <section className="px-4 py-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="container mx-auto max-w-3xl">
+          <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">지점 선택하기</h1>
           <button 
             onClick={getUserLocation} 
@@ -178,6 +179,7 @@ export default function LocationFinder() {
               </p>
             </div>
           )}
+        </div>
         </div>
       </section>
     </div>

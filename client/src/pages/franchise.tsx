@@ -13,7 +13,7 @@ export default function Franchise() {
             안정적인 수익 구조를 확보하세요.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10 max-w-3xl mx-auto">
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-primary/20 rounded-full mx-auto flex items-center justify-center mb-4">
@@ -53,7 +53,7 @@ export default function Franchise() {
       {/* Franchise Benefits */}
       <section className="px-4 py-10">
         <h2 className="text-2xl font-bold mb-6 text-center">끄레망 가맹점 혜택</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-3xl mx-auto">
           <Benefit icon={Star} title="브랜드 파워" desc="국내 최초 공유창고 브랜드로 고객 신뢰를 확보합니다." />
           <Benefit icon={Users} title="전문 운영 지원" desc="전문 CS · 마케팅 · 운영 매뉴얼을 제공합니다." />
           <Benefit icon={Warehouse} title="입지 분석" desc="데이터 기반 상권 분석으로 최적의 입지를 제안합니다." />
@@ -66,7 +66,7 @@ export default function Franchise() {
       {/* Process Section */}
       <section className="px-4 py-10 bg-gray-800/40">
         <h2 className="text-2xl font-bold mb-6 text-center">개설 절차</h2>
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-6">
           <ProcessStep num="01" title="상담 문의" desc="전화 · 이메일로 예비 가맹 상담" />
           <ProcessStep num="02" title="상권 분석" desc="데이터 기반 입지·수익성 분석" />
           <ProcessStep num="03" title="계약 체결" desc="가맹 계약 및 인테리어 설계" />
