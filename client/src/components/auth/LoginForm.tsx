@@ -93,8 +93,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode, isRegisterMo
           </CardTitle>
           <CardDescription className="text-gray-600">
             {isRegisterMode 
-              ? '끄레망 계정을 만들어보세요' 
-              : '끄레망에 오신 것을 환영합니다'
+              ? '디컴소프트 계정을 만들어보세요' 
+              : '디컴소프트에 오신 것을 환영합니다'
             }
           </CardDescription>
         </CardHeader>

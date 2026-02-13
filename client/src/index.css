@@ -301,7 +301,7 @@ body {
   animation: gradient-shift 4s ease infinite;
 }
 
-/* 와인 회사 로고 무한 슬라이드 애니메이션 */
+/* 파트너 브랜드 로고 무한 슬라이드 애니메이션 */
 @keyframes slide-infinite {
   0% {
     transform: translateX(0);

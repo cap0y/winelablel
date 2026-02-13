@@ -95,13 +95,13 @@ const getStatusBadgeColor = (status: OrderStatus) => {
   }
 };
 
-// 와인병 정보 가져오는 함수
-const getWineBottle = (bottleId: string) => {
+// 패키지 정보 가져오는 함수
+const getProductPackage = (bottleId: string) => {
   const bottles = [
     {
       id: "bordeaux-red",
       name: "까베르네쇼비뇽 레드",
-      image: "/images/wine-bottle-1.png",
+      image: "/images/package-1.png",
       type: "red",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -116,7 +116,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "bordeaux-white",
       name: "쇼비뇽블랑 화이트",
-      image: "/images/wine-bottle-2.png",
+      image: "/images/package-2.png",
       type: "white",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -131,7 +131,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "bordeaux-rose",
       name: "쇼비뇽블랑 로제",
-      image: "/images/wine-bottle-3.png",
+      image: "/images/package-3.png",
       type: "rose",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -146,7 +146,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "burgundy-red",
       name: "샤도네이 레드",
-      image: "/images/wine-bottle-5.png",
+      image: "/images/package-5.png",
       type: "red",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
@@ -161,7 +161,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "burgundy-white",
       name: "샤도네이 화이트",
-      image: "/images/wine-bottle-6.png",
+      image: "/images/package-6.png",
       type: "white",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
@@ -176,7 +176,7 @@ const getWineBottle = (bottleId: string) => {
     {
       id: "burgundy-rose",
       name: "샤도네이 로제",
-      image: "/images/wine-bottle-7.png",
+      image: "/images/package-7.png",
       type: "rose",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
@@ -214,7 +214,7 @@ function StaticElement({
         left: `${adjustedLeft}%`,
         top: `${adjustedTop}%`,
         transform: "translate(-50%, -50%)",
-        zIndex: 10, // 장식이 라벨 위에 표시되도록 zIndex 높게
+        zIndex: 10, // 장식이 디자인 위에 표시되도록 zIndex 높게
         pointerEvents: "none", // 클릭 이벤트 무시
       }}
       data-type={type}
@@ -261,7 +261,7 @@ const OrderManagement = () => {
 
   // 갤러리 관련 함수 추가
   useEffect(() => {
-    // 선택된 주문이 변경될 때 타이틀을 주문 타이틀 또는 와인 이름으로 초기화
+    // 선택된 주문이 변경될 때 타이틀을 주문 타이틀 또는 패키지 이름으로 초기화
     if (selectedOrder) {
       setGalleryTitle(selectedOrder.title || selectedOrder.bottleName || "");
       setShowGallery(!!selectedOrder.publishToGallery);
@@ -525,7 +525,7 @@ const OrderManagement = () => {
           const statusMessages = {
             결제대기: "주문이 결제 대기 상태입니다.",
             결제완료: "결제가 완료되었습니다.",
-            제작중: "와인 라벨을 제작하고 있습니다.",
+            제작중: "패키지를 제작하고 있습니다.",
             배송준비: "상품을 배송 준비 중입니다.",
             배송중: "상품이 배송 중입니다.",
             배송완료: "배송이 완료되었습니다.",
@@ -728,10 +728,10 @@ const OrderManagement = () => {
     try {
       const { data } = await adminApi.getOrder(orderId);
 
-      // 라벨 디자인 정보를 파싱
+      // 패키지 디자인 정보를 파싱
       let orderWithLabelDesign = { ...data.order };
 
-      // API에서 받은 labelDesign 문자열이 있으면 파싱
+      // API에서 받은 디자인 정보 문자열이 있으면 파싱
       if (
         data.order.labelDesign &&
         typeof data.order.labelDesign === "string"
@@ -775,9 +775,9 @@ const OrderManagement = () => {
           }
 
           orderWithLabelDesign.labelDesign = parsedLabelDesign;
-          console.log("라벨 디자인 정보 파싱 성공:", parsedLabelDesign);
+          console.log("패키지 디자인 정보 파싱 성공:", parsedLabelDesign);
         } catch (e) {
-          console.error("라벨 디자인 정보 파싱 실패:", e);
+          console.error("패키지 디자인 정보 파싱 실패:", e);
         }
       }
 
@@ -806,7 +806,7 @@ const OrderManagement = () => {
     }
   };
 
-  // 라벨 인쇄 처리
+  // 디자인 인쇄 처리
   const handlePrintLabel = (order: any) => {
     const printWindow = window.open("", "_blank");
 
@@ -815,62 +815,62 @@ const OrderManagement = () => {
       return;
     }
 
-    // 와인병 정보 가져오기
-    const getWineBottle = (bottleId: string) => {
-      const bottles = [
+    // 패키지 정보 가져오기
+    const getProductPackage = (packageId: string) => {
+      const packages = [
         {
           id: "bordeaux-red",
-          name: "까베르네쇼비뇽 레드",
-          image: "/images/wine-bottle-1.png",
-          type: "red",
-          bottleType: "bordeaux",
+          name: "박스형 A",
+          image: "/images/package-1.png",
+          type: "box",
+          packageType: "standard",
         },
         {
           id: "bordeaux-white",
-          name: "쇼비뇽블랑 화이트",
-          image: "/images/wine-bottle-2.png",
-          type: "white",
-          bottleType: "bordeaux",
+          name: "박스형 B",
+          image: "/images/package-2.png",
+          type: "box",
+          packageType: "standard",
         },
         {
           id: "bordeaux-rose",
-          name: "쇼비뇽블랑 로제",
-          image: "/images/wine-bottle-3.png",
-          type: "rose",
-          bottleType: "bordeaux",
+          name: "박스형 C",
+          image: "/images/package-3.png",
+          type: "box",
+          packageType: "standard",
         },
         {
           id: "burgundy-red",
-          name: "샤도네이 레드",
-          image: "/images/wine-bottle-5.png",
-          type: "red",
-          bottleType: "burgundy",
+          name: "원통형 A",
+          image: "/images/package-5.png",
+          type: "cylinder",
+          packageType: "premium",
         },
         {
           id: "burgundy-white",
-          name: "샤도네이 화이트",
-          image: "/images/wine-bottle-6.png",
-          type: "white",
-          bottleType: "burgundy",
+          name: "원통형 B",
+          image: "/images/package-6.png",
+          type: "cylinder",
+          packageType: "premium",
         },
         {
           id: "burgundy-rose",
-          name: "샤도네이 로제",
-          image: "/images/wine-bottle-7.png",
-          type: "rose",
-          bottleType: "burgundy",
+          name: "원통형 C",
+          image: "/images/package-7.png",
+          type: "cylinder",
+          packageType: "premium",
         },
       ];
-      return bottles.find((bottle) => bottle.id === bottleId);
+      return packages.find((pkg) => pkg.id === packageId);
     };
 
-    const wineBottle = getWineBottle(order.bottleId);
+    const productPackage = getProductPackage(order.bottleId);
 
     // 인쇄할 HTML 생성 - 전체 미리보기 스타일
     printWindow.document.write(`
       <html>
         <head>
-          <title>와인 라벨 디자인 미리보기</title>
+          <title>패키지 디자인 미리보기</title>
           <style>
             @media print {
               body { 
@@ -886,12 +886,12 @@ const OrderManagement = () => {
                 margin: 0 auto;
                 text-align: center;
               }
-              .wine-bottle-container {
+              .package-container {
                 position: relative;
                 display: inline-block;
                 margin: 10px 0;
               }
-              .wine-bottle {
+              .product-package {
                 height: 380px;
                 width: auto;
                 object-fit: contain;
@@ -1001,23 +1001,23 @@ const OrderManagement = () => {
         </head>
         <body>
           <div class="preview-container">
-            <h2>와인 라벨 디자인 미리보기</h2>
+            <h2>패키지 디자인 미리보기</h2>
 
-            <!-- 와인병과 라벨 미리보기 -->
-            <div class="wine-bottle-container">
-              <img src="${wineBottle?.image || "/images/wine-bottle-1.png"}" alt="${order.bottleName}" class="wine-bottle" />
+            <!-- 패키지와 디자인 미리보기 -->
+            <div class="package-container">
+              <img src="${productPackage?.image || "/images/package-1.png"}" alt="${order.bottleName}" class="product-package" />
 
-              <!-- 라벨 오버레이 -->
+              <!-- 디자인 오버레이 -->
               <div class="label-overlay">
                 ${
                   order.labelImage
                     ? `
-                  <img src="${order.labelImage}" alt="라벨 디자인" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" />
+                  <img src="${order.labelImage}" alt="패키지 디자인" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" />
                 `
                     : `
-                  <img src="/images/label/${order.labelDesign?.template || "default"}.jpg" alt="라벨 배경" class="label-background" />
+                  <img src="/images/label/${order.labelDesign?.template || "default"}.jpg" alt="디자인 배경" class="label-background" />
 
-                  <div class="label-text">${order.labelDesign?.text || "와인 이름"}</div>
+                  <div class="label-text">${order.labelDesign?.text || "패키지 이름"}</div>
                   <div class="label-subtext">${order.labelDesign?.subtext || "부가 설명"}</div>
 
                   ${
@@ -1055,7 +1055,7 @@ const OrderManagement = () => {
                       <span class="info-value">${order.id}</span>
                     </div>
                     <div class="info-item">
-                      <span class="info-label">와인병:</span>
+                      <span class="info-label">패키지:</span>
                       <span class="info-value">${order.bottleName}</span>
                     </div>
                     <div class="info-item">
@@ -1457,7 +1457,7 @@ const OrderManagement = () => {
                         {order.customerName}
                       </TableCell>
                       <TableCell className="text-gray-700">
-                        {order.bottleName} 와인 라벨 {order.quantity || 1}매
+                        {order.bottleName} 패키지 디자인 {order.quantity || 1}매
                       </TableCell>
                       <TableCell className="text-gray-900 whitespace-nowrap">
                         {new Intl.NumberFormat("ko-KR").format(
@@ -1704,7 +1704,7 @@ const OrderManagement = () => {
           <DialogHeader className="border-b border-gray-200 pb-4">
             <DialogTitle className="text-gray-900">주문 상세 정보</DialogTitle>
             <DialogDescription className="text-gray-600">
-              선택한 주문의 상세 정보와 라벨 디자인을 확인할 수 있습니다.
+              선택한 주문의 상세 정보와 패키지 디자인을 확인할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -1739,7 +1739,7 @@ const OrderManagement = () => {
                       </span>
                     </p>
                     <p>
-                      <span className="font-medium text-gray-300">와인병:</span>{" "}
+                      <span className="font-medium text-gray-300">패키지:</span>{" "}
                       <span className="text-gray-200">
                         {selectedOrder.bottleName}
                       </span>
@@ -1983,7 +1983,7 @@ const OrderManagement = () => {
                     className="bg-purple-900/20 hover:bg-purple-800/30 text-purple-400 border-purple-700"
                   >
                     <Printer className="w-4 h-4 mr-2" />
-                    라벨 인쇄
+                    디자인 인쇄
                   </Button>
 
                   <Button
@@ -2035,28 +2035,28 @@ const OrderManagement = () => {
 
               <div>
                 <h3 className="text-lg font-medium mb-2 text-cyan-400">
-                  라벨 디자인 미리보기
+                  패키지 디자인 미리보기
                 </h3>
                 <div className="bg-white/70 rounded-lg p-4 border border-gray-200 relative backdrop-blur-sm">
-                  {/* 와인병과 라벨 미리보기 (라벨 디자이너에서 영감을 받은 디자인) */}
+                  {/* 패키지와 디자인 미리보기 (디자이너에서 영감을 받은 디자인) */}
                   <div className="flex flex-col items-center w-full relative">
                     {selectedOrder.labelImage ? (
                       <>
-                        {/* 와인병 배경 이미지 */}
+                        {/* 패키지 배경 이미지 */}
                         <img
                           src={(() => {
-                            // 선택된 와인병 정보 가져오기
-                            const bottle = selectedOrder.bottleId
-                              ? getWineBottle(selectedOrder.bottleId)
+                            // 선택된 패키지 정보 가져오기
+                            const pkg = selectedOrder.bottleId
+                              ? getProductPackage(selectedOrder.bottleId)
                               : null;
-                            return bottle?.image || "/images/wine-bottle-1.png";
+                            return pkg?.image || "/images/package-1.png";
                           })()}
-                          alt={selectedOrder.bottleName || "와인병"}
+                          alt={selectedOrder.bottleName || "패키지"}
                           className="h-[550px] object-contain"
                           style={{ transform: "scale(1.1, 1.1)" }}
                         />
 
-                        {/* 라벨 오버레이 - 와인병 라벨 위치에 배치 */}
+                        {/* 디자인 오버레이 - 패키지 디자인 위치에 배치 */}
                         <div
                           className="absolute z-10"
                           style={{
@@ -2071,13 +2071,13 @@ const OrderManagement = () => {
                             overflow: "visible", // 장식이 보이도록 overflow 설정
                           }}
                         >
-                          {/* 라벨 미리보기 텍스트 제거 */}
+                          {/* 디자인 미리보기 텍스트 제거 */}
 
-                          {/* 라벨 이미지 */}
+                          {/* 디자인 이미지 */}
                           <div className="relative">
                             <img
                               src={selectedOrder.labelImage}
-                              alt="와인 라벨 디자인"
+                              alt="패키지 디자인"
                               className="w-auto h-auto max-w-full max-h-full object-contain"
                               style={{
                                 overflow: "visible",
@@ -2123,7 +2123,7 @@ const OrderManagement = () => {
                     ) : (
                       <div className="p-6 text-center text-gray-400">
                         <Package className="w-12 h-12 mx-auto mb-2" />
-                        <p>라벨 이미지를 불러올 수 없습니다.</p>
+                        <p>디자인 이미지를 불러올 수 없습니다.</p>
                       </div>
                     )}
                   </div>

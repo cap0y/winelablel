@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Wine, Type, ImageIcon, Grid, ShoppingCart, Save, Undo, Redo, Download, Palette, ArrowLeft, Upload, Plus, Minus, Edit, Crop, Sliders, RotateCcw, FlipHorizontal, FlipVertical, Contrast, Sun, Droplets, Circle, Square, Triangle, Star, Heart, Diamond, Hexagon, Trash2, RotateCw, Zap, Crown, Gift } from "lucide-react";
+import { Package, Type, ImageIcon, Grid, ShoppingCart, Save, Undo, Redo, Download, Palette, ArrowLeft, Upload, Plus, Minus, Edit, Crop, Sliders, RotateCcw, FlipHorizontal, FlipVertical, Contrast, Sun, Droplets, Circle, Square, Triangle, Star, Heart, Diamond, Hexagon, Trash2, RotateCw, Zap, Crown, Gift } from "lucide-react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
@@ -98,13 +98,13 @@ const getTextEffectStyles = (design: any) => {
   return styles;
 };
 
-// 제품(와인병/박스) 정보 가져오는 함수
+// 제품(패키지) 정보 가져오는 함수
 const getProductModel = (id: string) => {
   const bottles = [
     {
       id: "bordeaux-red",
       name: "까베르네쇼비뇽 레드",
-      image: "/images/wine-bottle-1.png",
+      image: "/images/package-1.png",
       type: "red",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -119,7 +119,7 @@ const getProductModel = (id: string) => {
     {
       id: "bordeaux-white",
       name: "쇼비뇽블랑 화이트",
-      image: "/images/wine-bottle-2.png",
+      image: "/images/package-2.png",
       type: "white",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -134,7 +134,7 @@ const getProductModel = (id: string) => {
     {
       id: "bordeaux-rose",
       name: "쇼비뇽블랑 로제",
-      image: "/images/wine-bottle-3.png",
+      image: "/images/package-3.png",
       type: "rose",
       bottleType: "bordeaux",
       dimensions: "높이 30cm x 지름 7.5cm",
@@ -149,45 +149,45 @@ const getProductModel = (id: string) => {
     {
       id: "burgundy-red",
       name: "샤도네이 레드",
-      image: "/images/wine-bottle-5.png",
+      image: "/images/package-5.png",
       type: "red",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
       capacity: "750ml",
       price: 5800,
       labelSize: {
-        width: 20.16, // 정사각형 라벨: 
-        height: 18.89, // 정사각형 라벨
+        width: 20.16, // 정사각형 디자인: 
+        height: 18.89, // 정사각형 디자인
         position: { top: 75, left: 75 } // % 단위
       }
     },
     {
       id: "burgundy-white",
       name: "샤도네이 화이트",
-      image: "/images/wine-bottle-6.png",
+      image: "/images/package-6.png",
       type: "white",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
       capacity: "750ml",
       price: 5300,
       labelSize: {
-        width: 20.16, // 정사각형 라벨: 
-        height: 18.89, // 정사각형 라벨
+        width: 20.16, // 정사각형 디자인: 
+        height: 18.89, // 정사각형 디자인
         position: { top: 75, left: 75 }
       }
     },
     {
       id: "burgundy-rose",
       name: "샤도네이 로제",
-      image: "/images/wine-bottle-7.png",
+      image: "/images/package-7.png",
       type: "rose",
       bottleType: "burgundy",
       dimensions: "높이 29cm x 지름 8cm",
       capacity: "750ml",
       price: 6000,
       labelSize: {
-        width: 20.16, // 정사각형 라벨: 
-        height: 18.89, // 정사각형 라벨
+        width: 20.16, // 정사각형 디자인: 
+        height: 18.89, // 정사각형 디자인
         position: { top: 75, left: 75 }
       }
     },
@@ -365,7 +365,7 @@ function DraggableElement({
       const deltaX = (e.clientX - startPos.x) * moveFactor;
       const deltaY = (e.clientY - startPos.y) * moveFactor;
       
-      // 위치 제약 완화 - 라벨지 경계를 벗어날 수 있도록 확장
+      // 위치 제약 완화 - 디자인 경계를 벗어날 수 있도록 확장
       const newX = Math.min(Math.max(position.x + deltaX, -50), 150);
       const newY = Math.min(Math.max(position.y + deltaY, -50), 150);
       
@@ -397,7 +397,7 @@ function DraggableElement({
       const deltaX = (touch.clientX - startPos.x) * moveFactor;
       const deltaY = (touch.clientY - startPos.y) * moveFactor;
       
-      // 위치 제약 완화 - 라벨지 경계를 벗어날 수 있도록 확장
+      // 위치 제약 완화 - 디자인 경계를 벗어날 수 있도록 확장
       const newX = Math.min(Math.max(position.x + deltaX, -50), 150);
       const newY = Math.min(Math.max(position.y + deltaY, -50), 150);
       
@@ -457,7 +457,7 @@ function DraggableElement({
 // 미리보기 컴포넌트 (새로운 세로 레이아웃용)
 function LabelPreview({ 
   labelDesign, 
-  wineBottle, 
+  productPackage, 
   decorationToAdd,
   elements = [],
   onUpdatePositions,
@@ -469,7 +469,7 @@ function LabelPreview({
   uploadedImages = []
 }: { 
   labelDesign: any, 
-  wineBottle: any,
+  productPackage: any,
   decorationToAdd: string | null,
   elements?: Array<{
     id: string;
@@ -511,11 +511,11 @@ function LabelPreview({
     imageCrop = { x: 0, y: 0, width: 100, height: 100 }
   } = labelDesign;
 
-  // 제품(박스/와인) 라벨 프레임 크기 설정 (기본값)
-  const baseLabelWidth = wineBottle?.labelSize?.width || 18; // rem 단위
-  const baseLabelHeight = wineBottle?.labelSize?.height || 18; // 박스 기본 높이 rem
+  // 제품(패키지) 디자인 프레임 크기 설정 (기본값)
+  const baseLabelWidth = productPackage?.labelSize?.width || 18; // rem 단위
+  const baseLabelHeight = productPackage?.labelSize?.height || 18; // 박스 기본 높이 rem
   
-  // 모바일에서 라벨 크기를 화면에 맞게 확대
+  // 모바일에서 디자인 크기를 화면에 맞게 확대
   const labelWidth = isMobile ? baseLabelWidth * 1.2 : baseLabelWidth;
   const labelHeight = isMobile ? baseLabelHeight * 1.2 : baseLabelHeight;
 
@@ -809,23 +809,23 @@ function LabelPreview({
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* 와인병이 없을 때 로딩 표시 */}
-      {!wineBottle && (
+      {/* 패키지가 없을 때 로딩 표시 */}
+      {!productPackage && (
         <div className="flex justify-center items-center h-[40vh]">
-          <div className="text-gray-400">와인병 로딩 중...</div>
+          <div className="text-gray-400">패키지 로딩 중...</div>
         </div>
       )}
       
-      {/* 와인병이 있을 때 미리보기 표시 */}
-      {wineBottle && (
+      {/* 패키지가 있을 때 미리보기 표시 */}
+      {productPackage && (
         <>
-          {/* 와인병 배경과 라벨 오버레이 */}
+          {/* 패키지 배경과 디자인 오버레이 */}
           <div className={`relative ${isMobile ? 'mb-16' : 'mb-32'} flex justify-center ${isMobile ? 'scale-110' : ''}`}>
             {/* 제품 배경: 이미지가 있으면 이미지, 없으면 3D 박스 스타일 */}
-            {wineBottle.image ? (
+            {productPackage.image ? (
               <img 
-                src={wineBottle.image}
-                alt={wineBottle.name}
+                src={productPackage.image}
+                alt={productPackage.name}
                 className="h-[650px] sm:h-[600px] md:h-[620px] lg:h-[650px] object-contain"
                 style={{ 
                   transform: isMobile 
@@ -841,25 +841,25 @@ function LabelPreview({
               </div>
             )}
             
-            {/* 와인병 정보 표시 */}
+            {/* 패키지 정보 표시 */}
             <div className="absolute top-12 right-4 bg-black/70 text-white p-3 rounded-lg text-sm z-30">
-              <div className="font-medium mb-1">{wineBottle.name}</div>
-              <div className="text-xs text-gray-300">{wineBottle.dimensions}</div>
-              <div className="text-xs text-gray-300">{wineBottle.capacity}</div>
+              <div className="font-medium mb-1">{productPackage.name}</div>
+              <div className="text-xs text-gray-300">{productPackage.dimensions}</div>
+              <div className="text-xs text-gray-300">{productPackage.capacity}</div>
             </div>
 
-            {/* 라벨 오버레이 - 와인병 라벨 위치에 정확히 배치 */}
+            {/* 디자인 오버레이 - 패키지 디자인 위치에 정확히 배치 */}
             <div 
               className="absolute z-20"
               style={{ 
-                top: `${wineBottle.labelSize?.position?.top || 65}%`,
-                left: '50%', // 와인병 중앙에 정확히 위치
+                top: `${productPackage.labelSize?.position?.top || 65}%`,
+                left: '50%', // 패키지 중앙에 정확히 위치
                 transform: 'translate(-50%, -50%)'
               }}
             >
               <div className="text-center mb-2">
                 <p className={`text-xs text-gray-300 bg-black/50 ${isMobile ? 'px-1 py-0.5' : 'px-2 py-1'} rounded`}>
-                  실제 라벨 크기: {(baseLabelWidth/2.54).toFixed(2)}cm × {(baseLabelHeight/2.54).toFixed(2)}cm
+                  실제 디자인 크기: {(baseLabelWidth/2.54).toFixed(2)}cm × {(baseLabelHeight/2.54).toFixed(2)}cm
                 </p>
               </div>
               
@@ -875,7 +875,7 @@ function LabelPreview({
                   width: `${labelWidth}rem`, // 소수점까지 정확한 크기
                   height: `${labelHeight}rem`, // 소수점까지 정확한 크기
                   backgroundColor: "transparent",
-                  overflow: "visible" // 요소가 라벨지를 벗어날 수 있도록 설정
+                  overflow: "visible" // 요소가 디자인 경계를 벗어날 수 있도록 설정
                 }}
               >
                 {/* 업로드된 테두리 이미지 - 배경보다 먼저 렌더링하여 뒤로 배치 */}
@@ -896,7 +896,7 @@ function LabelPreview({
                 {finalTemplateImage && (
                   <img 
                     src={finalTemplateImage} 
-                    alt="라벨 배경" 
+                    alt="디자인 배경" 
                     className="absolute inset-0 w-full h-full object-contain opacity-100"
                     style={{
                       filter: (() => {
@@ -1065,7 +1065,7 @@ function DesignOptionCard({ title, options, selectedId, onChange, renderItem }: 
 export default function LabelDesigner() {
   const { bottleId } = useParams<{ bottleId: string }>();
   const [location, setLocation] = useLocation();
-  const [wineBottle, setWineBottle] = useState<any>(null);
+  const [productPackage, setWineBottle] = useState<any>(null);
   
   // 소품 목록 (API 연동)
   const [accessoryItems, setAccessoryItems] = useState<Array<{id: string; name: string; price: number; image?: string; maxQty?: number; stock?: number}>>([]);
@@ -1096,7 +1096,7 @@ export default function LabelDesigner() {
     });
   };
   
-  // 초기 라벨 디자인 상태에서 배경색 변경
+  // 초기 패키지 디자인 상태에서 배경색 변경
   const [labelDesign, setLabelDesign] = useState({
     template: "template1",
     text: "",
@@ -1143,7 +1143,7 @@ export default function LabelDesigner() {
     rotation: number;
   }>>([]);
   
-  // 라벨 배경 목록을 위한 상태
+  // 디자인 배경 목록을 위한 상태
   const [labelBackgrounds, setLabelBackgrounds] = useState<any[]>([]);
   const [labelBorders, setLabelBorders] = useState<any[]>([]);
   const [labelDecorations, setLabelDecorations] = useState<any[]>([]);
@@ -1168,7 +1168,7 @@ export default function LabelDesigner() {
 
   // 뒤로가기 함수
   const handleGoBack = () => {
-    setLocation("/wine-bottles");
+    setLocation("/package-selector");
   };
 
   // 카테고리별 배경 이미지 로드 함수 - 캐싱 추가
@@ -1232,7 +1232,7 @@ export default function LabelDesigner() {
         setLabelDesign(prev => ({ ...prev, template: backgrounds[0].id }));
       }
     } catch (error) {
-      console.error("라벨 배경 로드 오류:", error);
+      console.error("디자인 배경 로드 오류:", error);
       // 오류 시 기본 배경 설정
       const defaultBg = [{ id: "default", name: "기본", image: "/images/label/default.jpg" }];
       setLabelBackgrounds(defaultBg);
@@ -1247,7 +1247,7 @@ export default function LabelDesigner() {
 
   // 초기 데이터 로드
   useEffect(() => {
-    // 제품(와인병/박스) 정보 설정
+    // 제품(패키지) 정보 설정
     if (bottleId) {
       const selected = getProductModel(bottleId);
       if (selected) {
@@ -1554,7 +1554,7 @@ export default function LabelDesigner() {
     }
   };
 
-  // 라벨 디자인 속성 변경 핸들러
+  // 패키지 디자인 속성 변경 핸들러
   const handleDesignChange = (key: string, value: string | number | boolean | object) => {
     setLabelDesign(prev => ({
       ...prev,
@@ -1658,13 +1658,13 @@ export default function LabelDesigner() {
     setPositionData(data);
   }, []);
   
-  // 라벨 미리보기 요소를 참조하기 위한 ref
+  // 디자인 미리보기 요소를 참조하기 위한 ref
   const labelPreviewRef = useRef<HTMLDivElement>(null);
   
   // 체크아웃으로 진행
   const handleCheckout = async () => {
     try {
-      // 라벨 디자인 정보를 sessionStorage에 저장
+      // 패키지 디자인 정보를 sessionStorage에 저장
       const labelData = {
         template: labelDesign.template,
         text: labelDesign.text,
@@ -1697,10 +1697,10 @@ export default function LabelDesigner() {
       
       sessionStorage.setItem('labelDesign', JSON.stringify(labelData));
       
-      // 라벨 미리보기 요소가 있을 경우 이미지로 캡처
+      // 디자인 미리보기 요소가 있을 경우 이미지로 캡처
       if (labelPreviewRef.current) {
-        // 1. 라벨만 캡처 - 기존 코드
-        // 미리보기 요소에서 실제 라벨 부분만 캡처하기 위해 요소 찾기
+        // 1. 디자인만 캡처 - 기존 코드
+        // 미리보기 요소에서 실제 디자인 부분만 캡처하기 위해 요소 찾기
         const labelElement = labelPreviewRef.current.querySelector('div[style*="width:"][style*="height:"]');
         
         if (labelElement) {
@@ -1717,7 +1717,7 @@ export default function LabelDesigner() {
             (button as HTMLElement).style.display = 'none';
           });
           
-          // html2canvas를 사용하여 라벨 요소를 이미지로 변환
+          // html2canvas를 사용하여 디자인 요소를 이미지로 변환
           const canvas = await html2canvas(labelElement as HTMLElement, {
             backgroundColor: null,
             scale: 2, // 고해상도 이미지를 위해 스케일 2배로 설정
@@ -1743,16 +1743,16 @@ export default function LabelDesigner() {
           sessionStorage.setItem('labelPreviewImage', imageDataUrl);
         }
 
-        // 2. 와인병 전체 영역 캡처 (새로 추가)
-        // 와인병 전체 영역 찾기 - 선택자를 더 명확하게 수정
-        console.log("와인병 전체 영역 캡처 시도...");
+        // 2. 패키지 전체 영역 캡처 (새로 추가)
+        // 패키지 전체 영역 찾기 - 선택자를 더 명확하게 수정
+        console.log("패키지 전체 영역 캡처 시도...");
         
         try {
           // 전체 미리보기 컨테이너를 직접 캡처 
           const bottleContainer = labelPreviewRef.current.querySelector('.flex.flex-col.items-center.w-full');
           
           if (bottleContainer) {
-            console.log("와인병 전체 영역 요소 찾음:", bottleContainer);
+            console.log("패키지 전체 영역 요소 찾음:", bottleContainer);
             
             // 캡처 전에 모든 삭제 버튼(X 버튼) 임시 숨기기
             const allDeleteButtons = labelPreviewRef.current.querySelectorAll('.decoration-delete-btn');
@@ -1773,7 +1773,7 @@ export default function LabelDesigner() {
               element.style.border = 'none';
             });
             
-            // 캡처 전에 라벨 크기 정보 숨기기
+            // 캡처 전에 디자인 크기 정보 숨기기
             const sizeInfoElements = labelPreviewRef.current.querySelectorAll('.text-xs.text-gray-300.bg-black\\/50');
             const originalDisplayStyles: {element: HTMLElement, display: string}[] = [];
             
@@ -1786,7 +1786,7 @@ export default function LabelDesigner() {
               el.style.display = 'none';
             });
             
-            // 캡처 전에 와인병 정보(쇼비뇽블랑 레드, 높이, 지름 등) 숨기기
+            // 캡처 전에 패키지 정보(이름, 크기 등) 숨기기
             const bottleInfoElement = labelPreviewRef.current.querySelector('.absolute.top-0.right-0.bg-black\\/70.text-white');
             let originalBottleInfoDisplay = '';
             if (bottleInfoElement) {
@@ -1795,7 +1795,7 @@ export default function LabelDesigner() {
               el.style.display = 'none';
             }
             
-            // html2canvas를 사용하여 와인병 전체 요소를 이미지로 변환
+            // html2canvas를 사용하여 패키지 전체 요소를 이미지로 변환
             const bottleCanvas = await html2canvas(bottleContainer as HTMLElement, {
               backgroundColor: "rgba(17, 24, 39, 1)", // bg-gray-900와 유사한 배경색
               scale: 1.5, // 고해상도 이미지를 위해 스케일 설정
@@ -1814,13 +1814,13 @@ export default function LabelDesigner() {
                   (element as HTMLElement).style.display = 'none';
                 });
                 
-                // 클론된 문서에서 와인병 정보도 숨김
+                // 클론된 문서에서 패키지 정보도 숨김
                 const clonedBottleInfo = clonedDoc.querySelector('.absolute.top-0.right-0.bg-black\\/70.text-white');
                 if (clonedBottleInfo) {
                   (clonedBottleInfo as HTMLElement).style.display = 'none';
                 }
                 
-                console.log("클론된 문서에서 점선, 크기 정보 및 와인병 정보 숨김 처리 완료");
+                console.log("클론된 문서에서 점선, 크기 정보 및 패키지 정보 숨김 처리 완료");
               }
             });
             
@@ -1834,34 +1834,34 @@ export default function LabelDesigner() {
               item.element.style.border = item.style;
             });
             
-            // 라벨 크기 정보 표시 복원
+            // 디자인 크기 정보 표시 복원
             originalDisplayStyles.forEach(item => {
               item.element.style.display = item.display;
             });
             
-            // 와인병 정보 표시 복원
+            // 패키지 정보 표시 복원
             if (bottleInfoElement) {
               (bottleInfoElement as HTMLElement).style.display = originalBottleInfoDisplay;
             }
             
             if (bottleCanvas) {
-              console.log("와인병 전체 이미지 캡처 성공");
+              console.log("패키지 전체 이미지 캡처 성공");
               // 캔버스를 데이터 URL로 변환
               const bottleImageDataUrl = bottleCanvas.toDataURL('image/png');
               
-              // 캡처한 와인병 전체 이미지를 sessionStorage에 저장
+              // 캡처한 패키지 전체 이미지를 sessionStorage에 저장
               sessionStorage.setItem('bottlePreviewImage', bottleImageDataUrl);
-              console.log("와인병 전체 이미지 sessionStorage에 저장 완료");
+              console.log("패키지 전체 이미지 sessionStorage에 저장 완료");
             } else {
-              console.error("와인병 전체 이미지 캡처 실패: 캔버스 생성 실패");
+              console.error("패키지 전체 이미지 캡처 실패: 캔버스 생성 실패");
             }
           } else {
-            console.error("와인병 전체 영역 요소를 찾을 수 없음");
+            console.error("패키지 전체 영역 요소를 찾을 수 없음");
             
             // 대체 선택자로 시도
             const alternativeElement = labelPreviewRef.current.querySelector('.relative');
             if (alternativeElement) {
-              console.log("대체 선택자로 와인병 요소 찾음");
+              console.log("대체 선택자로 패키지 요소 찾음");
               const bottleCanvas = await html2canvas(alternativeElement as HTMLElement, {
                 backgroundColor: "rgba(17, 24, 39, 1)",
                 scale: 1.5,
@@ -1872,18 +1872,18 @@ export default function LabelDesigner() {
               
               const bottleImageDataUrl = bottleCanvas.toDataURL('image/png');
               sessionStorage.setItem('bottlePreviewImage', bottleImageDataUrl);
-              console.log("대체 방법으로 와인병 전체 이미지 저장 완료");
+              console.log("대체 방법으로 패키지 전체 이미지 저장 완료");
             }
           }
         } catch (captureError) {
-          console.error("와인병 전체 캡처 중 오류 발생:", captureError);
+          console.error("패키지 전체 캡처 중 오류 발생:", captureError);
         }
       }
       
       // 체크아웃 페이지로 이동
       setLocation(`/checkout?bottleId=${bottleId}`);
     } catch (error) {
-      console.error('라벨 캡처 중 오류 발생:', error);
+      console.error('디자인 캡처 중 오류 발생:', error);
       // 오류가 발생하더라도 체크아웃 페이지로 이동
       setLocation(`/checkout?bottleId=${bottleId}`);
     }
@@ -1910,7 +1910,7 @@ export default function LabelDesigner() {
     }));
   };
   
-  // 라벨 배경 옵션 UI 수정
+  // 디자인 배경 옵션 UI 수정
   const renderBackgroundOptions = () => {
     return (
       <div className="space-y-4">
@@ -1990,17 +1990,17 @@ export default function LabelDesigner() {
             <ArrowLeft className="w-5 h-5 mr-2" />
             뒤로가기
           </Button>
-          <h1 className="text-xl font-bold">라벨 디자인</h1>
+          <h1 className="text-xl font-bold">패키지 디자인</h1>
           <div className="w-20"></div> {/* 균형을 위한 빈 공간 */}
         </div>
         
         {/* 메인 콘텐츠 - 세로 레이아웃 */}
         <div className="max-w-4xl mx-auto p-2 sm:p-6 md:p-8 lg:p-12 pb-4 sm:pb-8 md:pb-12 lg:pb-16 bg-white/60 border-0 sm:border border-gray-200 backdrop-blur-lg sm:rounded-2xl shadow-none sm:shadow-md" ref={labelPreviewRef}>
-          {/* 와인병과 라벨 미리보기 */}
-          <div data-label-preview className="wine-bottle-container">
+          {/* 패키지와 디자인 미리보기 */}
+          <div data-label-preview className="product-package-container">
             <LabelPreview 
               labelDesign={labelDesign} 
-              wineBottle={wineBottle} 
+              productPackage={productPackage} 
               decorationToAdd={decorationToAdd}
               elements={elements}
               onUpdatePositions={handleUpdatePositions}
@@ -2109,7 +2109,7 @@ export default function LabelDesigner() {
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-base font-medium mb-2">라벨 배경</h3>
+                  <h3 className="text-base font-medium mb-2">디자인 배경</h3>
                   <div className="flex overflow-x-auto gap-1 pb-2 -mx-4 px-4"> {/* 수평 스크롤 */}
                     {labelBackgrounds.map(background => (
                       <Card 
@@ -2228,7 +2228,7 @@ export default function LabelDesigner() {
                     </Card>
                   ))}
                 </div>
-                <p className="text-xs text-gray-400 mt-1">선택한 소품은 라벨과 함께 결제됩니다.</p>
+                <p className="text-xs text-gray-400 mt-1">선택한 소품은 디자인과 함께 결제됩니다.</p>
               </div>
             </TabsContent>
             
@@ -2238,7 +2238,7 @@ export default function LabelDesigner() {
                 <Label htmlFor="main-text" className="block mb-2 text-sm font-medium">메인 텍스트</Label>
                 <Textarea
                   id="main-text"
-                  placeholder="와인 이름 또는 메인 텍스트를 입력하세요."
+                  placeholder="패키지 이름 또는 메인 텍스트를 입력하세요."
                   className="w-full bg-white/70 border-gray-200 text-gray-900 backdrop-blur-sm"
                   value={labelDesign.text}
                   onChange={(e) => handleDesignChange("text", e.target.value)}
@@ -2633,7 +2633,7 @@ export default function LabelDesigner() {
 
               {/* 배경색 선택 (투명도 포함) */}
               <div>
-                <Label htmlFor="background-color" className="block mb-2 text-sm font-medium">배경 색상 (라벨 이미지 위에 적용)</Label>
+                <Label htmlFor="background-color" className="block mb-2 text-sm font-medium">배경 색상 (디자인 이미지 위에 적용)</Label>
                 <div className="grid grid-cols-6 gap-2">
                   <button
                     className={`w-8 h-8 rounded flex items-center justify-center border ${

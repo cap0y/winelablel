@@ -26,7 +26,7 @@ app.use(
       process.env.NODE_ENV === "production"
         ? [
             "https://winelabel.replit.app", 
-            "https://끄레망--neon.replit.app",
+            "https://decomsoft--neon.replit.app",
             /\.replit\.app$/,
             /\.repl\.co$/
           ]

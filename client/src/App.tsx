@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 // TooltipProvider는 개별 컴포넌트에서 필요시 사용하도록 변경
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import WineBottleSelector from "@/pages/wine-bottle-selector";
+import PackageSelector from "@/pages/wine-bottle-selector";
 import LabelDesigner from "@/pages/label-designer";
 import Checkout from "@/pages/checkout";
 import Contact from "@/pages/contact";
@@ -38,8 +38,8 @@ function Router() {
       <main>
         <Switch>
           <Route path="/" component={Home} />
-          <Route path="/wine-bottles" component={WineBottleSelector} />
-          <Route path="/label-designer/:bottleId" component={LabelDesigner} />
+          <Route path="/package-selector" component={PackageSelector} />
+          <Route path="/package-designer/:bottleId" component={LabelDesigner} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/payment/success" component={PaymentSuccess} />
           <Route path="/payment/failure" component={PaymentFailure} />

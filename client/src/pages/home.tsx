@@ -4,13 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Wine,
+  Package,
   Palette,
   ShoppingCart,
   Star,
   Heart,
   Sparkles,
-  LucideWine,
   ChevronLeft,
   ChevronRight,
   Award,
@@ -24,19 +23,19 @@ import { useLanguage } from "@/contexts/language-context";
 import { commonTranslations } from "@/lib/translations";
 import { galleryApi, labelApi } from "@/services/api";
 
-// 떠다니는 와인 요소들 애니메이션 컴포넌트
+// 떠다니는 패키지 요소들 애니메이션 컴포넌트
 function FloatingElements() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* 떠다니는 와인잔 */}
+      {/* 떠다니는 패키지 아이콘 */}
       <div className="absolute top-10 left-10 animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}>
-        <Wine className="w-8 h-8 text-purple-400/30" />
+        <Package className="w-8 h-8 text-purple-400/30" />
       </div>
       <div className="absolute top-20 right-16 animate-bounce" style={{ animationDelay: '1s', animationDuration: '4s' }}>
-        <Wine className="w-6 h-6 text-rose-400/30" />
+        <Package className="w-6 h-6 text-rose-400/30" />
       </div>
       <div className="absolute bottom-20 left-20 animate-bounce" style={{ animationDelay: '2s', animationDuration: '3.5s' }}>
-        <Wine className="w-7 h-7 text-amber-400/30" />
+        <Package className="w-7 h-7 text-amber-400/30" />
       </div>
       
       {/* 떠다니는 별들 */}
@@ -96,8 +95,8 @@ function AnimatedCounter({ end, duration = 2000, suffix = "" }: { end: number; d
   return <span ref={countRef} className="font-bold text-2xl text-primary">{count.toLocaleString()}{suffix}</span>;
 }
 
-// 와인 회사 로고 슬라이더 컴포넌트
-function WineCompanyLogos() {
+// 파트너 브랜드 로고 슬라이더 컴포넌트
+function PartnerBrandLogos() {
   // 로컬 로고 이미지들 (1~17)
   const logoImages = Array.from({ length: 17 }, (_, i) => ({
     id: i + 1,
@@ -223,9 +222,9 @@ function WineCompanyLogos() {
 // 고객 후기 자동 슬라이드 컴포넌트
 function TestimonialCarousel() {
   const testimonials = [
-    { name: "김민지", text: "정말 만족스러운 와인 라벨이었어요! 결혼식에서 너무 예뻤습니다.", rating: 5 },
+    { name: "김민지", text: "정말 만족스러운 박스 패키지였어요! 결혼식에서 너무 예뻤습니다.", rating: 5 },
     { name: "박준호", text: "디자인이 정말 세련되고 품질도 최고예요. 다음에도 이용할게요!", rating: 5 },
-    { name: "이수진", text: "생일선물로 주문했는데 받는 분이 너무 좋아하셨어요.", rating: 5 },
+    { name: "이수진", text: "생일선물용 패키지로 주문했는데 받는 분이 너무 좋아하셨어요.", rating: 5 },
     { name: "최영수", text: "빠른 배송과 완벽한 포장까지! 모든게 완벽했습니다.", rating: 5 },
   ];
 
@@ -261,7 +260,7 @@ function TestimonialCarousel() {
   );
 }
 
-// 와인 라벨 슬라이더 컴포넌트
+// 패키지 디자인 슬라이더 컴포넌트
 function LabelSlider() {
   const [labels, setLabels] = useState<
     Array<{ id: string; title: string; labelImage: string }>
@@ -335,7 +334,7 @@ function LabelSlider() {
   if (labels.length === 0) {
     return (
       <div className="relative w-full h-[30rem] bg-white/60 rounded-xl mb-6 flex items-center justify-center border border-gray-200 backdrop-blur-md">
-        <div>표시할 라벨 이미지가 없습니다</div>
+        <div>표시할 디자인 이미지가 없습니다</div>
       </div>
     );
   }
@@ -353,7 +352,7 @@ function LabelSlider() {
           >
             <img
               src={label.labelImage}
-              alt={label.title || "와인 라벨 샘플"}
+              alt={label.title || "패키지 디자인 샘플"}
               className="w-full h-full object-cover"
             />
           </div>
@@ -391,7 +390,7 @@ function LabelSlider() {
   );
 }
 
-// 와인 디자인 과정 단계 컴포넌트
+// 패키지 디자인 과정 단계 컴포넌트
 function DesignProcessCard({
   icon,
   title,
@@ -414,7 +413,7 @@ function DesignProcessCard({
   );
 }
 
-// 인기 와인 라벨 디자인 컴포넌트
+// 인기 패키지 디자인 컴포넌트
 function PopularDesignCard({
   image,
   title,
@@ -561,10 +560,10 @@ export default function Home() {
               {/* 화려한 타이틀 애니메이션 */}
               <div className="text-center mb-4">
                 <h1 className="text-3xl font-bold mb-2 text-gray-900 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 bg-clip-text text-transparent animate-pulse">
-                  ✨ 나만의 와인라벨 제작 ✨
+                  ✨ 나만의 패키지 디자인 ✨
                 </h1>
                 <p className="text-gray-700 mb-2 animate-fade-in">
-                  특별한 순간을 위한 특별한 와인 라벨을 만들어보세요
+                  특별한 순간을 위한 특별한 박스 패키지를 디자인해보세요
                 </p>
                 <p className="text-sm text-primary font-medium animate-bounce">
                   🎉 로그인 없이 바로 주문 가능! 🎉
@@ -575,9 +574,9 @@ export default function Home() {
 
               {/* 화려한 CTA 버튼들 */}
               <div className="flex flex-col space-y-3">
-            <Link href="/wine-bottles">
+            <Link href="/package-selector">
                   <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center group">
-                    <Wine className="mr-2 h-5 w-5 group-hover:animate-spin" />
+                    <Package className="mr-2 h-5 w-5 group-hover:animate-spin" />
                     🚀 지금 바로 시작하기 🚀
                   </Button>
                 </Link>
@@ -693,7 +692,7 @@ export default function Home() {
                   <div className="text-gray-600">만족도</div>
                 </div>
               </div>
-              <Link href="/wine-bottles">
+              <Link href="/package-selector">
                 <Button className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-2 rounded-full font-bold transform hover:scale-110 transition-all duration-300 animate-pulse">
                   🔥 지금 바로 주문하기 🔥
                 </Button>
@@ -703,10 +702,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 파트너 와인 브랜드 로고 슬라이더 */}
+      {/* 파트너 브랜드 로고 슬라이더 */}
       <section className="px-4 py-4">
         <div className="container mx-auto max-w-3xl">
-          <WineCompanyLogos />
+          <PartnerBrandLogos />
         </div>
       </section>
 
@@ -762,11 +761,11 @@ export default function Home() {
               <DesignProcessCard 
                 icon={
                   <div className="animate-bounce">
-                    <Wine className="w-6 h-6 text-purple-600" />
+                    <Package className="w-6 h-6 text-purple-600" />
                   </div>
                 }
-                title="🍷 와인병 선택"
-                description="다양한 와인병 중에서 원하는 형태와 크기를 선택하세요."
+                title="📦 패키지 선택"
+                description="다양한 박스 패키지 중에서 원하는 형태와 크기를 선택하세요."
               />
               <DesignProcessCard 
                 icon={
@@ -774,8 +773,8 @@ export default function Home() {
                     <Palette className="w-6 h-6 text-emerald-600" />
                   </div>
                 }
-                title="🎨 라벨 디자인"
-                description="다양한 배경과 디자인 요소를 활용해 나만의 라벨을 만들어보세요."
+                title="🎨 패키지 디자인"
+                description="다양한 배경과 디자인 요소를 활용해 나만의 패키지를 만들어보세요."
               />
               <DesignProcessCard 
                 icon={
@@ -784,12 +783,12 @@ export default function Home() {
                   </div>
                 }
                 title="🚚 주문 및 배송"
-                description="디자인이 완료되면 주문하고 곧 특별한 와인 라벨을 받아보세요."
+                description="디자인이 완료되면 주문하고 곧 특별한 패키지를 받아보세요."
               />
               
-              <Link href="/wine-bottles">
+              <Link href="/package-selector">
                 <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium mt-4 flex items-center justify-center gap-2 transform hover:scale-105 transition-all duration-300 pulse-glow">
-                  <Wine className="w-4 h-4 animate-bounce" />
+                  <Package className="w-4 h-4 animate-bounce" />
                   🚀 지금 시작하기 🚀
                 </Button>
               </Link>
@@ -834,7 +833,7 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4">
               <Card className="glass-card p-4 text-center transform hover:scale-105 transition-all duration-300 hover:shadow-lg">
                 <div className="animate-bounce">
-                  <Wine className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                  <Package className="w-8 h-8 mx-auto mb-2 text-purple-600" />
                 </div>
                 <p className="text-sm font-medium text-gray-900">프리미엄 품질</p>
                 <p className="text-xs text-gray-600 mt-1">최고급 재료 사용</p>

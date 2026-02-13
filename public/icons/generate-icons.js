@@ -1,10 +1,10 @@
 // 아이콘 생성을 위한 스크립트
-// 끄레망 로고를 SVG로 생성하고 PNG 변환
+// DECOMSOFT 로고를 SVG로 생성하고 PNG 변환
 
 const fs = require('fs');
 const path = require('path');
 
-// 끄레망 로고 SVG
+// DECOMSOFT 로고 SVG
 const logoSvg = `
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <!-- 배경 -->
@@ -22,8 +22,8 @@ const logoSvg = `
   <rect x="224" y="352" width="64" height="48" fill="#0f766e" rx="8"/>
   <rect x="232" y="340" width="48" height="24" fill="none" stroke="#0f766e" stroke-width="4" rx="24"/>
   
-  <!-- 끄레망 텍스트 -->
-  <text x="256" y="460" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="36" font-weight="bold">끄레망</text>
+  <!-- DECOMSOFT 텍스트 -->
+  <text x="256" y="460" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="36" font-weight="bold">DECOMSOFT</text>
 </svg>
 `;
 
@@ -33,7 +33,7 @@ const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 // SVG 파일 생성
 fs.writeFileSync(path.join(__dirname, 'logo.svg'), logoSvg);
 
-console.log('끄레망 로고 SVG가 생성되었습니다.');
+console.log('DECOMSOFT 로고 SVG가 생성되었습니다.');
 console.log('PNG 아이콘들을 생성하려면 온라인 SVG to PNG 변환기를 사용하거나');
 console.log('ImageMagick, Sharp 등의 도구를 설치하여 변환하세요.');
 

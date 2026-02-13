@@ -1,5 +1,5 @@
 import { Link, useRoute } from "wouter";
-import { Wine, Palette, User, Images } from "lucide-react";
+import { Package, Palette, User, Images } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { commonTranslations } from "@/lib/translations";
 import { useAuth } from "@/contexts/auth-context";
@@ -10,7 +10,7 @@ export default function Navigation() {
   const t = commonTranslations[language];
   
   const [isHomeActive] = useRoute("/");
-  const [isWineBottlesActive] = useRoute("/wine-bottles");
+  const [isPackageSelectorActive] = useRoute("/package-selector");
   const [isGalleryActive] = useRoute("/gallery");
   const [isContactActive] = useRoute("/contact");
   const [isProfileActive] = useRoute("/profile/*");
@@ -20,15 +20,15 @@ export default function Navigation() {
       <div className="flex justify-around items-center px-2 py-3">
         <Link href="/">
           <div className={`flex flex-col items-center ${isHomeActive ? 'text-primary' : 'text-gray-500'}`}>
-            <Wine className="w-5 h-5 text-[#2F3437]" />
+            <Package className="w-5 h-5 text-[#2F3437]" />
             <span className="mt-1 text-[10px] leading-tight whitespace-normal text-center break-words">홈</span>
           </div>
         </Link>
         
-        <Link href="/wine-bottles">
-          <div className={`flex flex-col items-center ${isWineBottlesActive ? 'text-primary' : 'text-gray-500'}`}>
-            <Wine className="w-5 h-5 text-[#0F7B6C]" />
-            <span className="mt-1 text-[10px] leading-tight whitespace-normal text-center break-words">와인병 선택</span>
+        <Link href="/package-selector">
+          <div className={`flex flex-col items-center ${isPackageSelectorActive ? 'text-primary' : 'text-gray-500'}`}>
+            <Package className="w-5 h-5 text-[#0F7B6C]" />
+            <span className="mt-1 text-[10px] leading-tight whitespace-normal text-center break-words">패키지 선택</span>
           </div>
         </Link>
         

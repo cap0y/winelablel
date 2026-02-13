@@ -1,10 +1,10 @@
 // 캐시 버전을 타임스탬프로 동적 생성하여 새 배포 시 자동 갱신
 const CACHE_VERSION = Date.now();
-const CACHE_NAME = `wine-app-cache-v${CACHE_VERSION}`;
-const STATIC_CACHE_NAME = `wine-static-cache-v${CACHE_VERSION}`;
+const CACHE_NAME = `package-app-cache-v${CACHE_VERSION}`;
+const STATIC_CACHE_NAME = `package-static-cache-v${CACHE_VERSION}`;
 
 // 정적 리소스만 사전 캐시
-const urlsToCache = ["/manifest.json", "/images/wine.svg"];
+const urlsToCache = ["/manifest.json", "/images/package.svg"];
 
 // 캐시 전략별 URL 패턴 정의
 const NETWORK_FIRST_PATTERNS = [
@@ -158,8 +158,8 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("push", (event) => {
   const options = {
     body: event.data ? event.data.text() : "새로운 알림이 있습니다",
-    icon: "/images/wine.svg",
-    badge: "/images/wine.svg",
+    icon: "/images/package.svg",
+    badge: "/images/package.svg",
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -169,7 +169,7 @@ self.addEventListener("push", (event) => {
       {
         action: "explore",
         title: "확인하기",
-        icon: "/images/wine.svg",
+        icon: "/images/package.svg",
       },
       {
         action: "close",

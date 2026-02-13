@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import {
-  Wine,
+  Package,
   Globe,
   LogIn,
   User,
@@ -182,12 +182,12 @@ function Header() {
         <Link href="/">
           <div className="flex items-center space-x-2">
             <img
-              src="/images/CCLEMANG_Logo_v.png"
-              alt="끄레망 로고"
-              className="h-8 w-auto"
+              src="/images/decomsoft-logo.jpg"
+              alt="디컴소프트 로고"
+              className="h-8 w-auto rounded"
             />
             <span className="text-xl font-bold text-gray-900">
-              나만의 와인만들기
+              패키지 디자인
             </span>
           </div>
         </Link>
@@ -332,7 +332,7 @@ function Header() {
               <DialogHeader>
                 <DialogTitle className="flex items-center space-x-2">
                   <FileImage className="w-5 h-5 text-primary" />
-                  <span>끄레망 - 공유 및 기능</span>
+                  <span>디컴소프트 - 공유 및 기능</span>
                 </DialogTitle>
                 <DialogDescription>
                   페이지 공유, 인쇄, 다운로드 등의 기능을 이용할 수 있습니다.
@@ -352,8 +352,8 @@ function Header() {
                       onClick={() => {
                         if (navigator.share) {
                           navigator.share({
-                            title: '끄레망 와인라벨',
-                            text: '나만의 특별한 와인 라벨을 만들어보세요!',
+                            title: '디컴소프트 패키지 디자인',
+                            text: '나만의 특별한 박스 패키지를 디자인해보세요!',
                             url: window.location.href
                           });
                         }
@@ -393,24 +393,24 @@ function Header() {
                         // 모달을 먼저 닫고 잠시 후 인쇄 실행
                         setShowShareModal(false);
                         setTimeout(() => {
-                          // 라벨 디자인 페이지인지 확인
-                          if (window.location.pathname.includes('/label-designer/')) {
-                            // 라벨 디자인 화면의 미리보기 영역 찾기
+                          // 패키지 디자인 페이지인지 확인
+                          if (window.location.pathname.includes('/package-designer/')) {
+                            // 패키지 디자인 화면의 미리보기 영역 찾기
                             const labelPreview = document.querySelector('[data-label-preview]') || 
-                                                document.querySelector('.wine-bottle-container') ||
+                                                document.querySelector('.product-package-container') ||
                                                 document.querySelector('.max-w-4xl.mx-auto.p-12');
                             
                             if (labelPreview) {
-                              console.log('라벨 미리보기 요소 찾음:', labelPreview);
+                              console.log('패키지 디자인 미리보기 요소 찾음:', labelPreview);
                               
                               // 현재 페이지에 인쇄 스타일 추가
                               const printStyle = document.createElement('style');
                               printStyle.textContent = `
                                 @media print {
                                   body * { visibility: hidden; }
-                                  .wine-bottle-container, .wine-bottle-container * { visibility: visible; }
+                                  .product-package-container, .product-package-container * { visibility: visible; }
                                   [data-label-preview], [data-label-preview] * { visibility: visible; }
-                                  .wine-bottle-container {
+                                  .product-package-container {
                                     position: absolute;
                                     left: 0;
                                     top: 0;
@@ -447,7 +447,7 @@ function Header() {
                                 document.head.removeChild(printStyle);
                               }, 1000);
                             } else {
-                              console.log('라벨 미리보기 요소를 찾을 수 없음, 전체 페이지 인쇄');
+                              console.log('디자인 미리보기 요소를 찾을 수 없음, 전체 페이지 인쇄');
                               window.print();
                             }
                           } else {
@@ -469,20 +469,20 @@ function Header() {
                         setShowShareModal(false);
                         
                         try {
-                          // 라벨 디자인 페이지인지 확인
-                          if (window.location.pathname.includes('/label-designer/')) {
-                            // 라벨 디자인 화면의 미리보기 영역 찾기 - 더 정확한 선택자 사용
+                          // 패키지 디자인 페이지인지 확인
+                          if (window.location.pathname.includes('/package-designer/')) {
+                            // 패키지 디자인 화면의 미리보기 영역 찾기 - 더 정확한 선택자 사용
                             let labelPreview = document.querySelector('[data-label-preview]');
                             
                             // 대체 선택자들 시도
                             if (!labelPreview) {
-                              labelPreview = document.querySelector('.wine-bottle-container');
+                              labelPreview = document.querySelector('.product-package-container');
                             }
                             if (!labelPreview) {
-                              // 라벨 프리뷰가 포함된 전체 컨테이너 찾기
+                              // 패키지 프리뷰가 포함된 전체 컨테이너 찾기
                               const containers = Array.from(document.querySelectorAll('div'));
                               for (const container of containers) {
-                                if (container.querySelector('img[alt*="와인"], img[src*="wine"], img[src*="bottle"]')) {
+                                if (container.querySelector('img[alt*="패키지"], img[src*="package"], img[src*="bottle"]')) {
                                   labelPreview = container;
                                   break;
                                 }
@@ -491,7 +491,7 @@ function Header() {
                             
                             if (labelPreview) {
                               const previewElement = labelPreview as HTMLElement;
-                              console.log('라벨 미리보기 요소 찾음, 다운로드 시작:', labelPreview);
+                              console.log('디자인 미리보기 요소 찾음, 다운로드 시작:', labelPreview);
                               console.log('요소 크기:', previewElement.offsetWidth, 'x', previewElement.offsetHeight);
                               
                               // html2canvas 동적 로드
@@ -628,7 +628,7 @@ function Header() {
                               console.log('데이터 URL 길이:', dataUrl.length);
                               
                               const link = document.createElement('a');
-                              link.download = `wine-label-${new Date().getTime()}.png`;
+                              link.download = `package-design-${new Date().getTime()}.png`;
                               link.href = dataUrl;
                               
                               // 브라우저 호환성을 위한 다운로드 방식
@@ -636,9 +636,9 @@ function Header() {
                               link.click();
                               document.body.removeChild(link);
                               
-                              console.log('라벨 이미지 다운로드 완료');
+                              console.log('디자인 이미지 다운로드 완료');
                             } else {
-                              alert('라벨 미리보기 영역을 찾을 수 없습니다.');
+                              alert('디자인 미리보기 영역을 찾을 수 없습니다.');
                             }
                           } else {
                             // 다른 페이지에서는 전체 화면 캡처
@@ -686,7 +686,7 @@ function Header() {
                       size="sm"
                       onClick={() => {
                         const url = encodeURIComponent(window.location.href);
-                        const text = encodeURIComponent('끄레망에서 나만의 와인 라벨을 만들어보세요!');
+                        const text = encodeURIComponent('디컴소프트에서 나만의 박스 패키지를 디자인해보세요!');
                         window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
                       }}
                       className="flex items-center justify-center space-x-2 text-blue-600 border-blue-200 hover:bg-blue-50"
@@ -699,7 +699,7 @@ function Header() {
                       size="sm"
                       onClick={() => {
                         const url = encodeURIComponent(window.location.href);
-                        const text = encodeURIComponent('끄레망에서 나만의 와인 라벨을 만들어보세요!');
+                        const text = encodeURIComponent('디컴소프트에서 나만의 박스 패키지를 디자인해보세요!');
                         window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
                       }}
                       className="flex items-center justify-center space-x-2 text-blue-400 border-blue-200 hover:bg-blue-50"
@@ -710,18 +710,18 @@ function Header() {
                   </div>
                 </div>
 
-                {/* 라벨 디자인 바로가기 */}
+                {/* 패키지 디자인 바로가기 */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-700">라벨 디자인</h3>
+                  <h3 className="text-sm font-semibold text-gray-700">패키지 디자인</h3>
                   <div className="grid grid-cols-1 gap-2">
-                    <Link href="/wine-bottles">
+                    <Link href="/package-selector">
                       <Button
                         variant="outline"
                         size="sm"
                         className="w-full flex items-center justify-center space-x-2 text-primary border-primary hover:bg-primary/5"
                       >
-                        <Wine className="w-4 h-4" />
-                        <span>와인병 선택하기</span>
+                        <Package className="w-4 h-4" />
+                        <span>패키지 선택하기</span>
                       </Button>
                     </Link>
                     <Link href="/gallery">
@@ -740,8 +740,8 @@ function Header() {
                 {/* 앱 정보 */}
                 <div className="pt-4 border-t border-gray-200">
                   <div className="text-center text-sm text-gray-500">
-                    <p>끄레망 와인라벨 제작 서비스</p>
-                    <p>특별한 순간을 위한 특별한 라벨</p>
+                    <p>디컴소프트 패키지 디자인 서비스</p>
+                    <p>특별한 순간을 위한 특별한 패키지</p>
                   </div>
                 </div>
               </div>

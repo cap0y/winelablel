@@ -10,7 +10,7 @@ import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { fileURLToPath } from 'url';
 import { eq, desc, and, sql, asc, or, like } from "drizzle-orm";
-import { orders, labelComments, labelRatings, labelLikes, labelCategories, labelBackgroundCategories, wineBottles, notifications, accessories, reservationLinks } from "../shared/schema";
+import { orders, labelComments, labelRatings, labelLikes, labelCategories, labelBackgroundCategories, productPackages, notifications, accessories, reservationLinks } from "../shared/schema";
 import { PortOneClient } from "@portone/server-sdk";
 import { users } from "../shared/schema";
 
@@ -29,7 +29,7 @@ const userSchema = z.object({
   isApproved: z.boolean().optional()
 });
 
-// 와인병 이미지 업로드를 위한 multer 설정
+// 패키지 이미지 업로드를 위한 multer 설정
 const publicDir = path.join(process.cwd(), 'public');
 const imagesDir = path.join(publicDir, 'images');
 const labelDir = path.join(imagesDir, 'label');
@@ -40,7 +40,7 @@ const uploadDir = path.join(imagesDir, 'upload');
 const dataDir = path.join(process.cwd(), 'data');
 const accessoriesJsonPath = path.join(dataDir, 'accessories.json');
 
-const bottleUploadStorage = multer.diskStorage({
+const packageUploadStorage = multer.diskStorage({
   destination: (_req: any, _file: any, cb: any) => {
     cb(null, publicDir);
   },
@@ -51,8 +51,8 @@ const bottleUploadStorage = multer.diskStorage({
   }
 });
 
-const bottleUpload = multer({
-  storage: bottleUploadStorage,
+const packageUpload = multer({
+  storage: packageUploadStorage,
   limits: {
     fileSize: 1024 * 1024 * 5 // 5MB
   },
@@ -448,7 +448,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 라벨 배경 이미지 목록 조회
+  // 디자인 배경 이미지 목록 조회
   app.get("/api/admin/labels/backgrounds", async (_req, res) => {
     try {
       // 디렉토리에서 파일 목록 읽기
@@ -498,10 +498,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true, backgrounds });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 이미지 조회 오류:", error);
+      console.error("[ERROR] 디자인 배경 이미지 조회 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 이미지 조회 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 이미지 조회 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
@@ -562,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 라벨 배경 이미지 업로드
+  // 디자인 배경 이미지 업로드
   app.post("/api/admin/labels/backgrounds/upload", uploadLabel.single('file'), async (req, res) => {
     try {
       if (!req.file) {
@@ -576,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: "라벨 배경 이미지가 성공적으로 업로드되었습니다.",
+        message: "디자인 배경 이미지가 성공적으로 업로드되었습니다.",
         file: {
           id: path.parse(file.filename).name,
           name: file.originalname,
@@ -587,10 +587,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 이미지 업로드 오류:", error);
+      console.error("[ERROR] 디자인 배경 이미지 업로드 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 이미지 업로드 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 이미지 업로드 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
@@ -661,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 라벨 배경 이미지 삭제
+  // 디자인 배경 이미지 삭제
   app.delete("/api/admin/labels/backgrounds/:filename", async (req, res) => {
     try {
       const filename = req.params.filename;
@@ -671,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fs.unlinkSync(filePath);
         res.json({
           success: true,
-          message: "라벨 배경 이미지가 성공적으로 삭제되었습니다."
+          message: "디자인 배경 이미지가 성공적으로 삭제되었습니다."
         });
       } else {
         res.status(404).json({
@@ -680,10 +680,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 이미지 삭제 오류:", error);
+      console.error("[ERROR] 디자인 배경 이미지 삭제 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 이미지 삭제 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 이미지 삭제 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
@@ -1545,37 +1545,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 매출 통계 API - 와인별 매출
-  app.get("/api/admin/stats/bottles", async (req, res) => {
+  // 매출 통계 API - 패키지별 매출
+  app.get("/api/admin/stats/packages", async (req, res) => {
     try {
-      // 와인별 매출 계산
-      const bottleSales: Record<string, { id: string, name: string, sales: number, count: number }> = {};
+      // 패키지별 매출 계산
+      const packageSales: Record<string, { id: string, name: string, sales: number, count: number }> = {};
       
-      // 주문 데이터로부터 와인별 매출 집계
+      // 주문 데이터로부터 패키지별 매출 집계
       const ordersList = await db.select().from(orders);
       
       ordersList.forEach((order: any) => {
         const { bottleId, bottleName, amount, quantity = 1 } = order;
         
-        if (!bottleSales[bottleId]) {
-          bottleSales[bottleId] = { id: bottleId, name: bottleName, sales: 0, count: 0 };
+        if (!packageSales[bottleId]) {
+          packageSales[bottleId] = { id: bottleId, name: bottleName, sales: 0, count: 0 };
         }
-        bottleSales[bottleId].sales += amount;
-        bottleSales[bottleId].count += quantity;
+        packageSales[bottleId].sales += amount;
+        packageSales[bottleId].count += quantity;
       });
       
       // 매출 기준 내림차순 정렬
-      const result = Object.values(bottleSales).sort((a, b) => b.sales - a.sales);
+      const result = Object.values(packageSales).sort((a, b) => b.sales - a.sales);
       
       res.json({
         success: true,
         data: result
       });
     } catch (error: any) {
-      console.error("[ERROR] 와인별 매출 통계 조회 오류:", error);
+      console.error("[ERROR] 패키지별 매출 통계 조회 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "와인별 매출 통계 조회 중 오류가 발생했습니다: " + error.message 
+        message: "패키지별 매출 통계 조회 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
@@ -1793,7 +1793,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 갤러리에 표시될 라벨 목록 API
+  // 갤러리에 표시될 디자인 목록 API
   app.get("/api/gallery/labels", async (req, res) => {
     try {
       
@@ -1821,10 +1821,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // publishToGallery 값 로깅
       labels.forEach((label, index) => {
-        console.log(`[DEBUG] 라벨 ${index + 1}: ID=${label.id}, publishToGallery=${label.publishToGallery}, title=${label.title || 'none'}`);
+        console.log(`[DEBUG] 디자인 ${index + 1}: ID=${label.id}, publishToGallery=${label.publishToGallery}, title=${label.title || 'none'}`);
       });
 
-      // 각 라벨에 대한 별점과 좋아요 수 계산
+      // 각 디자인에 대한 별점과 좋아요 수 계산
       const result = await Promise.all(labels.map(async (label) => {
         try {
           // 평균 별점 계산
@@ -1868,7 +1868,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             designer: designerName
           };
         } catch (itemError) {
-          console.error(`[ERROR] 라벨 ${label.id} 상세 정보 처리 오류:`, itemError);
+          console.error(`[ERROR] 디자인 ${label.id} 상세 정보 처리 오류:`, itemError);
           // 에러가 발생해도 기본 정보는 반환
           return {
             ...label,
@@ -1887,21 +1887,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         labels: result
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 갤러리 목록 조회 오류:", error);
-      res.status(500).json({
-        success: false,
-        message: "라벨 갤러리 목록 조회 중 오류가 발생했습니다: " + error.message
+      console.error("[ERROR] 디자인 갤러리 목록 조회 오류:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "디자인 갤러리 목록 조회 중 오류가 발생했습니다: " + error.message
       });
     }
   });
 
-  // 인기 라벨 이미지를 가져오는 API (슬라이더용)
+  // 인기 디자인 이미지를 가져오는 API (슬라이더용)
   app.get("/api/gallery/labels/popular", async (req, res) => {
     try {
       // 쿼리 파라미터에서 제한 수 가져오기
       const limit = parseInt(req.query.limit as string) || 5;
       
-      // 갤러리 표시가 허용된 라벨만 가져옴
+      // 갤러리 표시가 허용된 디자인만 가져옴
       const labels = await db.select({
         id: orders.id,
         title: orders.title,
@@ -1941,15 +1941,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         labels: result
       });
     } catch (error: any) {
-      console.error("[ERROR] 인기 라벨 이미지 조회 오류:", error);
-      res.status(500).json({
-        success: false,
-        message: "인기 라벨 이미지 조회 중 오류가 발생했습니다: " + error.message
+      console.error("[ERROR] 인기 디자인 이미지 조회 오류:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "인기 디자인 이미지 조회 중 오류가 발생했습니다: " + error.message
       });
     }
   });
 
-  // 라벨 상세 정보 API
+  // 디자인 상세 정보 API
   app.get("/api/gallery/labels/:labelId", async (req, res) => {
     try {
       const labelId = req.params.labelId;
@@ -1967,7 +1967,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!label || label.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "해당 라벨을 찾을 수 없습니다."
+          message: "해당 디자인을 찾을 수 없습니다."
         });
       }
 
@@ -2033,10 +2033,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 상세 정보 조회 오류:", error);
-      res.status(500).json({
-        success: false,
-        message: "라벨 상세 정보 조회 중 오류가 발생했습니다: " + error.message
+      console.error("[ERROR] 디자인 상세 정보 조회 오류:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "디자인 상세 정보 조회 중 오류가 발생했습니다: " + error.message
       });
     }
   });
@@ -2054,7 +2054,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // 라벨 존재 여부 확인
+      // 디자인 존재 여부 확인
       const label = await db.select()
         .from(orders)
         .where(
@@ -2068,7 +2068,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!label || label.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "해당 라벨을 찾을 수 없습니다."
+          message: "해당 디자인을 찾을 수 없습니다."
         });
       }
 
@@ -2133,7 +2133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // 라벨 존재 여부 확인
+      // 디자인 존재 여부 확인
       const label = await db.select()
         .from(orders)
         .where(
@@ -2147,7 +2147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!label || label.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "해당 라벨을 찾을 수 없습니다."
+          message: "해당 디자인을 찾을 수 없습니다."
         });
       }
 
@@ -2226,7 +2226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // 라벨 존재 여부 확인
+      // 디자인 존재 여부 확인
       const label = await db.select()
         .from(orders)
         .where(
@@ -2240,7 +2240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!label || label.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "해당 라벨을 찾을 수 없습니다."
+          message: "해당 디자인을 찾을 수 없습니다."
         });
       }
 
@@ -2335,7 +2335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: publish ? "라벨이 갤러리에 공개되었습니다." : "라벨이 갤러리에서 숨김처리 되었습니다.",
+        message: publish ? "디자인이 갤러리에 공개되었습니다." : "디자인이 갤러리에서 숨김처리 되었습니다.",
         order: updatedOrder[0]
       });
     } catch (error: any) {
@@ -2435,7 +2435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 라벨 배경 카테고리 목록 조회 API
+  // 디자인 배경 카테고리 목록 조회 API
   app.get("/api/admin/labels/categories", async (req, res) => {
     try {
       // 데이터베이스에서 카테고리 목록 조회
@@ -2448,15 +2448,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         categories
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 카테고리 목록 조회 오류:", error);
+      console.error("[ERROR] 디자인 배경 카테고리 목록 조회 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 카테고리 목록 조회 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 카테고리 목록 조회 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
   
-  // 라벨 배경 카테고리 생성 API
+  // 디자인 배경 카테고리 생성 API
   app.post("/api/admin/labels/categories", async (req, res) => {
     try {
       const { name, description = "", displayOrder = 0 } = req.body;
@@ -2503,15 +2503,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         category: newCategory[0]
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 카테고리 생성 오류:", error);
+      console.error("[ERROR] 디자인 배경 카테고리 생성 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 카테고리 생성 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 카테고리 생성 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
   
-  // 라벨 배경 카테고리 수정 API
+  // 디자인 배경 카테고리 수정 API
   app.patch("/api/admin/labels/categories/:categoryId", async (req, res) => {
     try {
       const categoryId = parseInt(req.params.categoryId);
@@ -2575,15 +2575,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         category: updatedCategory[0]
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 카테고리 수정 오류:", error);
+      console.error("[ERROR] 디자인 배경 카테고리 수정 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 카테고리 수정 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 카테고리 수정 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
   
-  // 라벨 배경 카테고리 삭제 API
+  // 디자인 배경 카테고리 삭제 API
   app.delete("/api/admin/labels/categories/:categoryId", async (req, res) => {
     try {
       const categoryId = parseInt(req.params.categoryId);
@@ -2614,15 +2614,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "카테고리가 성공적으로 삭제되었습니다."
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 배경 카테고리 삭제 오류:", error);
+      console.error("[ERROR] 디자인 배경 카테고리 삭제 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 배경 카테고리 삭제 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 배경 카테고리 삭제 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
   
-  // 라벨 배경 이미지에 카테고리 할당 API
+  // 디자인 배경 이미지에 카테고리 할당 API
   app.post("/api/admin/labels/backgrounds/:backgroundId/categories", async (req, res) => {
     try {
       const backgroundId = req.params.backgroundId;
@@ -2785,10 +2785,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         categories
       });
     } catch (error: any) {
-      console.error("[ERROR] 라벨 카테고리 목록 조회 오류:", error);
+      console.error("[ERROR] 디자인 카테고리 목록 조회 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "라벨 카테고리 목록 조회 중 오류가 발생했습니다: " + error.message 
+        message: "디자인 카테고리 목록 조회 중 오류가 발생했습니다: " + error.message 
       });
     }
   });
@@ -2829,143 +2829,143 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 와인병 관련 API 엔드포인트
-  app.get("/api/admin/bottles", async (_req, res) => {
+  // 패키지 관련 API 엔드포인트
+  app.get("/api/admin/packages", async (_req, res) => {
     try {
-      const bottles = await db.select().from(wineBottles).orderBy(asc(wineBottles.name));
+      const packages = await db.select().from(productPackages).orderBy(asc(productPackages.name));
       
       // 개별 컬럼들을 labelSize 객체로 변환
-      const formattedBottles = bottles.map(bottle => ({
-        ...bottle,
+      const formattedPackages = packages.map(pkg => ({
+        ...pkg,
         labelSize: {
-          width: parseFloat(bottle.labelWidth || "17.62"),
-          height: parseFloat(bottle.labelHeight || "20.16"),
+          width: parseFloat(pkg.labelWidth || "17.62"),
+          height: parseFloat(pkg.labelHeight || "20.16"),
           position: {
-            top: bottle.labelPositionTop || 70,
-            left: bottle.labelPositionLeft || 75
+            top: pkg.labelPositionTop || 70,
+            left: pkg.labelPositionLeft || 75
           }
         }
       }));
       
-      res.json({ success: true, bottles: formattedBottles });
+      res.json({ success: true, bottles: formattedPackages });
     } catch (error: any) {
-      console.error("[ERROR] 와인병 목록 조회 오류:", error);
-      res.status(500).json({ success: false, message: "와인병 목록을 불러오는데 실패했습니다: " + error.message });
+      console.error("[ERROR] 패키지 목록 조회 오류:", error);
+      res.status(500).json({ success: false, message: "패키지 목록을 불러오는데 실패했습니다: " + error.message });
     }
   });
 
-  app.get("/api/admin/bottles/:bottleId", async (req, res) => {
+  app.get("/api/admin/packages/:packageId", async (req, res) => {
     try {
-      const { bottleId } = req.params;
-      const bottle = await db.select().from(wineBottles).where(eq(wineBottles.id, bottleId)).limit(1);
+      const { packageId } = req.params;
+      const pkg = await db.select().from(productPackages).where(eq(productPackages.id, packageId)).limit(1);
       
-      if (bottle.length === 0) {
-        return res.status(404).json({ success: false, message: "해당 와인병을 찾을 수 없습니다." });
+      if (pkg.length === 0) {
+        return res.status(404).json({ success: false, message: "해당 패키지를 찾을 수 없습니다." });
       }
       
       // 개별 컬럼들을 labelSize 객체로 변환
-      const formattedBottle = {
-        ...bottle[0],
+      const formattedPackage = {
+        ...pkg[0],
         labelSize: {
-          width: parseFloat(bottle[0].labelWidth || "17.62"),
-          height: parseFloat(bottle[0].labelHeight || "20.16"),
+          width: parseFloat(pkg[0].labelWidth || "17.62"),
+          height: parseFloat(pkg[0].labelHeight || "20.16"),
           position: {
-            top: bottle[0].labelPositionTop || 70,
-            left: bottle[0].labelPositionLeft || 75
+            top: pkg[0].labelPositionTop || 70,
+            left: pkg[0].labelPositionLeft || 75
           }
         }
       };
       
-      res.json({ success: true, bottle: formattedBottle });
+      res.json({ success: true, bottle: formattedPackage });
     } catch (error: any) {
-      console.error("[ERROR] 와인병 조회 오류:", error);
-      res.status(500).json({ success: false, message: "와인병을 불러오는데 실패했습니다: " + error.message });
+      console.error("[ERROR] 패키지 조회 오류:", error);
+      res.status(500).json({ success: false, message: "패키지를 불러오는데 실패했습니다: " + error.message });
     }
   });
 
-  app.post("/api/admin/bottles", async (req, res) => {
+  app.post("/api/admin/packages", async (req, res) => {
     try {
-      const bottleData = req.body;
+      const packageData = req.body;
       
       // ID 중복 확인
-      const existingBottle = await db.select({ id: wineBottles.id })
-        .from(wineBottles)
-        .where(eq(wineBottles.id, bottleData.id))
+      const existingPackage = await db.select({ id: productPackages.id })
+        .from(productPackages)
+        .where(eq(productPackages.id, packageData.id))
         .limit(1);
       
-      if (existingBottle.length > 0) {
+      if (existingPackage.length > 0) {
         return res.status(409).json({ 
           success: false, 
           message: "이미 사용 중인 ID입니다. 다른 ID를 사용해주세요." 
         });
       }
       
-      // 와인병 추가
-      await db.insert(wineBottles).values(bottleData);
+      // 패키지 추가
+      await db.insert(productPackages).values(packageData);
       
-      res.status(201).json({ success: true, message: "와인병이 성공적으로 추가되었습니다." });
+      res.status(201).json({ success: true, message: "패키지가 성공적으로 추가되었습니다." });
     } catch (error: any) {
-      console.error("[ERROR] 와인병 추가 오류:", error);
-      res.status(500).json({ success: false, message: "와인병 추가 중 오류가 발생했습니다: " + error.message });
+      console.error("[ERROR] 패키지 추가 오류:", error);
+      res.status(500).json({ success: false, message: "패키지 추가 중 오류가 발생했습니다: " + error.message });
     }
   });
 
-  app.put("/api/admin/bottles/:bottleId", async (req, res) => {
+  app.put("/api/admin/packages/:packageId", async (req, res) => {
     try {
-      const { bottleId } = req.params;
-      const bottleData = req.body;
+      const { packageId } = req.params;
+      const packageData = req.body;
       
-      // 해당 와인병이 존재하는지 확인
-      const existingBottle = await db.select({ id: wineBottles.id, image: wineBottles.image })
-        .from(wineBottles)
-        .where(eq(wineBottles.id, bottleId))
+      // 해당 패키지가 존재하는지 확인
+      const existingPackage = await db.select({ id: productPackages.id, image: productPackages.image })
+        .from(productPackages)
+        .where(eq(productPackages.id, packageId))
         .limit(1);
       
-      if (existingBottle.length === 0) {
-        return res.status(404).json({ success: false, message: "해당 와인병을 찾을 수 없습니다." });
+      if (existingPackage.length === 0) {
+        return res.status(404).json({ success: false, message: "해당 패키지를 찾을 수 없습니다." });
       }
       
-      // 와인병 정보 업데이트
-      await db.update(wineBottles)
+      // 패키지 정보 업데이트
+      await db.update(productPackages)
         .set({
-          ...bottleData,
+          ...packageData,
           updatedAt: new Date()
         })
-        .where(eq(wineBottles.id, bottleId));
+        .where(eq(productPackages.id, packageId));
       
-      res.json({ success: true, message: "와인병 정보가 성공적으로 업데이트되었습니다." });
+      res.json({ success: true, message: "패키지 정보가 성공적으로 업데이트되었습니다." });
     } catch (error: any) {
-      console.error("[ERROR] 와인병 수정 오류:", error);
-      res.status(500).json({ success: false, message: "와인병 수정 중 오류가 발생했습니다: " + error.message });
+      console.error("[ERROR] 패키지 수정 오류:", error);
+      res.status(500).json({ success: false, message: "패키지 수정 중 오류가 발생했습니다: " + error.message });
     }
   });
 
-  app.delete("/api/admin/bottles/:bottleId", async (req, res) => {
+  app.delete("/api/admin/packages/:packageId", async (req, res) => {
     try {
-      const { bottleId } = req.params;
+      const { packageId } = req.params;
       
-      // 해당 와인병이 존재하는지 확인
-      const existingBottle = await db.select({ id: wineBottles.id, image: wineBottles.image })
-        .from(wineBottles)
-        .where(eq(wineBottles.id, bottleId))
+      // 해당 패키지가 존재하는지 확인
+      const existingPackage = await db.select({ id: productPackages.id, image: productPackages.image })
+        .from(productPackages)
+        .where(eq(productPackages.id, packageId))
         .limit(1);
       
-      if (existingBottle.length === 0) {
-        return res.status(404).json({ success: false, message: "해당 와인병을 찾을 수 없습니다." });
+      if (existingPackage.length === 0) {
+        return res.status(404).json({ success: false, message: "해당 패키지를 찾을 수 없습니다." });
       }
       
-      // 와인병 삭제
-      await db.delete(wineBottles).where(eq(wineBottles.id, bottleId));
+      // 패키지 삭제
+      await db.delete(productPackages).where(eq(productPackages.id, packageId));
       
-      res.json({ success: true, message: "와인병이 성공적으로 삭제되었습니다." });
+      res.json({ success: true, message: "패키지가 성공적으로 삭제되었습니다." });
     } catch (error: any) {
-      console.error("[ERROR] 와인병 삭제 오류:", error);
-      res.status(500).json({ success: false, message: "와인병 삭제 중 오류가 발생했습니다: " + error.message });
+      console.error("[ERROR] 패키지 삭제 오류:", error);
+      res.status(500).json({ success: false, message: "패키지 삭제 중 오류가 발생했습니다: " + error.message });
     }
   });
 
-  // 와인병 이미지 업로드 API
-  app.post("/api/admin/bottles/upload", bottleUpload.single('file'), async (req, res) => {
+  // 패키지 이미지 업로드 API
+  app.post("/api/admin/packages/upload", packageUpload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ success: false, message: "업로드된 파일이 없습니다." });
@@ -2974,20 +2974,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 파일 정보
       const { originalname, filename } = req.file;
       
-      // 이미지 URL 생성`
-      const imageUrl = `/uploads/bottles/${filename}`;
+      // 이미지 URL 생성
+      const imageUrl = `/uploads/packages/${filename}`;
       
       return res.json({
         success: true,
-        message: "와인병 이미지가 성공적으로 업로드되었습니다.",
+        message: "패키지 이미지가 성공적으로 업로드되었습니다.",
         url: imageUrl,
         filename
       });
     } catch (error: any) {
-      console.error("[ERROR] 와인병 이미지 업로드 오류:", error);
+      console.error("[ERROR] 패키지 이미지 업로드 오류:", error);
       res.status(500).json({ 
         success: false, 
-        message: "와인병 이미지 업로드 중 오류가 발생했습니다: " + error.message 
+        message: "패키지 이미지 업로드 중 오류가 발생했습니다: " + error.message 
       });
     }
   });

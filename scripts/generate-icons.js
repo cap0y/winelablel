@@ -11,8 +11,8 @@ if (!fs.existsSync(iconsDir)) {
   fs.mkdirSync(iconsDir, { recursive: true });
 }
 
-// 끄레망 로고 생성 함수
-function create끄레망Icon(size) {
+// 디컴소프트 로고 생성 함수
+function create디컴소프트Icon(size) {
   const canvas = createCanvas(size, size);
   const ctx = canvas.getContext('2d');
   
@@ -49,7 +49,7 @@ function create끄레망Icon(size) {
   ctx.fillRect(boxX, boxY - size * 0.05, boxSize, size * 0.1);
   ctx.strokeRect(boxX, boxY - size * 0.05, boxSize, size * 0.1);
   
-  // 'S' 문자 (끄레망의 S)
+  // 'S' 문자 (디컴소프트의 S)
   ctx.fillStyle = '#14b8a6';
   ctx.font = `bold ${size * 0.3}px Arial`;
   ctx.textAlign = 'center';
@@ -105,7 +105,7 @@ const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
 sizes.forEach(size => {
   // 일반 아이콘
-  const canvas = create끄레망Icon(size);
+  const canvas = create디컴소프트Icon(size);
   const buffer = canvas.toBuffer('image/png');
   fs.writeFileSync(path.join(iconsDir, `icon-${size}x${size}.png`), buffer);
   console.log(`Generated icon-${size}x${size}.png (${buffer.length} bytes)`);

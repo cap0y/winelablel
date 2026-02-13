@@ -31,7 +31,7 @@ import {
   BarChart, 
   ImageOff,
   Grid,
-  Wine,
+  Package,
   ExternalLink,
   Truck,
   Bell,
@@ -46,7 +46,7 @@ import { adminApi, userApi, orderApi, uploadApi } from "@/services/api";
 import SalesStatistics from "@/components/admin/SalesStatistics";
 import OrderManagement from "@/components/admin/OrderManagement";
 import LabelBackgroundManagement from "@/components/admin/LabelBackgroundManagement";
-import WineBottleManagement from "@/components/admin/WineBottleManagement";
+import PackageManagement from "@/components/admin/WineBottleManagement";
 import UserSalesStatistics from "@/components/user/UserSalesStatistics";
 import { useMemo } from "react";
 
@@ -164,7 +164,7 @@ interface LabelResource {
   createdAt: string;
 }
 
-interface WineOrder {
+interface PackageOrder {
   id: string;
   customerName: string;
   customerEmail: string;
@@ -184,7 +184,7 @@ interface WineOrder {
     textSize: number;
     subtextSize: number;
   };
-  labelImage?: string; // 캡처된 라벨 이미지 추가
+  labelImage?: string; // 캡처된 디자인 이미지 추가
   quantity: number;
   status: 'pending' | 'processed' | 'completed' | 'cancelled' | '결제대기' | '결제완료' | '제작중' | '배송준비' | '배송중' | '배송완료' | '주문취소';
   paymentStatus?: '결제대기' | '결제완료' | '결제취소'; // 결제 상태 추가
@@ -238,7 +238,7 @@ export default function ProfilePage() {
     bottles: false
   });
   
-  // 라벨 리소스 관리 상태
+  // 디자인 리소스 관리 상태
   const [labelBackgrounds, setLabelBackgrounds] = useState<LabelResource[]>([]);
   const [labelIcons, setLabelIcons] = useState<LabelResource[]>([]);
   const [labelBorders, setLabelBorders] = useState<LabelResource[]>([]);
@@ -253,10 +253,10 @@ export default function ProfilePage() {
   // 은행 설정 (은행 결제 표시용)
   const [bankConfig, setBankConfig] = useState<{ bankName: string; accountNo: string; accountHolder: string } | null>(null);
   
-  // 와인 주문 관리 상태
-  const [orders, setOrders] = useState<WineOrder[]>([]);
-  const [userOrders, setUserOrders] = useState<WineOrder[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<WineOrder | null>(null);
+  // 패키지 주문 관리 상태
+  const [orders, setOrders] = useState<PackageOrder[]>([]);
+  const [userOrders, setUserOrders] = useState<PackageOrder[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<PackageOrder | null>(null);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [orderStatusUpdating, setOrderStatusUpdating] = useState<boolean>(false);
   
@@ -345,7 +345,7 @@ export default function ProfilePage() {
           break;
         case "bottles":
           if (!adminDataLoaded.bottles) {
-            // WineBottleManagement 컴포넌트 내부에서 처리
+            // PackageManagement 컴포넌트 내부에서 처리
             setAdminDataLoaded(prev => ({ ...prev, bottles: true }));
           }
           break;
@@ -369,33 +369,33 @@ export default function ProfilePage() {
     }
   };
 
-  // 라벨 배경 이미지 로드
+  // 디자인 배경 이미지 로드
   const fetchLabelBackgrounds = async () => {
     try {
       const { data } = await adminApi.getLabelBackgrounds();
       setLabelBackgrounds(data.backgrounds || []);
     } catch (error) {
-      console.error("라벨 배경 이미지 조회 오류:", error);
+      console.error("디자인 배경 이미지 조회 오류:", error);
     }
   };
 
-  // 라벨 아이콘 및 장식 로드
+  // 디자인 아이콘 및 장식 로드
   const fetchLabelIcons = async () => {
     try {
       const { data } = await adminApi.getLabelIcons();
       setLabelIcons(data.icons || []);
     } catch (error) {
-      console.error("라벨 아이콘 및 장식 조회 오류:", error);
+      console.error("디자인 아이콘 및 장식 조회 오류:", error);
     }
   };
   
-  // 라벨 테두리 이미지 로드
+  // 디자인 테두리 이미지 로드
   const fetchLabelBorders = async () => {
     try {
       const { data } = await adminApi.getLabelBorders();
       setLabelBorders(data.borders || []);
     } catch (error) {
-      console.error("라벨 테두리 조회 오류:", error);
+      console.error("디자인 테두리 조회 오류:", error);
     }
   };
 
@@ -413,13 +413,13 @@ export default function ProfilePage() {
     }
   };
 
-  // 와인 주문 목록 로드
+  // 패키지 주문 목록 로드
   const fetchOrders = async () => {
     try {
       const { data } = await adminApi.getOrders();
       setOrders(data.orders || []);
     } catch (error) {
-      console.error("와인 주문 목록 조회 오류:", error);
+      console.error("패키지 주문 목록 조회 오류:", error);
     }
   };
   
@@ -476,15 +476,15 @@ export default function ProfilePage() {
     try {
       if (uploadType === 'background') {
         await adminApi.uploadLabelBackground(formData);
-        setUploadSuccess('라벨 배경 이미지가 성공적으로 업로드되었습니다.');
+        setUploadSuccess('디자인 배경 이미지가 성공적으로 업로드되었습니다.');
         fetchLabelBackgrounds();
       } else if (uploadType === 'icon') {
         await adminApi.uploadLabelIcon(formData);
-        setUploadSuccess('라벨 아이콘/장식 이미지가 성공적으로 업로드되었습니다.');
+        setUploadSuccess('디자인 아이콘/장식 이미지가 성공적으로 업로드되었습니다.');
         fetchLabelIcons();
       } else if (uploadType === 'border') {
         await adminApi.uploadLabelBorder(formData);
-        setUploadSuccess('라벨 테두리 이미지가 성공적으로 업로드되었습니다.');
+        setUploadSuccess('디자인 테두리 이미지가 성공적으로 업로드되었습니다.');
         fetchLabelBorders();
       }
     } catch (error: any) {
@@ -525,7 +525,7 @@ export default function ProfilePage() {
   };
   
   // 주문 인쇄 처리
-  const handlePrintLabel = (order: WineOrder) => {
+  const handlePrintLabel = (order: PackageOrder) => {
     setIsPrinting(true);
     
     // 인쇄 창 열기
@@ -537,48 +537,48 @@ export default function ProfilePage() {
       return;
     }
     
-    // 와인병 정보 가져오기
-    const getWineBottle = (bottleId: string) => {
+    // 패키지 정보 가져오기
+    const getProductPackage = (bottleId: string) => {
       const bottles = [
         {
           id: "bordeaux-red",
           name: "까베르네쇼비뇽 레드",
-          image: "/images/wine-bottle-1.png",
+          image: "/images/package-1.png",
           type: "red",
           bottleType: "bordeaux"
         },
         {
           id: "bordeaux-white", 
           name: "쇼비뇽블랑 화이트",
-          image: "/images/wine-bottle-2.png",
+          image: "/images/package-2.png",
           type: "white",
           bottleType: "bordeaux"
         },
         {
           id: "bordeaux-rose",
           name: "쇼비뇽블랑 로제", 
-          image: "/images/wine-bottle-3.png",
+          image: "/images/package-3.png",
           type: "rose",
           bottleType: "bordeaux"
         },
         {
           id: "burgundy-red",
           name: "샤도네이 레드",
-          image: "/images/wine-bottle-5.png", 
+          image: "/images/package-5.png", 
           type: "red",
           bottleType: "burgundy"
         },
         {
           id: "burgundy-white",
           name: "샤도네이 화이트",
-          image: "/images/wine-bottle-6.png",
+          image: "/images/package-6.png",
           type: "white", 
           bottleType: "burgundy"
         },
         {
           id: "burgundy-rose",
           name: "샤도네이 로제",
-          image: "/images/wine-bottle-7.png",
+          image: "/images/package-7.png",
           type: "rose",
           bottleType: "burgundy"
         }
@@ -586,13 +586,13 @@ export default function ProfilePage() {
       return bottles.find(bottle => bottle.id === bottleId);
     };
     
-    const wineBottle = getWineBottle(order.bottleId);
+    const productPackage = getProductPackage(order.bottleId);
     
     // 인쇄할 HTML 생성 - 전체 미리보기 스타일
     printWindow.document.write(`
       <html>
         <head>
-          <title>와인 라벨 디자인 미리보기</title>
+          <title>패키지 디자인 미리보기</title>
           <style>
             @media print {
               body { 
@@ -607,12 +607,12 @@ export default function ProfilePage() {
                 margin: 0 auto;
                 text-align: center;
               }
-              .wine-bottle-container {
+              .product-package-container {
                 position: relative;
                 display: inline-block;
                 margin: 20px 0;
               }
-              .wine-bottle {
+              .product-package {
                 height: 400px;
                 width: auto;
                 object-fit: contain;
@@ -715,20 +715,20 @@ export default function ProfilePage() {
         </head>
         <body>
           <div class="preview-container">
-            <h2 style="color: #722F37; margin-bottom: 30px;">와인 라벨 디자인 미리보기</h2>
+            <h2 style="color: #722F37; margin-bottom: 30px;">패키지 디자인 미리보기</h2>
             
-            <!-- 와인병과 라벨 미리보기 -->
-            <div class="wine-bottle-container">
-              <img src="${wineBottle?.image || '/images/wine-bottle-1.png'}" alt="${order.bottleName}" class="wine-bottle" />
+            <!-- 패키지와 디자인 미리보기 -->
+            <div class="product-package-container">
+              <img src="${productPackage?.image || '/images/package-1.png'}" alt="${order.bottleName}" class="product-package" />
               
-              <!-- 라벨 오버레이 -->
+              <!-- 디자인 오버레이 -->
               <div class="label-overlay">
                 ${order.labelImage ? `
-                  <img src="${order.labelImage}" alt="라벨 디자인" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" />
+                  <img src="${order.labelImage}" alt="패키지 디자인" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" />
                 ` : `
-                  <img src="/images/label/${order.labelDesign?.template || 'default'}.jpg" alt="라벨 배경" class="label-background" />
+                  <img src="/images/label/${order.labelDesign?.template || 'default'}.jpg" alt="디자인 배경" class="label-background" />
                   
-                  <div class="label-text">${order.labelDesign?.text || '와인 이름'}</div>
+                  <div class="label-text">${order.labelDesign?.text || '패키지 이름'}</div>
                   <div class="label-subtext">${order.labelDesign?.subtext || '부가 설명'}</div>
                   
                   ${order.labelDesign?.decorations ? order.labelDesign.decorations.map(deco => `
@@ -767,7 +767,7 @@ export default function ProfilePage() {
                   </div>
                   ` : ''}
                   <div class="info-item">
-                    <span class="info-label">와인병:</span>
+                    <span class="info-label">패키지:</span>
                     <span class="info-value">${order.bottleName}</span>
                   </div>
                 </div>
@@ -1052,7 +1052,7 @@ export default function ProfilePage() {
     onStatusUpdate, 
     isAdmin
   }: { 
-    order: WineOrder | null; 
+    order: PackageOrder | null; 
     onClose: () => void; 
     onStatusUpdate?: (orderId: string, status: 'pending' | 'processed' | 'completed' | 'cancelled') => Promise<void>;
     isAdmin?: boolean;
@@ -1062,7 +1062,7 @@ export default function ProfilePage() {
     const [galleryTitle, setGalleryTitle] = useState("");
     
     useEffect(() => {
-      // 선택된 주문이 변경될 때 타이틀을 주문 타이틀 또는 와인 이름으로 초기화
+      // 선택된 주문이 변경될 때 타이틀을 주문 타이틀 또는 패키지 이름으로 초기화
       if (order) {
         setGalleryTitle(order.title || order.bottleName || "");
       }
@@ -1132,7 +1132,7 @@ export default function ProfilePage() {
           <DialogHeader>
             <DialogTitle>주문 상세 정보</DialogTitle>
             <DialogDescription>
-              주문한 와인 라벨의 상세 정보와 디자인을 확인할 수 있습니다.
+              주문한 패키지 디자인의 상세 정보를 확인할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
           
@@ -1152,7 +1152,7 @@ export default function ProfilePage() {
                       ? '취소됨'
                       : '대기 중'
                   }</p>
-                  <p><span className="font-medium">와인병:</span> {order.bottleName}</p>
+                  <p><span className="font-medium">패키지:</span> {order.bottleName}</p>
                   <p><span className="font-medium">수량:</span> {order.quantity}개</p>
                   <p><span className="font-medium">금액:</span> {order.amount.toLocaleString()}원</p>
                   {order.paymentId && (
@@ -1343,7 +1343,7 @@ export default function ProfilePage() {
                   
                   {order.publishToGallery ? (
                     <div className="space-y-3">
-                      <p className="text-sm text-green-600">이 라벨은 현재 갤러리에 공개되어 있습니다.</p>
+                      <p className="text-sm text-green-600">이 디자인은 현재 갤러리에 공개되어 있습니다.</p>
                       <Button
                         variant="outline"
                         size="sm"
@@ -1362,7 +1362,7 @@ export default function ProfilePage() {
                           id="gallery-title"
                           value={galleryTitle}
                           onChange={(e) => setGalleryTitle(e.target.value)}
-                          placeholder="갤러리에 표시할 라벨 이름을 입력하세요"
+                          placeholder="갤러리에 표시할 디자인 이름을 입력하세요"
                           className="max-w-md"
                         />
                       </div>
@@ -1377,7 +1377,7 @@ export default function ProfilePage() {
                         {isPublishing ? "처리 중..." : "갤러리에 공개하기"}
                       </Button>
                       <p className="text-xs text-gray-500">
-                        갤러리에 공개하면 다른 사용자들이 이 라벨 디자인을 보고 좋아요와 댓글을 남길 수 있습니다.
+                        갤러리에 공개하면 다른 사용자들이 이 패키지 디자인을 보고 좋아요와 댓글을 남길 수 있습니다.
                       </p>
                     </div>
                   )}
@@ -1385,25 +1385,25 @@ export default function ProfilePage() {
               )}
               
               <div>
-                <h3 className="text-lg font-medium mb-2">라벨 인쇄</h3>
+                <h3 className="text-lg font-medium mb-2">디자인 인쇄</h3>
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => handlePrintLabel(order)}
                 >
                   <Printer className="w-4 h-4 mr-2" />
-                  라벨 인쇄
+                  디자인 인쇄
                 </Button>
               </div>
             </div>
             
             <div>
-              <h3 className="text-lg font-medium mb-2">라벨 디자인 미리보기</h3>
+              <h3 className="text-lg font-medium mb-2">패키지 디자인 미리보기</h3>
               <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-center">
                 {order.labelImage ? (
                   <img 
                     src={order.labelImage} 
-                    alt="와인 라벨 디자인" 
+                    alt="패키지 디자인" 
                     className="max-w-full max-h-[60vh] object-contain"
                   />
                 ) : (
@@ -1500,7 +1500,7 @@ export default function ProfilePage() {
       {/* 일반 회원 기능 */}
       {!isAdmin && (
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">내 와인 라벨</h2>
+          <h2 className="text-2xl font-bold mb-4">내 패키지 디자인</h2>
           
           <Tabs value={userActiveTab} onValueChange={setUserActiveTab as any}>
             <TabsList className="grid grid-cols-3 gap-2 bg-white/70 border border-gray-200 backdrop-blur-sm">
@@ -1521,7 +1521,7 @@ export default function ProfilePage() {
               <Card className="glass-card">
                 <CardHeader>
                   <CardTitle>나의 주문 내역</CardTitle>
-                  <CardDescription>내가 주문한 와인 라벨 내역</CardDescription>
+                  <CardDescription>내가 주문한 패키지 디자인 내역</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {userOrders.length > 0 ? (
@@ -1530,7 +1530,7 @@ export default function ProfilePage() {
                         <thead>
                           <tr className="bg-white/70">
                             <th className="px-4 py-2 text-left whitespace-nowrap">주문번호</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">와인병</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap">패키지</th>
                             <th className="px-4 py-2 text-left whitespace-nowrap">주문일</th>
                             <th className="px-4 py-2 text-left whitespace-nowrap">결제상태</th>
                             <th className="px-4 py-2 text-left whitespace-nowrap">주문상태</th>
@@ -1799,9 +1799,9 @@ export default function ProfilePage() {
             className="mt-6"
           >
             <TabsList className="grid grid-cols-5 gap-2 bg-white/70 border border-gray-200 backdrop-blur-sm">
-              <TabsTrigger value="bottles">와인병/가격</TabsTrigger>
+              <TabsTrigger value="bottles">패키지/가격</TabsTrigger>
               <TabsTrigger value="backgrounds">배경 카테고리</TabsTrigger>
-              <TabsTrigger value="labels">라벨 리소스</TabsTrigger>
+              <TabsTrigger value="labels">디자인 리소스</TabsTrigger>
               <TabsTrigger value="orders">주문 관리</TabsTrigger>
               <TabsTrigger value="stats">매출 통계</TabsTrigger>
             </TabsList>
@@ -1811,12 +1811,12 @@ export default function ProfilePage() {
               <LabelBackgroundManagement />
             </TabsContent>
             
-            {/* 라벨 관리 탭 */}
+            {/* 디자인 관리 탭 */}
             <TabsContent value="labels">
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle>와인 라벨 리소스 관리</CardTitle>
-                  <CardDescription>라벨 배경, 아이콘 및 장식을 관리합니다.</CardDescription>
+                  <CardTitle>패키지 디자인 리소스 관리</CardTitle>
+                  <CardDescription>디자인 배경, 아이콘 및 장식을 관리합니다.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -2126,7 +2126,7 @@ export default function ProfilePage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-gray-900">매출 통계</CardTitle>
-                    <CardDescription className="text-gray-600">와인 주문 매출 통계를 확인합니다.</CardDescription>
+                    <CardDescription className="text-gray-600">패키지 주문 매출 통계를 확인합니다.</CardDescription>
                   </div>
                   <BarChart className="w-6 h-6 text-gray-600" />
                 </CardHeader>
@@ -2136,9 +2136,9 @@ export default function ProfilePage() {
               </Card>
             </TabsContent>
 
-            {/* 와인병/가격 탭 */}
+            {/* 패키지/가격 탭 */}
             <TabsContent value="bottles">
-              <WineBottleManagement />
+              <PackageManagement />
             </TabsContent>
           </Tabs>
         </div>

@@ -1,7 +1,7 @@
 {
-  "name": "끄레망 와인라벨 - 나만의 와인 라벨 제작",
-  "short_name": "끄레망",
-  "description": "특별한 순간을 위한 나만의 와인 라벨을 제작하세요",
+  "name": "디컴소프트 패키지 디자인 - 나만의 박스 패키지 제작",
+  "short_name": "디컴소프트",
+  "description": "특별한 순간을 위한 나만의 박스 패키지를 디자인하세요",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["standalone", "fullscreen"],
@@ -13,7 +13,7 @@
   "categories": ["lifestyle", "business", "utilities"],
   "icons": [
     {
-      "src": "/images/wine.svg",
+      "src": "/images/package.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
@@ -21,10 +21,10 @@
   ],
   "shortcuts": [
     {
-      "name": "와인병 선택",
-      "short_name": "와인병 선택",
-      "description": "원하는 와인병을 선택하세요",
-      "url": "/wine-bottles"
+      "name": "패키지 선택",
+      "short_name": "패키지 선택",
+      "description": "원하는 패키지를 선택하세요",
+      "url": "/package-selector"
     },
     {
       "name": "갤러리",

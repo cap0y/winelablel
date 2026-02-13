@@ -23,7 +23,7 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// 와인 주문 테이블 정의
+// 패키지 디자인 주문 테이블 정의
 export const orders = pgTable("orders", {
   id: text("id").primaryKey(), // ORDER-XXXXXXXX 형식의 주문번호
   customerName: text("customer_name").notNull(),
@@ -37,8 +37,8 @@ export const orders = pgTable("orders", {
   amount: integer("amount").notNull(),
   status: text("status").default('pending'), // 'pending', 'processed', 'completed', 'cancelled'
   paymentId: text("payment_id"), // 결제 식별자
-  labelDesign: jsonb("label_design").notNull(), // 라벨 디자인 데이터
-  labelImage: text("label_image"), // base64로 인코딩된 라벨 이미지 데이터
+  labelDesign: jsonb("label_design").notNull(), // 패키지 디자인 데이터
+  labelImage: text("label_image"), // base64로 인코딩된 디자인 이미지 데이터
   deliveryMethod: text("delivery_method").default('standard'), // 'standard', 'express', 'same-day'
   deliveryFee: integer("delivery_fee").default(3000),
   trackingNumber: text("tracking_number"), // 운송장 번호
@@ -47,12 +47,12 @@ export const orders = pgTable("orders", {
   shippingNotifiedAt: timestamp("shipping_notified_at"), // 배송 알림 전송 시간
   userId: integer("user_id").references(() => users.id), // 회원 주문인 경우 사용자 ID
   publishToGallery: boolean("publish_to_gallery").default(false), // 갤러리에 공개 여부
-  title: text("title"), // 갤러리에 표시될 라벨 제목
+  title: text("title"), // 갤러리에 표시될 디자인 제목
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 라벨 댓글 테이블
+// 디자인 댓글 테이블
 export const labelComments = pgTable("label_comments", {
   id: serial("id").primaryKey(),
   orderId: text("order_id").references(() => orders.id).notNull(),
@@ -62,7 +62,7 @@ export const labelComments = pgTable("label_comments", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 라벨 별점 테이블
+// 디자인 별점 테이블
 export const labelRatings = pgTable("label_ratings", {
   id: serial("id").primaryKey(),
   orderId: text("order_id").references(() => orders.id).notNull(),
@@ -72,7 +72,7 @@ export const labelRatings = pgTable("label_ratings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 라벨 좋아요 테이블
+// 디자인 좋아요 테이블
 export const labelLikes = pgTable("label_likes", {
   id: serial("id").primaryKey(),
   orderId: text("order_id").references(() => orders.id).notNull(),
@@ -80,7 +80,7 @@ export const labelLikes = pgTable("label_likes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// 라벨 배경 카테고리 테이블 추가
+// 디자인 배경 카테고리 테이블 추가
 export const labelCategories = pgTable("label_categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -142,8 +142,8 @@ export const reservations = pgTable("reservations", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// 와인병 테이블 정의
-export const wineBottles = pgTable("wine_bottles", {
+// 패키지 제품 테이블 정의 (DB 테이블명: wine_bottles 유지)
+export const productPackages = pgTable("wine_bottles", {
   id: text("id").primaryKey(), // bordeaux-red, burgundy-white 등
   name: text("name").notNull(),
   image: text("image").notNull(),
@@ -314,7 +314,7 @@ export const insertLabelBackgroundCategorySchema = createInsertSchema(labelBackg
   categoryId: true,
 });
 
-export const insertWineBottleSchema = createInsertSchema(wineBottles);
+export const insertProductPackageSchema = createInsertSchema(productPackages);
 export const insertAccessorySchema = createInsertSchema(accessories).pick({
   name: true,
   price: true,

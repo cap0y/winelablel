@@ -65,15 +65,15 @@ export const userApi = {
 
 // 갤러리 관련 API
 export const galleryApi = {
-  // 라벨 갤러리 목록 - 캐시 무효화 옵션 추가
+  // 디자인 갤러리 목록 - 캐시 무효화 옵션 추가
   getLabels: () => api.get('/api/gallery/labels', {
     params: { _t: new Date().getTime() } // 캐시 방지 타임스탬프 추가
   }),
   
-  // 인기 라벨 이미지 (슬라이더용)
+  // 인기 디자인 이미지 (슬라이더용)
   getPopularLabelImages: (limit = 5) => api.get(`/api/gallery/labels/popular?limit=${limit}`),
   
-  // 라벨 상세 정보
+  // 디자인 상세 정보
   getLabelDetail: (labelId: string) => api.get(`/api/gallery/labels/${labelId}`),
   
   // 댓글 작성
@@ -98,78 +98,78 @@ export const orderApi = {
 
 // 관리자 관련 API
 export const adminApi = {
-  // 와인 라벨 배경 목록 가져오기
+  // 디자인 배경 목록 가져오기
   getLabelBackgrounds: () => api.get('/api/admin/labels/backgrounds'),
   
-  // 와인 아이콘 및 장식 목록 가져오기
+  // 디자인 아이콘 및 장식 목록 가져오기
   getLabelIcons: () => api.get('/api/admin/labels/icons'),
   
-  // 와인 테두리 목록 가져오기
+  // 디자인 테두리 목록 가져오기
   getLabelBorders: () => api.get('/api/admin/labels/borders'),
   
-  // 와인병 목록 가져오기
-  getWineBottles: () => api.get('/api/admin/bottles'),
+  // 패키지 목록 가져오기
+  getPackages: () => api.get('/api/admin/packages'),
   
-  // 와인병 상세 정보 가져오기
-  getWineBottle: (bottleId: string) => api.get(`/api/admin/bottles/${bottleId}`),
+  // 패키지 상세 정보 가져오기
+  getPackage: (packageId: string) => api.get(`/api/admin/packages/${packageId}`),
   
-  // 와인병 추가
-  createWineBottle: (bottleData: any) => api.post('/api/admin/bottles', bottleData),
+  // 패키지 추가
+  createPackage: (packageData: any) => api.post('/api/admin/packages', packageData),
   
-  // 와인병 정보 수정
-  updateWineBottle: (bottleId: string, bottleData: any) => api.put(`/api/admin/bottles/${bottleId}`, bottleData),
+  // 패키지 정보 수정
+  updatePackage: (packageId: string, packageData: any) => api.put(`/api/admin/packages/${packageId}`, packageData),
   
-  // 와인병 삭제
-  deleteWineBottle: (bottleId: string) => api.delete(`/api/admin/bottles/${bottleId}`),
+  // 패키지 삭제
+  deletePackage: (packageId: string) => api.delete(`/api/admin/packages/${packageId}`),
   
-  // 와인병 이미지 업로드
-  uploadWineBottleImage: (formData: FormData) => 
-    api.post('/api/admin/bottles/upload', formData, {
+  // 패키지 이미지 업로드
+  uploadPackageImage: (formData: FormData) => 
+    api.post('/api/admin/packages/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
   
-  // 와인 라벨 배경 업로드
+  // 디자인 배경 업로드
   uploadLabelBackground: (formData: FormData) => 
     api.post('/api/admin/labels/backgrounds/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
   
-  // 와인 아이콘/장식 업로드
+  // 디자인 아이콘/장식 업로드
   uploadLabelIcon: (formData: FormData) => 
     api.post('/api/admin/labels/icons/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
     
-  // 와인 테두리 업로드
+  // 디자인 테두리 업로드
   uploadLabelBorder: (formData: FormData) => 
     api.post('/api/admin/labels/borders/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
   
-  // 와인 라벨 배경 삭제
+  // 디자인 배경 삭제
   deleteLabelBackground: (filename: string) => 
     api.delete(`/api/admin/labels/backgrounds/${filename}`),
   
-  // 와인 아이콘/장식 삭제
+  // 디자인 아이콘/장식 삭제
   deleteLabelIcon: (filename: string) => 
     api.delete(`/api/admin/labels/icons/${filename}`),
     
-  // 와인 테두리 삭제
+  // 디자인 테두리 삭제
   deleteLabelBorder: (filename: string) => 
     api.delete(`/api/admin/labels/borders/${filename}`),
 
-  // 라벨 배경 카테고리 목록 조회
+  // 디자인 배경 카테고리 목록 조회
   getLabelCategories: () => api.get('/api/admin/labels/categories'),
 
-  // 라벨 배경 카테고리 생성
+  // 디자인 배경 카테고리 생성
   createLabelCategory: (categoryData: { name: string, description?: string, displayOrder?: number }) => 
     api.post('/api/admin/labels/categories', categoryData),
 
-  // 라벨 배경 카테고리 수정
+  // 디자인 배경 카테고리 수정
   updateLabelCategory: (categoryId: number, categoryData: { name?: string, description?: string, displayOrder?: number, isActive?: boolean }) => 
     api.patch(`/api/admin/labels/categories/${categoryId}`, categoryData),
 
-  // 라벨 배경 카테고리 삭제
+  // 디자인 배경 카테고리 삭제
   deleteLabelCategory: (categoryId: number) => 
     api.delete(`/api/admin/labels/categories/${categoryId}`),
 
@@ -204,8 +204,8 @@ export const adminApi = {
   // 매출 통계 API - 요약 정보
   getSalesSummary: () => api.get('/api/admin/stats/summary'),
   
-  // 매출 통계 API - 와인별 판매량
-  getBottleSales: () => api.get('/api/admin/stats/bottles'),
+  // 매출 통계 API - 패키지별 판매량
+  getPackageSales: () => api.get('/api/admin/stats/packages'),
 
   // 소품(액세서리) 관리 API
   getAccessories: () => api.get('/api/admin/accessories'),
@@ -224,7 +224,7 @@ export const adminApi = {
   deleteReservationLink: (id: number) => api.delete(`/api/admin/reservation-links/${id}`)
 };
 
-// 라벨 디자인 관련 API
+// 패키지 디자인 관련 API
 export const labelApi = {
   // 카테고리별 배경 이미지 조회
   getBackgroundsByCategory: (categorySlug: string) => 
@@ -233,8 +233,8 @@ export const labelApi = {
   // 모든 카테고리 목록 조회 (활성화된 카테고리만)
   getCategories: () => api.get('/api/labels/categories'),
   
-  // 와인병 목록 조회
-  getWineBottles: () => api.get('/api/admin/bottles'),
+  // 패키지 목록 조회
+  getPackages: () => api.get('/api/admin/packages'),
   getAccessories: () => api.get('/api/accessories'),
 
   // 공개 예약 링크

@@ -24,7 +24,7 @@ export default function Contact() {
   const isAdmin = user?.userType === "admin";
 
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"general" | "wine">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "package">("general");
 
   // 예약 링크 - 서버 저장/조회
   type LinkItem = { id?: number; title: string; url: string; isActive?: boolean; displayOrder?: number };
@@ -132,7 +132,7 @@ export default function Contact() {
     try { await navigator.clipboard.writeText(text); } catch {}
   };
 
-  /* FAQ 데이터 – 결제 & 와인라벨 */
+  /* FAQ 데이터 – 결제 & 패키지디자인 */
   const generalFaqs = [
     {
       id: "payment_flow",
@@ -150,7 +150,7 @@ export default function Contact() {
       id: "receipt",
       question: "영수증 및 세금계산서 발급",
       answer:
-        "결제 완료 후 info@cclemang.com 로 사업자 정보를 보내주세요.",
+        "결제 완료 후 decom2soft@gmail.com 로 사업자 정보를 보내주세요.",
     },
     {
       id: "refund_policy",
@@ -160,40 +160,40 @@ export default function Contact() {
     },
   ];
 
-  const wineFaqs = [
+  const packageFaqs = [
     {
       id: "design_process",
-      question: "라벨 디자인 과정",
+      question: "패키지 디자인 과정",
       answer:
-        "웹사이트에서 원하는 와인병을 선택한 후, 제공되는 디자인 도구를 이용해 텍스트, 이미지, 장식 등을 추가하여 나만의 라벨을 만들 수 있습니다.",
+        "웹사이트에서 원하는 패키지를 선택한 후, 제공되는 디자인 도구를 이용해 텍스트, 이미지, 장식 등을 추가하여 나만의 패키지를 만들 수 있습니다.",
     },
     {
       id: "delivery",
       question: "배송 및 소요 시간",
       answer:
-        "라벨 제작 완료 후 배송까지 약 3-5일 정도 소요됩니다. 주문량이 많거나 특별한 디자인의 경우 추가 시간이 필요할 수 있습니다.",
+        "패키지 제작 완료 후 배송까지 약 3-5일 정도 소요됩니다. 주문량이 많거나 특별한 디자인의 경우 추가 시간이 필요할 수 있습니다.",
     },
     {
-      id: "wine_types",
-      question: "와인 종류 및 품질",
+      id: "package_types",
+      question: "패키지 종류 및 품질",
       answer:
-        "레드, 화이트, 로제, 스파클링 등 다양한 종류의 와인을 제공하고 있으며, 모두 엄선된 품질의 와인입니다. 각 와인에 대한 상세 정보는 와인 선택 페이지에서 확인하실 수 있습니다.",
+        "선물용 박스, 제품 포장 박스, 이벤트 패키지 등 다양한 종류의 패키지를 제공하고 있으며, 모두 엄선된 품질의 소재로 제작됩니다. 각 패키지에 대한 상세 정보는 패키지 선택 페이지에서 확인하실 수 있습니다.",
     },
     {
       id: "bulk_order",
       question: "대량 주문 및 기업 선물",
       answer:
-        "기업 행사나 단체 선물을 위한 대량 주문도 가능합니다. 10병 이상 주문 시 10%, 50병 이상 주문 시 20% 할인이 적용됩니다. 별도의 견적이 필요하시면 고객센터로 연락 주시기 바랍니다.",
+        "기업 행사나 단체 선물을 위한 대량 주문도 가능합니다. 10개 이상 주문 시 10%, 50개 이상 주문 시 20% 할인이 적용됩니다. 별도의 견적이 필요하시면 고객센터로 연락 주시기 바랍니다.",
     },
     {
-      id: "label_quality",
-      question: "라벨 인쇄 품질 및 재질",
+      id: "print_quality",
+      question: "인쇄 품질 및 재질",
       answer:
-        "모든 라벨은 고품질 방수 스티커 용지에 1200dpi 이상의 해상도로 인쇄되어 선명하고 오래 지속됩니다. 와인병에 부착 후에도 쉽게 벗겨지거나 색이 바래지 않습니다.",
+        "모든 패키지는 고품질 소재에 1200dpi 이상의 해상도로 인쇄되어 선명하고 오래 지속됩니다. 제품 포장 후에도 쉽게 벗겨지거나 색이 바래지 않습니다.",
     },
   ];
 
-  const faqData = activeTab === "general" ? generalFaqs : wineFaqs;
+  const faqData = activeTab === "general" ? generalFaqs : packageFaqs;
 
   const toggleFaq = (id: string) => {
     setExpandedFaq(expandedFaq === id ? null : id);
@@ -331,7 +331,7 @@ export default function Contact() {
           <CardContent className="p-3.5 flex flex-col items-center space-y-1.5">
             <Mail className="w-6 h-6 text-[#0F7B6C]" />
             <p className="font-medium">이메일 문의</p>
-            <p className="text-sm text-gray-600">info@cclemang.com</p>
+            <p className="text-sm text-gray-600">decom2soft@gmail.com</p>
           </CardContent>
         </Card>
 
@@ -339,7 +339,7 @@ export default function Contact() {
           <CardContent className="p-3.5 flex flex-col items-center space-y-1.5">
             <MessageSquare className="w-6 h-6 text-[#8A3FFC]" />
             <p className="font-medium">카카오톡 채널</p>
-            <p className="text-sm text-gray-600">@끄레망</p>
+            <p className="text-sm text-gray-600">@디컴소프트</p>
           </CardContent>
         </Card>
       </section>
@@ -362,7 +362,7 @@ export default function Contact() {
               <div className="space-y-2 text-sm text-gray-700">
                 <p>
                   <span className="font-medium text-gray-900">회사명:</span>{" "}
-                  (주)끄레망
+                  주식회사 디컴소프트
                 </p>
                 <p>
                   <span className="font-medium text-gray-900">사업자등록번호:</span>{" "}
@@ -395,15 +395,15 @@ export default function Contact() {
             공통질문
           </Button>
           <Button
-            variant={activeTab === "wine" ? "default" : "outline"}
-            onClick={() => setActiveTab("wine")}
+            variant={activeTab === "package" ? "default" : "outline"}
+            onClick={() => setActiveTab("package")}
             className={`text-sm ${
-              activeTab === "wine"
+              activeTab === "package"
                 ? "bg-primary text-white"
                 : "bg-white/70 border-gray-200 text-gray-700 backdrop-blur-sm"
             }`}
           >
-            끄레망 와인라벨
+            패키지 디자인
           </Button>
         </div>
 

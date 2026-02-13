@@ -19,14 +19,14 @@ const SalesStatistics = () => {
   const [summary, setSummary] = useState<any>(null);
   const [dailySales, setDailySales] = useState<any[]>([]);
   const [monthlySales, setMonthlySales] = useState<any[]>([]);
-  const [bottleSales, setBottleSales] = useState<any[]>([]);
+  const [packageSales, setPackageSales] = useState<any[]>([]);
   
   // 캐싱 관련 상태
   const [dataLoaded, setDataLoaded] = useState({
     summary: false,
     daily: false,
     monthly: false,
-    bottles: false
+    packages: false
   });
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const [cacheExpiry] = useState<number>(300000); // 5분 캐시
@@ -36,7 +36,7 @@ const SalesStatistics = () => {
     const now = Date.now();
     
     // 캐시가 유효하고 강제 새로고침이 아닌 경우 생략
-    if (!forceRefresh && dataLoaded.summary && dataLoaded.daily && dataLoaded.monthly && dataLoaded.bottles && (now - lastFetchTime) < cacheExpiry) {
+    if (!forceRefresh && dataLoaded.summary && dataLoaded.daily && dataLoaded.monthly && dataLoaded.packages && (now - lastFetchTime) < cacheExpiry) {
       console.log("캐시된 통계 데이터 사용");
       return;
     }
@@ -49,11 +49,11 @@ const SalesStatistics = () => {
     
     try {
       // 모든 API를 병렬로 호출하여 성능 향상
-      const [summaryResponse, dailyResponse, monthlyResponse, bottlesResponse] = await Promise.allSettled([
+      const [summaryResponse, dailyResponse, monthlyResponse, packagesResponse] = await Promise.allSettled([
         adminApi.getSalesSummary(),
         adminApi.getDailySales(),
         adminApi.getMonthlySales(),
-        adminApi.getBottleSales()
+        adminApi.getPackageSales()
       ]);
       
       // 성공한 응답들 처리
@@ -69,8 +69,8 @@ const SalesStatistics = () => {
         setMonthlySales(monthlyResponse.value.data.data);
       }
       
-      if (bottlesResponse.status === 'fulfilled') {
-        setBottleSales(bottlesResponse.value.data.data);
+      if (packagesResponse.status === 'fulfilled') {
+        setPackageSales(packagesResponse.value.data.data);
       }
       
       // 캐시 상태 업데이트
@@ -78,7 +78,7 @@ const SalesStatistics = () => {
         summary: summaryResponse.status === 'fulfilled',
         daily: dailyResponse.status === 'fulfilled',
         monthly: monthlyResponse.status === 'fulfilled',
-        bottles: bottlesResponse.status === 'fulfilled'
+        packages: packagesResponse.status === 'fulfilled'
       });
       
       setLastFetchTime(now);
@@ -109,9 +109,9 @@ const SalesStatistics = () => {
   const chartData = useMemo(() => {
     return {
       recentDailySales: [...dailySales].reverse().slice(0, 30),
-      topBottles: bottleSales.slice(0, 5)
+      topPackages: packageSales.slice(0, 5)
     };
-  }, [dailySales, bottleSales]);
+  }, [dailySales, packageSales]);
 
   // 한국어 날짜 포맷 (월)
   const formatMonth = (month: string) => {
@@ -274,23 +274,23 @@ const SalesStatistics = () => {
     );
   };
   
-  const renderBottlesChart = () => {
-    if (bottleSales.length === 0) return <div>데이터 로드 중...</div>;
+  const renderPackagesChart = () => {
+    if (packageSales.length === 0) return <div>데이터 로드 중...</div>;
     
     // 최대 5개만 표시
-    const topBottles = bottleSales.slice(0, 5);
+    const topPackages = packageSales.slice(0, 5);
     
     return (
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle>와인별 판매 통계</CardTitle>
+          <CardTitle>패키지별 판매 통계</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={topBottles}
+                  data={topPackages}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -300,7 +300,7 @@ const SalesStatistics = () => {
                   dataKey="sales"
                   nameKey="name"
                 >
-                  {topBottles.map((entry, index) => (
+                  {topPackages.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -315,17 +315,17 @@ const SalesStatistics = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 text-gray-700">와인명</th>
+                  <th className="text-left py-2 text-gray-700">패키지명</th>
                   <th className="text-right py-2 text-gray-700">판매량</th>
                   <th className="text-right py-2 text-gray-700">매출</th>
                 </tr>
               </thead>
               <tbody>
-                {bottleSales.map((bottle, index) => (
-                  <tr key={bottle.id} className="border-b border-gray-200">
-                    <td className="py-2 text-gray-900">{bottle.name}</td>
-                    <td className="text-right py-2 text-gray-900">{bottle.count}개</td>
-                    <td className="text-right py-2 text-gray-900">{formatCurrency(bottle.sales)}원</td>
+                {packageSales.map((pkg, index) => (
+                  <tr key={pkg.id} className="border-b border-gray-200">
+                    <td className="py-2 text-gray-900">{pkg.name}</td>
+                    <td className="text-right py-2 text-gray-900">{pkg.count}개</td>
+                    <td className="text-right py-2 text-gray-900">{formatCurrency(pkg.sales)}원</td>
                   </tr>
                 ))}
               </tbody>
@@ -343,7 +343,7 @@ const SalesStatistics = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>{renderDailyChart()}</div>
-          <div>{renderBottlesChart()}</div>
+          <div>{renderPackagesChart()}</div>
         </div>
         
         <div>{renderMonthlyChart()}</div>
@@ -384,7 +384,7 @@ const SalesStatistics = () => {
           <TabsTrigger value="summary">요약</TabsTrigger>
           <TabsTrigger value="daily">일별 매출</TabsTrigger>
           <TabsTrigger value="monthly">월별 매출</TabsTrigger>
-          <TabsTrigger value="bottles">와인별 매출</TabsTrigger>
+          <TabsTrigger value="packages">패키지별 매출</TabsTrigger>
         </TabsList>
         
         <TabsContent value="dashboard" className="mt-6">
@@ -409,8 +409,8 @@ const SalesStatistics = () => {
           {isLoading ? <div>데이터 로드 중...</div> : renderMonthlyChart()}
         </TabsContent>
         
-        <TabsContent value="bottles" className="mt-6">
-          {isLoading ? <div>데이터 로드 중...</div> : renderBottlesChart()}
+        <TabsContent value="packages" className="mt-6">
+          {isLoading ? <div>데이터 로드 중...</div> : renderPackagesChart()}
         </TabsContent>
       </Tabs>
     </div>

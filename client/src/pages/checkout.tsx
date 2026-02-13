@@ -9,7 +9,7 @@ import {
   FileEdit,
   Truck,
   Home,
-  Wine,
+  Package,
   Package2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -84,7 +84,7 @@ function PaymentForm({
       const paymentResponse = await window.PortOne.requestPayment({
         storeId: "store-e4038486-8d83-41a5-acf1-844a009e0d94",
         paymentId: createdOrder.id,
-        orderName: `와인 라벨 주문 - ${orderData.quantity}매`,
+        orderName: `패키지 디자인 주문 - ${orderData.quantity}매`,
         totalAmount: amount,
         currency: "KRW",
         channelKey: "channel-key-fc5f33bb-c51e-4ac7-a0df-4dc40330046d",
@@ -251,26 +251,26 @@ export default function Checkout() {
   // 수량 선택 (기본값: 1)
   const [quantity, setQuantity] = useState(1);
 
-  // 라벨 디자인 정보 및 소품 저장
+  // 패키지 디자인 정보 및 소품 저장
   const [labelDesign, setLabelDesign] = useState<any>(null);
   const [accessories, setAccessories] = useState<Array<{id: string; name: string; price: number; qty: number}>>([]);
 
-  // 캡처된 라벨 이미지 URL 저장
+  // 캡처된 디자인 이미지 URL 저장
   const [labelImageUrl, setLabelImageUrl] = useState<string | null>(null);
-  // 전체 와인병 미리보기 이미지 URL 저장 (추가)
+  // 전체 패키지 미리보기 이미지 URL 저장 (추가)
   const [bottlePreviewUrl, setBottlePreviewUrl] = useState<string | null>(null);
 
   // URL 파라미터에서 병 타입 가져오기
   const params = new URLSearchParams(window.location.search);
   const bottleId = params.get("bottleId") || "";
 
-  // 와인병 정보 가져오기
-  const getWineBottle = (bottleId: string) => {
+  // 패키지 정보 가져오기
+  const getProductPackage = (bottleId: string) => {
     const bottles = [
       {
         id: "bordeaux-red",
         name: "까베르네쇼비뇽 레드",
-        image: "/images/wine-bottle-1.png",
+        image: "/images/package-1.png",
         type: "red",
         bottleType: "bordeaux",
         dimensions: "높이 30cm x 지름 7.5cm",
@@ -280,7 +280,7 @@ export default function Checkout() {
       {
         id: "bordeaux-white",
         name: "쇼비뇽블랑 화이트",
-        image: "/images/wine-bottle-2.png",
+        image: "/images/package-2.png",
         type: "white",
         bottleType: "bordeaux",
         dimensions: "높이 30cm x 지름 7.5cm",
@@ -290,7 +290,7 @@ export default function Checkout() {
       {
         id: "bordeaux-rose",
         name: "쇼비뇽블랑 로제",
-        image: "/images/wine-bottle-3.png",
+        image: "/images/package-3.png",
         type: "rose",
         bottleType: "bordeaux",
         dimensions: "높이 30cm x 지름 7.5cm",
@@ -300,7 +300,7 @@ export default function Checkout() {
       {
         id: "burgundy-red",
         name: "샤도네이 레드",
-        image: "/images/wine-bottle-5.png",
+        image: "/images/package-5.png",
         type: "red",
         bottleType: "burgundy",
         dimensions: "높이 29cm x 지름 8cm",
@@ -310,7 +310,7 @@ export default function Checkout() {
       {
         id: "burgundy-white",
         name: "샤도네이 화이트",
-        image: "/images/wine-bottle-6.png",
+        image: "/images/package-6.png",
         type: "white",
         bottleType: "burgundy",
         dimensions: "높이 29cm x 지름 8cm",
@@ -320,7 +320,7 @@ export default function Checkout() {
       {
         id: "burgundy-rose",
         name: "샤도네이 로제",
-        image: "/images/wine-bottle-7.png",
+        image: "/images/package-7.png",
         type: "rose",
         bottleType: "burgundy",
         dimensions: "높이 29cm x 지름 8cm",
@@ -332,7 +332,7 @@ export default function Checkout() {
     return bottles.find((bottle) => bottle.id === bottleId) || bottles[0];
   };
 
-  const bottleInfo = getWineBottle(bottleId);
+  const bottleInfo = getProductPackage(bottleId);
 
   // 배송비 계산
   const getDeliveryFee = (method: string, basePrice: number) => {
@@ -358,14 +358,14 @@ export default function Checkout() {
 
   const totalAmount = calculateTotal();
 
-  // sessionStorage에서 라벨 디자인 정보 불러오기
+  // sessionStorage에서 패키지 디자인 정보 불러오기
   useEffect(() => {
     const designData = sessionStorage.getItem("labelDesign");
     const imageData = sessionStorage.getItem("labelPreviewImage");
     const bottleImageData = sessionStorage.getItem("bottlePreviewImage"); // 추가
 
-    console.log("라벨 이미지 데이터 있음:", !!imageData);
-    console.log("와인병 전체 이미지 데이터 있음:", !!bottleImageData);
+    console.log("디자인 이미지 데이터 있음:", !!imageData);
+    console.log("패키지 전체 이미지 데이터 있음:", !!bottleImageData);
 
     if (designData) {
       try {
@@ -373,34 +373,34 @@ export default function Checkout() {
         setLabelDesign(parsed);
         if (parsed.accessories) setAccessories(parsed.accessories);
       } catch (error) {
-        console.error("라벨 디자인 데이터 파싱 오류:", error);
+        console.error("패키지 디자인 데이터 파싱 오류:", error);
         toast({
           title: "오류",
-          description: "라벨 디자인 정보를 불러오는데 실패했습니다.",
+          description: "패키지 디자인 정보를 불러오는데 실패했습니다.",
           variant: "destructive",
         });
       }
     } else {
       toast({
-        title: "라벨 디자인 없음",
-        description: "먼저 와인 라벨을 디자인해주세요.",
+        title: "패키지 디자인 없음",
+        description: "먼저 패키지를 디자인해주세요.",
         variant: "destructive",
       });
-      navigate("/label-designer");
+      navigate("/package-designer");
     }
 
-    // 캡처된 라벨 이미지가 있으면 상태에 저장
+    // 캡처된 디자인 이미지가 있으면 상태에 저장
     if (imageData) {
       setLabelImageUrl(imageData);
-      console.log("라벨 이미지 URL 설정 완료");
+      console.log("디자인 이미지 URL 설정 완료");
     }
 
-    // 캡처된 전체 와인병 미리보기 이미지가 있으면 상태에 저장
+    // 캡처된 전체 패키지 미리보기 이미지가 있으면 상태에 저장
     if (bottleImageData) {
       setBottlePreviewUrl(bottleImageData);
-      console.log("와인병 전체 이미지 URL 설정 완료");
+      console.log("패키지 전체 이미지 URL 설정 완료");
     } else {
-      console.log("와인병 전체 이미지가 없습니다.");
+      console.log("패키지 전체 이미지가 없습니다.");
     }
 
     // 사용자 정보가 있다면 설정
@@ -547,9 +547,9 @@ export default function Checkout() {
           variant="outline"
           size="sm"
           className="mb-4 flex items-center gap-1 border-[#ff00ff]/50 text-[#ff00ff] hover:bg-[#ff00ff]/10 hover:border-[#ff00ff]/80 shadow-[0_0_10px_rgba(255,0,255,0.3)]"
-          onClick={() => navigate("/label-designer/" + bottleId)}
+          onClick={() => navigate("/package-designer/" + bottleId)}
         >
-          <ArrowLeft className="w-4 h-4" /> 라벨 디자인으로 돌아가기
+          <ArrowLeft className="w-4 h-4" /> 패키지 디자인으로 돌아가기
         </Button>
         <h1 className="text-3xl font-bold mb-6 text-gray-900 text-center">주문하기</h1>
 
@@ -571,53 +571,53 @@ export default function Checkout() {
                 <h3 className="font-medium text-gray-900 text-lg">
                   {bottleInfo.name}
                 </h3>
-                <p className="text-gray-600">와인 라벨 {quantity}매</p>
+                <p className="text-gray-600">패키지 디자인 {quantity}매</p>
                 <p className="font-medium text-gray-900 text-xl mt-1">
                   {bottleInfo.price.toLocaleString()}원/매
                 </p>
               </div>
             </div>
 
-            {/* 라벨 디자인 미리보기 */}
+            {/* 패키지 디자인 미리보기 */}
             <div className="mb-6">
               <h3 className="font-medium mb-3 text-gray-900">
-                라벨 디자인 미리보기
+                패키지 디자인 미리보기
               </h3>
               <div className="bg-white/70 p-4 rounded-lg border border-gray-200 backdrop-blur-sm relative">
                 {bottlePreviewUrl ? (
-                  // 와인병 전체 미리보기
+                  // 패키지 전체 미리보기
                   <div className="flex justify-center">
                     <img
                       src={bottlePreviewUrl}
-                      alt="와인병 미리보기"
+                      alt="패키지 미리보기"
                       className="max-w-full h-auto rounded"
-                      onLoad={() => console.log("와인병 전체 이미지 로드 완료")}
+                      onLoad={() => console.log("패키지 전체 이미지 로드 완료")}
                       onError={(e) =>
-                        console.error("와인병 이미지 로드 실패:", e)
+                        console.error("패키지 이미지 로드 실패:", e)
                       }
                     />
                   </div>
                 ) : labelImageUrl ? (
-                  // 라벨 이미지만 있는 경우 대체 표시
+                  // 디자인 이미지만 있는 경우 대체 표시
                   <div className="flex flex-col items-center">
                     {/* 실제 크기 표시 */}
                     <div className="text-gray-700 text-xs mb-2 bg-white/80 px-2 py-1 rounded-full border border-gray-200">
-                      실제 라벨 크기:{" "}
+                      실제 디자인 크기:{" "}
                       {bottleInfo.type === "burgundy"
                         ? "7.94cm × 7.44cm"
                         : "6.94cm × 7.94cm"}
                     </div>
 
-                    {/* 와인병 위에 라벨 표시 */}
+                    {/* 패키지 위에 디자인 표시 */}
                     <div className="relative">
-                      {/* 와인병 이미지 */}
+                      {/* 패키지 이미지 */}
                       <img
                         src={bottleInfo.image}
                         alt={bottleInfo.name}
                         className="h-[450px] object-contain"
                       />
 
-                      {/* 라벨 오버레이 */}
+                      {/* 디자인 오버레이 */}
                       <div
                         className="absolute"
                         style={{
@@ -630,11 +630,11 @@ export default function Checkout() {
                       >
                         <img
                           src={labelImageUrl}
-                          alt="와인 라벨 디자인"
+                          alt="패키지 디자인"
                           className="w-full h-auto object-contain rounded border border-gray-300"
-                          onLoad={() => console.log("라벨 이미지 로드 완료")}
+                          onLoad={() => console.log("디자인 이미지 로드 완료")}
                           onError={(e) =>
-                            console.error("라벨 이미지 로드 실패:", e)
+                            console.error("디자인 이미지 로드 실패:", e)
                           }
                         />
                       </div>
@@ -642,7 +642,7 @@ export default function Checkout() {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-40 text-gray-400">
-                    <p>라벨 이미지를 불러오는 중...</p>
+                    <p>디자인 이미지를 불러오는 중...</p>
                   </div>
                 )}
               </div>

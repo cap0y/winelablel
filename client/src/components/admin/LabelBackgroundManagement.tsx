@@ -631,7 +631,7 @@ export default function LabelBackgroundManagement() {
   return (
     <Card className="w-full glass-card">
       <CardHeader className="border-b border-gray-200">
-        <CardTitle className="text-gray-900">라벨 배경 관리</CardTitle>
+        <CardTitle className="text-gray-900">디자인 배경 관리</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <Tabs value={activeTab} onValueChange={handleTabChange}>
@@ -927,7 +927,7 @@ export default function LabelBackgroundManagement() {
               새 카테고리 추가
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              새로운 라벨 배경 카테고리를 추가합니다. 카테고리 이름은 필수 입력
+              새로운 디자인 배경 카테고리를 추가합니다. 카테고리 이름은 필수 입력
               사항입니다.
             </DialogDescription>
           </DialogHeader>

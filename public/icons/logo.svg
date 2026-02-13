@@ -14,6 +14,6 @@
   <rect x="224" y="352" width="64" height="48" fill="#0f766e" rx="8"/>
   <rect x="232" y="340" width="48" height="24" fill="none" stroke="#0f766e" stroke-width="4" rx="24"/>
   
-  <!-- 끄레망 텍스트 -->
-  <text x="256" y="460" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="36" font-weight="bold">끄레망</text>
+  <!-- DECOMSOFT 텍스트 -->
+  <text x="256" y="460" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="36" font-weight="bold">DECOMSOFT</text>
 </svg>

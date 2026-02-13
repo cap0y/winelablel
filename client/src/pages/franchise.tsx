@@ -7,7 +7,7 @@ export default function Franchise() {
       {/* Hero Section */}
       <section className="px-4 py-10 bg-gradient-to-r from-primary/20 to-primary/10">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-3xl font-bold mb-4">왜 끄레망 프랜차이즈인가?</h1>
+          <h1 className="text-3xl font-bold mb-4">왜 디컴소프트 프랜차이즈인가?</h1>
           <p className="text-gray-300 leading-relaxed">
             셀프 스토리지 시장은 국내에서 이제 막 성장 중입니다. 100% 무인 운영 시스템으로 인건비 부담 없이
             안정적인 수익 구조를 확보하세요.
@@ -52,7 +52,7 @@ export default function Franchise() {
 
       {/* Franchise Benefits */}
       <section className="px-4 py-10">
-        <h2 className="text-2xl font-bold mb-6 text-center">끄레망 가맹점 혜택</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">디컴소프트 가맹점 혜택</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-3xl mx-auto">
           <Benefit icon={Star} title="브랜드 파워" desc="국내 최초 공유창고 브랜드로 고객 신뢰를 확보합니다." />
           <Benefit icon={Users} title="전문 운영 지원" desc="전문 CS · 마케팅 · 운영 매뉴얼을 제공합니다." />
@@ -77,11 +77,11 @@ export default function Franchise() {
 
       {/* CTA Section */}
       <section className="px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold mb-4">지금 바로 끄레망와 함께 하세요</h2>
+        <h2 className="text-2xl font-bold mb-4">지금 바로 디컴소프트와 함께 하세요</h2>
         <p className="text-gray-300 mb-6">가맹 상담은 전화 · 이메일로 접수 가능합니다. 전문 매니저가 빠르게 연락드리겠습니다.</p>
         <div className="space-y-2">
-          <p>☎ 전화 상담 : <span className="font-semibold text-primary">1588-1234</span></p>
-          <p>✉ 이메일 : <span className="font-semibold text-primary">franchise@끄레망.co.kr</span></p>
+          <p>☎ 전화 상담 : <span className="font-semibold text-primary">055-762-9703</span></p>
+          <p>✉ 이메일 : <span className="font-semibold text-primary">decom2soft@gmail.com</span></p>
         </div>
       </section>
     </div>

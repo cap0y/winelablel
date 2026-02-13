@@ -40,13 +40,13 @@ import {
   Edit,
   Trash2,
   Upload,
-  Wine,
+  Package,
   ArrowUpDown,
 } from "lucide-react";
 import { adminApi } from "@/services/api";
 
-// 와인병 타입 정의
-interface WineBottle {
+// 패키지 타입 정의
+interface ProductPackage {
   id: string;
   name: string;
   image: string;
@@ -62,23 +62,23 @@ interface WineBottle {
   };
 }
 
-// 와인병 관리 컴포넌트
-const WineBottleManagement = () => {
+// 패키지 관리 컴포넌트
+const ProductPackageManagement = () => {
   const { toast } = useToast();
 
   // 상태 관리
-  const [bottles, setBottles] = useState<WineBottle[]>([]);
+  const [bottles, setBottles] = useState<ProductPackage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortField, setSortField] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [selectedBottle, setSelectedBottle] = useState<WineBottle | null>(null);
+  const [selectedBottle, setSelectedBottle] = useState<ProductPackage | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
-  // 신규/수정용 와인병 데이터
-  const [bottleData, setBottleData] = useState<Partial<WineBottle>>({
+  // 신규/수정용 패키지 데이터
+  const [bottleData, setBottleData] = useState<Partial<ProductPackage>>({
     id: "",
     name: "",
     image: "",
@@ -99,31 +99,31 @@ const WineBottleManagement = () => {
 
   // 초기 데이터 로드
   useEffect(() => {
-    loadWineBottles();
+    loadPackages();
   }, []);
 
-  // 와인병 데이터 로드
-  const loadWineBottles = async () => {
+  // 패키지 데이터 로드
+  const loadPackages = async () => {
     setIsLoading(true);
 
     try {
-      const response = await adminApi.getWineBottles();
+      const response = await adminApi.getPackages();
       if (response.data.success) {
         setBottles(response.data.bottles || []);
       } else {
         toast({
-          title: "와인병 목록 로드 실패",
+          title: "패키지 목록 로드 실패",
           description:
-            response.data.message || "와인병 목록을 불러오는데 실패했습니다.",
+            response.data.message || "패키지 목록을 불러오는데 실패했습니다.",
           variant: "destructive",
         });
         setBottles([]);
       }
     } catch (error: any) {
-      console.error("와인병 목록 로드 오류:", error);
+      console.error("패키지 목록 로드 오류:", error);
       toast({
-        title: "와인병 목록 로드 실패",
-        description: "와인병 목록을 불러오는데 실패했습니다.",
+        title: "패키지 목록 로드 실패",
+        description: "패키지 목록을 불러오는데 실패했습니다.",
         variant: "destructive",
       });
       setBottles([]);
@@ -142,7 +142,7 @@ const WineBottleManagement = () => {
     }
   };
 
-  // 검색 및 정렬된 와인병 목록
+  // 검색 및 정렬된 패키지 목록
   const filteredAndSortedBottles = bottles
     .filter((bottle) => {
       const searchLower = searchTerm.toLowerCase();
@@ -154,8 +154,8 @@ const WineBottleManagement = () => {
       );
     })
     .sort((a, b) => {
-      let aValue: any = a[sortField as keyof WineBottle];
-      let bValue: any = b[sortField as keyof WineBottle];
+      let aValue: any = a[sortField as keyof ProductPackage];
+      let bValue: any = b[sortField as keyof ProductPackage];
 
       if (sortField === "price") {
         aValue = Number(aValue);
@@ -167,7 +167,7 @@ const WineBottleManagement = () => {
       return 0;
     });
 
-  // 와인병 추가 모달 열기
+  // 패키지 추가 모달 열기
   const handleAddBottle = () => {
     setBottleData({
       id: "",
@@ -188,8 +188,8 @@ const WineBottleManagement = () => {
     setIsDialogOpen(true);
   };
 
-  // 와인병 수정 모달 열기
-  const handleEditBottle = (bottle: WineBottle) => {
+  // 패키지 수정 모달 열기
+  const handleEditBottle = (bottle: ProductPackage) => {
     setBottleData({ ...bottle });
     setSelectedBottle(bottle);
     setIsEditing(true);
@@ -212,20 +212,20 @@ const WineBottleManagement = () => {
 
     try {
       if (isEditing) {
-        // 와인병 정보 수정
-        await adminApi.updateWineBottle(bottleData.id!, bottleData);
+        // 패키지 정보 수정
+        await adminApi.updatePackage(bottleData.id!, bottleData);
 
         setBottles(
           bottles.map((bottle) =>
             bottle.id === bottleData.id
-              ? { ...(bottleData as WineBottle) }
+              ? { ...(bottleData as ProductPackage) }
               : bottle,
           ),
         );
 
         toast({
           title: "수정 완료",
-          description: "와인병 정보가 성공적으로 수정되었습니다.",
+          description: "패키지 정보가 성공적으로 수정되었습니다.",
         });
       } else {
         // 중복 ID 확인
@@ -238,50 +238,50 @@ const WineBottleManagement = () => {
           return;
         }
 
-        // 새 와인병 추가
-        await adminApi.createWineBottle(bottleData);
+        // 새 패키지 추가
+        await adminApi.createPackage(bottleData);
 
-        setBottles([...bottles, bottleData as WineBottle]);
+        setBottles([...bottles, bottleData as ProductPackage]);
 
         toast({
           title: "추가 완료",
-          description: "새 와인병이 성공적으로 추가되었습니다.",
+          description: "새 패키지가 성공적으로 추가되었습니다.",
         });
       }
 
       setIsDialogOpen(false);
     } catch (error: any) {
-      console.error("와인병 저장 오류:", error);
+      console.error("패키지 저장 오류:", error);
       toast({
         title: "저장 실패",
         description:
           error.response?.data?.message ||
-          "와인병 정보 저장 중 문제가 발생했습니다.",
+          "패키지 정보 저장 중 문제가 발생했습니다.",
         variant: "destructive",
       });
     }
   };
 
-  // 와인병 삭제
+  // 패키지 삭제
   const handleDeleteBottle = async (bottleId: string) => {
-    if (!window.confirm("정말 이 와인병을 삭제하시겠습니까?")) return;
+    if (!window.confirm("정말 이 패키지를 삭제하시겠습니까?")) return;
 
     try {
-      await adminApi.deleteWineBottle(bottleId);
+      await adminApi.deletePackage(bottleId);
 
       setBottles(bottles.filter((bottle) => bottle.id !== bottleId));
 
       toast({
         title: "삭제 완료",
-        description: "와인병이 성공적으로 삭제되었습니다.",
+        description: "패키지가 성공적으로 삭제되었습니다.",
       });
     } catch (error: any) {
-      console.error("와인병 삭제 오류:", error);
+      console.error("패키지 삭제 오류:", error);
       toast({
         title: "삭제 실패",
         description:
           error.response?.data?.message ||
-          "와인병 삭제 중 문제가 발생했습니다.",
+          "패키지 삭제 중 문제가 발생했습니다.",
         variant: "destructive",
       });
     }
@@ -308,7 +308,7 @@ const WineBottleManagement = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await adminApi.uploadWineBottleImage(formData);
+      const response = await adminApi.uploadPackageImage(formData);
 
       if (response.data.success) {
         setBottleData({
@@ -318,7 +318,7 @@ const WineBottleManagement = () => {
 
         toast({
           title: "이미지 업로드 성공",
-          description: "와인병 이미지가 업로드되었습니다.",
+          description: "패키지 이미지가 업로드되었습니다.",
         });
       } else {
         throw new Error(
@@ -380,7 +380,7 @@ const WineBottleManagement = () => {
     }
   };
 
-  // 라벨 위치 입력 핸들러
+  // 디자인 위치 입력 핸들러
   const handleLabelPositionChange = (positionKey: string, value: string) => {
     setBottleData({
       ...bottleData,
@@ -402,8 +402,8 @@ const WineBottleManagement = () => {
     <Card className="w-full glass-card">
       <CardHeader className="flex flex-row items-center justify-between border-b border-gray-200">
         <div>
-          <CardTitle className="text-gray-900">와인병 관리</CardTitle>
-          <CardDescription className="text-gray-600">와인병 목록 관리 및 가격 설정</CardDescription>
+          <CardTitle className="text-gray-900">패키지 관리</CardTitle>
+          <CardDescription className="text-gray-600">패키지 목록 관리 및 가격 설정</CardDescription>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -419,7 +419,7 @@ const WineBottleManagement = () => {
             onClick={handleAddBottle}
             className="bg-primary text-white hover:bg-primary/90"
           >
-            <PlusCircle className="h-4 w-4 mr-1" /> 와인병 추가
+            <PlusCircle className="h-4 w-4 mr-1" /> 패키지 추가
           </Button>
         </div>
       </CardHeader>
@@ -465,7 +465,7 @@ const WineBottleManagement = () => {
                       colSpan={7}
                       className="text-center py-10 text-gray-500"
                     >
-                      와인병 데이터가 없거나 검색 결과가 없습니다.
+                      패키지 데이터가 없거나 검색 결과가 없습니다.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -541,15 +541,15 @@ const WineBottleManagement = () => {
         )}
       </CardContent>
 
-      {/* 와인병 추가/수정 다이얼로그 */}
+      {/* 패키지 추가/수정 다이얼로그 */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl bg-white/90 backdrop-blur-md border-gray-200">
           <DialogHeader>
             <DialogTitle className="text-gray-900">
-              {isEditing ? "와인병 수정" : "새 와인병 추가"}
+              {isEditing ? "패키지 수정" : "새 패키지 추가"}
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              와인병의 고유 ID, 이름, 이미지를 입력하여 관리합니다.
+              패키지의 고유 ID, 이름, 이미지를 입력하여 관리합니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -572,7 +572,7 @@ const WineBottleManagement = () => {
 
                 <div>
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                    와인병 이름*
+                    패키지 이름*
                   </Label>
                   <Input
                     id="name"
@@ -585,7 +585,7 @@ const WineBottleManagement = () => {
 
                 <div>
                   <Label htmlFor="type" className="text-sm font-medium text-gray-700">
-                    와인 타입*
+                    패키지 타입*
                   </Label>
                   <Select
                     value={bottleData.type || "red"}
@@ -604,7 +604,7 @@ const WineBottleManagement = () => {
 
                 <div>
                   <Label htmlFor="bottleType" className="text-sm font-medium text-gray-700">
-                    병 타입*
+                    패키지 형태*
                   </Label>
                   <Select
                     value={bottleData.bottleType || "bordeaux"}
@@ -670,14 +670,14 @@ const WineBottleManagement = () => {
 
               <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">와인병 이미지*</Label>
+                  <Label className="text-sm font-medium text-gray-700">패키지 이미지*</Label>
                   <div className="flex flex-col items-center p-4 border border-dashed border-gray-300 rounded-md bg-white/50 backdrop-blur-sm h-48 mt-1">
                     {bottleData.image ? (
                       <div className="w-full h-full flex flex-col items-center">
                         <div className="relative w-24 h-40">
                           <img
                             src={bottleData.image}
-                            alt="와인병 이미지"
+                            alt="패키지 이미지"
                             className="w-full h-full object-contain"
                           />
                         </div>
@@ -702,7 +702,7 @@ const WineBottleManagement = () => {
                             fileInputRef.current.click();
                         }}
                       >
-                        <Wine className="h-10 w-10 text-gray-500 mb-2" />
+                        <Package className="h-10 w-10 text-gray-500 mb-2" />
                         <span className="text-gray-600 text-sm">
                           이미지를 업로드하세요
                         </span>
@@ -723,7 +723,7 @@ const WineBottleManagement = () => {
 
                 <div className="border border-gray-300 rounded-md p-4 bg-white/50 backdrop-blur-sm">
                   <Label className="text-sm font-medium text-gray-700 block mb-2">
-                    라벨 크기 및 위치 설정
+                    디자인 크기 및 위치 설정
                   </Label>
 
                   <div className="grid grid-cols-2 gap-3 mb-3">
@@ -732,7 +732,7 @@ const WineBottleManagement = () => {
                         htmlFor="labelWidth"
                         className="text-xs text-gray-600"
                       >
-                        라벨 너비 (rem)
+                        디자인 너비 (rem)
                       </Label>
                       <Input
                         id="labelWidth"
@@ -750,7 +750,7 @@ const WineBottleManagement = () => {
                         htmlFor="labelHeight"
                         className="text-xs text-gray-600"
                       >
-                        라벨 높이 (rem)
+                        디자인 높이 (rem)
                       </Label>
                       <Input
                         id="labelHeight"
@@ -838,4 +838,4 @@ const WineBottleManagement = () => {
   );
 };
 
-export default WineBottleManagement;
+export default ProductPackageManagement;

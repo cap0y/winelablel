@@ -12,7 +12,7 @@ export default function CookiePolicy() {
               쿠키는 웹사이트가 사용자의 브라우저를 인식하고, 사용자의 방문 기록과 선호도를 기억할 수 있게 해줍니다.
             </p>
             <p>
-              (주)끄레망은 사용자에게 더 나은 서비스를 제공하고 웹사이트의 성능을 개선하기 위해 쿠키를 사용합니다.
+              주식회사 디컴소프트는 사용자에게 더 나은 서비스를 제공하고 웹사이트의 성능을 개선하기 위해 쿠키를 사용합니다.
             </p>
           </section>
 
@@ -140,8 +140,8 @@ export default function CookiePolicy() {
             </p>
             <div className="p-4 bg-gray-800 rounded-lg">
               <ul className="space-y-2">
-                <li><strong>이메일:</strong> info@cclemang.com</li>
-                <li><strong>전화:</strong> 051.245.2983</li>
+                <li><strong>이메일:</strong> decom2soft@gmail.com</li>
+                <li><strong>전화:</strong> 055-762-9703</li>
                 <li><strong>운영시간:</strong> 평일 09:00 ~ 18:00</li>
               </ul>
             </div>

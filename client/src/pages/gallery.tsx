@@ -20,7 +20,7 @@ import {
   Star,
   Search,
   Heart,
-  Wine,
+  Package,
   Filter,
   X,
   Send,
@@ -165,7 +165,7 @@ function StarRating({
   );
 }
 
-// 라벨 상세 대화상자 컴포넌트
+// 디자인 상세 대화상자 컴포넌트
 function LabelDetailDialog({
   labelId,
   isOpen,
@@ -254,11 +254,11 @@ function LabelDetailDialog({
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">라벨 정보를 불러오는 중...</p>
+            <p className="text-gray-600">디자인 정보를 불러오는 중...</p>
           </div>
         ) : error ? (
           <div className="p-8 text-center text-red-600">
-            <p>라벨 정보를 불러오는 중 오류가 발생했습니다.</p>
+            <p>디자인 정보를 불러오는 중 오류가 발생했습니다.</p>
           </div>
         ) : label ? (
           <div className="grid md:grid-cols-2">
@@ -275,7 +275,7 @@ function LabelDetailDialog({
                   {label.title}
                 </DialogTitle>
                 <DialogDescription className="text-gray-600">
-                  와인 라벨 상세 정보 및 평점과 댓글을 확인하고 추가할 수
+                  패키지 디자인 상세 정보 및 평점과 댓글을 확인하고 추가할 수
                   있습니다.
                 </DialogDescription>
               </DialogHeader>
@@ -424,7 +424,7 @@ function LabelDetailDialog({
           </div>
         ) : (
           <div className="p-8 text-center">
-            <p className="text-gray-400">라벨 정보를 찾을 수 없습니다.</p>
+            <p className="text-gray-400">디자인 정보를 찾을 수 없습니다.</p>
           </div>
         )}
       </DialogContent>
@@ -446,7 +446,7 @@ export default function Gallery() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // 라벨 목록 가져오기
+  // 디자인 목록 가져오기
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["galleryLabels"],
     queryFn: () => galleryApi.getLabels().then((res) => res.data),
@@ -489,12 +489,12 @@ export default function Gallery() {
   // 디버깅 정보
   useEffect(() => {
     console.log("데이터 로드됨:", !!data);
-    console.log("라벨 개수:", data?.labels?.length || 0);
+    console.log("디자인 개수:", data?.labels?.length || 0);
     console.log("검색어:", searchTerm);
     console.log("필터링된 결과 개수:", filteredItems.length);
   }, [data, searchTerm, filteredItems.length]);
 
-  // 사용자가 좋아요한 라벨 확인
+  // 사용자가 좋아요한 디자인 확인
   const handleLikeToggle = async (labelId: string) => {
     if (!user) {
       toast({
@@ -518,7 +518,7 @@ export default function Gallery() {
     }
   };
 
-  // 라벨 클릭 처리
+  // 디자인 클릭 처리
   const handleLabelClick = (labelId: string) => {
     setSelectedLabel(labelId);
     setIsDialogOpen(true);
@@ -534,7 +534,7 @@ export default function Gallery() {
   return (
     <div className="container mx-auto px-4 py-6 min-h-screen bg-background text-foreground">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
-        인기 라벨 디자인 갤러리
+        인기 패키지 디자인 갤러리
       </h1>
 
       {/* 검색 필드 */}
@@ -542,7 +542,7 @@ export default function Gallery() {
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="디자인, 디자이너, 와인 이름으로 검색"
+            placeholder="디자인, 디자이너, 패키지 이름으로 검색"
             className="pl-10 bg-white/70 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-primary backdrop-blur-sm"
             value={searchTerm}
             onChange={(e) => {
@@ -566,11 +566,11 @@ export default function Gallery() {
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">라벨 디자인을 불러오는 중...</p>
+            <p className="text-gray-600">패키지 디자인을 불러오는 중...</p>
           </div>
         ) : error ? (
           <div className="text-center py-12 text-red-600">
-            <p>라벨 디자인을 불러오는 중 오류가 발생했습니다.</p>
+            <p>패키지 디자인을 불러오는 중 오류가 발생했습니다.</p>
           </div>
         ) : paginatedItems.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-7xl">
@@ -586,7 +586,7 @@ export default function Gallery() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <Wine className="mx-auto mb-4 text-gray-500 w-12 h-12" />
+            <Package className="mx-auto mb-4 text-gray-500 w-12 h-12" />
             <h3 className="text-xl font-medium mb-2 text-gray-900">
               검색 결과가 없습니다
             </h3>
@@ -674,10 +674,10 @@ export default function Gallery() {
       )}
 
       <div className="mt-8 text-center">
-        <Link href="/wine-bottles">
+        <Link href="/package-selector">
           <Button className="bg-primary hover:bg-primary/90 text-white border-none shadow-lg transition-all">
-            <Wine className="mr-2 w-4 h-4" />
-            나만의 라벨 디자인하기
+            <Package className="mr-2 w-4 h-4" />
+            나만의 패키지 디자인하기
           </Button>
         </Link>
       </div>
@@ -717,7 +717,7 @@ export default function Gallery() {
                     <div className="text-gray-600">만족 고객</div>
                   </div>
                 </div>
-                <Link href="/wine-bottles">
+                <Link href="/package-selector">
                   <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-full font-bold transform hover:scale-110 transition-all duration-300 animate-pulse">
                     <Sparkles className="mr-2 w-4 h-4 animate-spin" />
                     지금 바로 시작하기
@@ -752,7 +752,7 @@ export default function Gallery() {
                     <span className="ml-2 text-sm font-bold text-gray-700">김○○님</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    "갤러리에서 본 디자인을 참고해서 우리 와이너리만의 독특한 라벨을 만들었어요. 매출이 30% 증가했습니다!"
+                    "갤러리에서 본 디자인을 참고해서 우리 브랜드만의 독특한 패키지를 만들었어요. 매출이 30% 증가했습니다!"
                   </p>
                 </div>
                 
@@ -766,7 +766,7 @@ export default function Gallery() {
                     <span className="ml-2 text-sm font-bold text-gray-700">박○○님</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    "프리미엄 디자인 템플릿 덕분에 전문가 수준의 라벨을 쉽게 만들 수 있었습니다. 강력 추천!"
+                    "프리미엄 디자인 템플릿 덕분에 전문가 수준의 패키지를 쉽게 만들 수 있었습니다. 강력 추천!"
                   </p>
                 </div>
               </div>
@@ -800,7 +800,7 @@ export default function Gallery() {
                 <div className="text-center bg-white/70 rounded-lg p-4 animate-float">
                   <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2 animate-bounce" />
                   <div className="text-xl font-bold text-green-600">2,847</div>
-                  <div className="text-xs text-gray-600">총 라벨 디자인</div>
+                  <div className="text-xs text-gray-600">총 패키지 디자인</div>
                 </div>
                 
                 <div className="text-center bg-white/70 rounded-lg p-4 animate-float" style={{ animationDelay: '0.3s' }}>
@@ -823,7 +823,7 @@ export default function Gallery() {
               </div>
               
               <div className="text-center mt-4">
-                <Link href="/wine-bottles">
+                <Link href="/package-selector">
                   <Button className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-2 rounded-full font-bold transform hover:scale-105 transition-all duration-300">
                     <Award className="mr-2 w-4 h-4 animate-bounce" />
                     나도 갤러리 스타 되기
@@ -835,7 +835,7 @@ export default function Gallery() {
         </section>
       </div>
 
-      {/* 라벨 상세 대화상자 */}
+      {/* 디자인 상세 대화상자 */}
       <LabelDetailDialog
         labelId={selectedLabel}
         isOpen={isDialogOpen}

@@ -8,7 +8,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-4">제1조 (목적)</h2>
             <p>
-              이 약관은 (주)끄레망(이하 "회사")이 운영하는 와인라벨 제작 서비스(이하 "서비스")의 이용과 관련하여 
+              이 약관은 주식회사 디컴소프트(이하 "회사")가 운영하는 패키지 디자인 서비스(이하 "서비스")의 이용과 관련하여 
               회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
             </p>
           </section>
@@ -17,7 +17,7 @@ export default function TermsOfService() {
             <h2 className="text-xl font-semibold text-white mb-4">제2조 (정의)</h2>
             <p className="mb-4">이 약관에서 사용하는 용어의 정의는 다음과 같습니다.</p>
             <ul className="list-disc list-inside space-y-2">
-              <li>"서비스"라 함은 회사가 제공하는 와인라벨 제작 및 관련 서비스를 의미합니다.</li>
+              <li>"서비스"라 함은 회사가 제공하는 패키지 디자인 제작 및 관련 서비스를 의미합니다.</li>
               <li>"회원"이라 함은 회사의 서비스에 접속하여 이 약관에 따라 회사와 이용계약을 체결하고 회사가 제공하는 서비스를 이용하는 고객을 말합니다.</li>
               <li>"아이디(ID)"라 함은 회원의 식별과 서비스 이용을 위하여 회원이 정하고 회사가 승인하는 문자 또는 숫자의 조합을 의미합니다.</li>
               <li>"비밀번호"라 함은 회원이 부여 받은 아이디와 일치되는 회원임을 확인하고 비밀보호를 위해 회원 자신이 정한 문자 또는 숫자의 조합을 의미합니다.</li>
@@ -47,8 +47,8 @@ export default function TermsOfService() {
             <h2 className="text-xl font-semibold text-white mb-4">제5조 (서비스의 제공 및 변경)</h2>
             <p className="mb-4">① 회사는 회원에게 아래와 같은 서비스를 제공합니다.</p>
             <ul className="list-disc list-inside space-y-2">
-              <li>와인라벨 디자인 도구 제공</li>
-              <li>와인라벨 주문 및 제작 서비스</li>
+              <li>패키지 디자인 도구 제공</li>
+              <li>패키지 주문 및 제작 서비스</li>
               <li>고객상담 서비스</li>
               <li>기타 회사가 정하는 서비스</li>
             </ul>
@@ -79,8 +79,8 @@ export default function TermsOfService() {
             <h2 className="text-xl font-semibold text-white mb-4">제8조 (주문 및 결제)</h2>
             <p className="mb-4">① 회원은 서비스에서 다음과 같은 방법으로 주문을 신청합니다.</p>
             <ul className="list-disc list-inside space-y-2">
-              <li>와인병 선택</li>
-              <li>라벨 디자인 작성</li>
+              <li>패키지 선택</li>
+              <li>패키지 디자인 작성</li>
               <li>받는 사람의 성명, 주소, 전화번호 등의 입력</li>
               <li>결제방법의 선택 및 결제 정보의 입력</li>
               <li>약관의 내용에 대한 확인 및 결제</li>
