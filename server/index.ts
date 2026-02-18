@@ -6,13 +6,8 @@ import { registerPaymentRoutes } from "./payment";
 import { registerTranslationRoutes } from "./translate";
 import "dotenv/config";
 
-// Aggressive PORT management for deployment consistency
-// Force PORT to 5000 regardless of environment for Replit deployment compatibility
-const originalPort = process.env.PORT;
-if (process.env.NODE_ENV === "production") {
-  process.env.PORT = "5000";
-  console.log(`[DEPLOYMENT] Force-setting PORT=5000 for production (was: ${originalPort || "undefined"})`);
-} else if (!process.env.PORT) {
+// Railway는 자체 PORT 환경변수를 제공하므로 강제 설정하지 않음
+if (!process.env.PORT) {
   process.env.PORT = "5000";
   console.log("[DEPLOYMENT] Setting default PORT=5000 for development");
 }
@@ -25,10 +20,9 @@ app.use(
     origin:
       process.env.NODE_ENV === "production"
         ? [
-            "https://winelabel.replit.app", 
-            "https://decomsoft--neon.replit.app",
-            /\.replit\.app$/,
-            /\.repl\.co$/
+            /\.railway\.app$/,
+            /\.up\.railway\.app$/,
+            ...(process.env.CORS_ORIGIN ? [process.env.CORS_ORIGIN] : [])
           ]
         : ["http://localhost:5000", "http://0.0.0.0:5000"],
     credentials: true,
@@ -37,7 +31,7 @@ app.use(
   }),
 );
 
-// Enhanced health check endpoint for deployment readiness
+// 헬스체크 엔드포인트 (Railway 배포 확인용)
 app.get("/health", async (_req, res) => {
   try {
     const healthStatus = {
@@ -201,62 +195,16 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Railway는 자체 PORT 환경변수를 주입함 (기본값 5000)
+  const port = parseInt(process.env.PORT || "5000", 10);
   
-  // Multi-fallback port resolution for maximum deployment compatibility
-  const portFromEnv = process.env.PORT;
-  let port = 5000; // Default to 5000 as per Replit configuration
-  
-  try {
-    if (portFromEnv) {
-      const parsedPort = parseInt(portFromEnv, 10);
-      if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort < 65536) {
-        port = parsedPort;
-      } else {
-        console.warn(`[WARNING] Invalid PORT value "${portFromEnv}", using default 5000`);
-      }
-    }
-  } catch (error) {
-    console.warn(`[WARNING] Error parsing PORT "${portFromEnv}", using default 5000:`, error);
-  }
-  
-  // Comprehensive deployment logging
-  console.log(`[SERVER] ===== DEPLOYMENT DEBUG INFO =====`);
-  console.log(`[SERVER] Raw PORT environment variable: "${portFromEnv || "undefined"}"`);
-  console.log(`[SERVER] Final resolved port: ${port}`);
   console.log(`[SERVER] NODE_ENV: "${process.env.NODE_ENV || "undefined"}"`);
-  console.log(`[SERVER] Target bind address: 0.0.0.0:${port}`);
-  console.log(`[SERVER] Process arguments:`, process.argv);
-  
-  if (process.env.NODE_ENV === "production") {
-    console.log(`[PRODUCTION] ===== PRODUCTION DEPLOYMENT =====`);
-    console.log(`[PRODUCTION] All PORT-related environment variables:`);
-    Object.keys(process.env)
-      .filter(key => key.toLowerCase().includes('port'))
-      .forEach(key => console.log(`[PRODUCTION] - ${key}: "${process.env[key]}"`));
-    
-    // Validate deployment requirements
-    if (port !== 5000) {
-      console.warn(`[PRODUCTION] WARNING: Port ${port} differs from expected 5000!`);
-    }
-    
-    console.log(`[PRODUCTION] Server will start on: 0.0.0.0:${port}`);
-  }
+  console.log(`[SERVER] PORT: ${port}`);
   
   server.listen(port, "0.0.0.0", () => {
-    const message = `serving on port ${port}`;
-    log(message);
-    if (process.env.NODE_ENV === "production") {
-      console.log(`[PRODUCTION] Server successfully started: ${message}`);
-    }
+    log(`serving on port ${port}`);
   }).on('error', (err) => {
     console.error(`[ERROR] Failed to start server on port ${port}:`, err);
-    if (process.env.NODE_ENV === "production") {
-      console.error(`[PRODUCTION] Server startup failed. PORT=${process.env.PORT || "not set"}, resolved port=${port}`);
-    }
     process.exit(1);
   });
 })();
